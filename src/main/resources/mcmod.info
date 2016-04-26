@@ -2,7 +2,7 @@
 {
   "modid": "enderthing",
   "name": "Enderthing",
-  "description": "Shared inventories with chests an keys",
+  "description": "Shared inventories with chests and keys",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
