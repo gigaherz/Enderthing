@@ -93,4 +93,10 @@ public class TileEnderKeyChest
         super.onDataPacket(net, packet);
         readFromNBT(packet.getNbtCompound());
     }
+
+    @Override
+    public boolean canRenderBreaking()
+    {
+        return true;
+    }
 }

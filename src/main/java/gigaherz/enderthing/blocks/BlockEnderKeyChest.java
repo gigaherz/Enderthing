@@ -12,9 +12,11 @@ import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Enchantments;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -103,45 +105,42 @@ public class BlockEnderKeyChest
     {
         ArrayList<ItemStack> ret = Lists.newArrayList();
 
-        ItemStack stack = getItem(world, pos);
-
-        ret.add(stack);
+        ret.add(new ItemStack(Blocks.OBSIDIAN, 8));
+        ret.add(getLock(getId(world, pos)));
 
         return ret;
-    }
-
-    private ItemStack getItem(IBlockAccess world, BlockPos pos)
-    {
-        TileEntity te = world.getTileEntity(pos);
-
-        if (te instanceof TileEnderKeyChest)
-        {
-            int id = ((TileEnderKeyChest) te).getInventoryId();
-
-            return getItem(id);
-        }
-
-        return new ItemStack(Enderthing.blockEnderKeyChest);
-    }
-
-    public static ItemStack getItem(int id)
-    {
-        ItemStack stack = new ItemStack(Enderthing.blockEnderKeyChest);
-
-        NBTTagCompound tag = new NBTTagCompound();
-        NBTTagCompound etag = new NBTTagCompound();
-        etag.setInteger(INVENTORY_ID_KEY, id);
-        tag.setTag("BlockEntityTag", etag);
-
-        stack.setTagCompound(tag);
-
-        return stack;
     }
 
     @Override
     public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack)
     {
-        super.harvestBlock(worldIn, player, pos, state, te, stack);
+        player.addStat(StatList.getBlockStats(this));
+        player.addExhaustion(0.025F);
+
+        if (this.canSilkHarvest(worldIn, pos, state, player) && EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) > 0)
+        {
+            java.util.List<ItemStack> items = new java.util.ArrayList<ItemStack>();
+            ItemStack itemstack = this.getItem(worldIn, pos);
+
+            if (itemstack != null)
+            {
+                items.add(itemstack);
+            }
+
+            net.minecraftforge.event.ForgeEventFactory.fireBlockHarvesting(items, worldIn, pos, state, 0, 1.0f, true, player);
+            for (ItemStack item : items)
+            {
+                spawnAsEntity(worldIn, pos, item);
+            }
+        }
+        else
+        {
+            harvesters.set(player);
+            int i = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, stack);
+            this.dropBlockAsItem(worldIn, pos, state, i);
+            harvesters.set(null);
+        }
+
         worldIn.setBlockToAir(pos);
     }
 
@@ -284,9 +283,48 @@ public class BlockEnderKeyChest
         tooltip.add(I18n.translateToLocalFormatted("tooltip." + Enderthing.MODID + ".colors", c1.getName(), c2.getName(), c3.getName()));
     }
 
+    int getId(IBlockAccess world, BlockPos pos)
+    {
+        TileEntity te = world.getTileEntity(pos);
+
+        if (te instanceof TileEnderKeyChest)
+        {
+            return ((TileEnderKeyChest) te).getInventoryId();
+        }
+
+        return 0;
+    }
+
+    private ItemStack getItem(IBlockAccess world, BlockPos pos)
+    {
+        TileEntity te = world.getTileEntity(pos);
+
+        if (te instanceof TileEnderKeyChest)
+        {
+            int id = ((TileEnderKeyChest) te).getInventoryId();
+
+            return getItem(id);
+        }
+
+        return new ItemStack(Enderthing.blockEnderKeyChest);
+    }
+
+    public static ItemStack getItem(int id)
+    {
+        ItemStack stack = new ItemStack(Enderthing.blockEnderKeyChest);
+
+        NBTTagCompound tag = new NBTTagCompound();
+        NBTTagCompound etag = new NBTTagCompound();
+        etag.setInteger(INVENTORY_ID_KEY, id);
+        tag.setTag("BlockEntityTag", etag);
+
+        stack.setTagCompound(tag);
+
+        return stack;
+    }
+
     public static int getId(ItemStack stack)
     {
-
         NBTTagCompound tag = stack.getTagCompound();
         if (tag != null)
         {
@@ -298,6 +336,23 @@ public class BlockEnderKeyChest
         }
 
         return 0;
+    }
+
+    private static ItemStack getLock(int oldId)
+    {
+        int oldColor1 = oldId & 15;
+        int oldColor2 = (oldId >> 4) & 15;
+        int oldColor3 = (oldId >> 8) & 15;
+
+        ItemStack oldStack = new ItemStack(Enderthing.enderLock);
+
+        NBTTagCompound oldTag = new NBTTagCompound();
+        oldTag.setByte("Color1", (byte) oldColor1);
+        oldTag.setByte("Color2", (byte) oldColor2);
+        oldTag.setByte("Color3", (byte) oldColor3);
+
+        oldStack.setTagCompound(oldTag);
+        return oldStack;
     }
 
     @Override
@@ -331,18 +386,8 @@ public class BlockEnderKeyChest
             if (playerIn.isSneaking())
             {
                 int oldId = BlockEnderKeyChest.getId(itemStackIn);
-                int oldColor1 = oldId & 15;
-                int oldColor2 = (oldId >> 4) & 15;
-                int oldColor3 = (oldId >> 8) & 15;
 
-                ItemStack oldStack = new ItemStack(Enderthing.enderLock);
-
-                NBTTagCompound oldTag = new NBTTagCompound();
-                oldTag.setByte("Color1", (byte) oldColor1);
-                oldTag.setByte("Color2", (byte) oldColor2);
-                oldTag.setByte("Color3", (byte) oldColor3);
-
-                oldStack.setTagCompound(oldTag);
+                ItemStack oldStack = getLock(oldId);
 
                 if (!playerIn.inventory.addItemStackToInventory(oldStack))
                 {

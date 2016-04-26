@@ -78,13 +78,6 @@ public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyC
     @Override
     public void renderTileEntityAt(TileEnderKeyChest te, double x, double y, double z, float partialTicks, int destroyStage)
     {
-        int i = 0;
-
-        if (te.hasWorldObj())
-        {
-            i = te.getBlockMetadata();
-        }
-
         if (destroyStage >= 0)
         {
             this.bindTexture(DESTROY_STAGES[destroyStage]);
@@ -105,26 +98,25 @@ public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyC
         GlStateManager.translate((float) x, (float) y + 1.0F, (float) z + 1.0F);
         GlStateManager.scale(1, -1, -1);
         GlStateManager.translate(0.5F, 0.5F, 0.5F);
+
         int j = 0;
-
-        if (i == 2)
+        if (te.hasWorldObj())
         {
-            j = 180;
-        }
-
-        if (i == 3)
-        {
-            j = 0;
-        }
-
-        if (i == 4)
-        {
-            j = 90;
-        }
-
-        if (i == 5)
-        {
-            j = -90;
+            switch (te.getBlockMetadata())
+            {
+                case 2:
+                    j = 180;
+                    break;
+                case 3:
+                    j = 0;
+                    break;
+                case 4:
+                    j = 90;
+                    break;
+                case 5:
+                    j = -90;
+                    break;
+            }
         }
 
         int id = te.getInventoryId();
@@ -148,9 +140,8 @@ public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyC
         if (destroyStage < 0)
         {
             this.bindTexture(WOOL_TEXTURE);
+            this.modelChest.renderKeys(c1.getMapColor().colorValue, c2.getMapColor().colorValue, c3.getMapColor().colorValue);
         }
-
-        this.modelChest.renderKeys(c1.getMapColor().colorValue, c2.getMapColor().colorValue, c3.getMapColor().colorValue);
 
         GlStateManager.disableRescaleNormal();
         GlStateManager.popMatrix();
