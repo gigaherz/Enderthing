@@ -7,7 +7,6 @@ import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEnderChest;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -21,6 +20,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -60,10 +60,12 @@ public class ItemEnderLock extends ItemRegistered
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> information, boolean advanced)
     {
+        information.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".enderLock.rightClick"));
+
         NBTTagCompound tag = stack.getTagCompound();
         if (tag == null)
         {
-            information.add(ChatFormatting.ITALIC + "The color depends on the wools used.");
+            information.add(ChatFormatting.ITALIC + I18n.translateToLocal("text." + Enderthing.MODID + ".colorMissing"));
             return;
         }
 
@@ -75,7 +77,7 @@ public class ItemEnderLock extends ItemRegistered
         EnumDyeColor c2 = EnumDyeColor.byMetadata(color2);
         EnumDyeColor c3 = EnumDyeColor.byMetadata(color3);
 
-        information.add(I18n.format("tooltip." + Enderthing.MODID + ".colors", c1.getName(), c2.getName(), c3.getName()));
+        information.add(I18n.translateToLocalFormatted("tooltip." + Enderthing.MODID + ".colors", c1.getName(), c2.getName(), c3.getName()));
     }
 
     @Override

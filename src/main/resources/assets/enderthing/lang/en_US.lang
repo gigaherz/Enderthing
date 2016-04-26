@@ -1,5 +1,11 @@
 tile.enderthing.blockEnderKeyChest.name=Ender Key Chest
 container.enderthing.enderKey.name=Ender Key Chest
-tooltip.enderthing.colors=Colors: %s, %s, %s
 item.enderthing.enderKey.name=Ender Key
 item.enderthing.enderLock.name=Ender Lock
+
+tooltip.enderthing.colorMissing=The color depends on the wools used.
+tooltip.enderthing.colors=Colors: %s, %s, %s
+
+tooltip.enderthing.enderKeyChest.rightClick=Craft an Ender Lock and Shift-rightclick on a vanilla chest.
+tooltip.enderthing.enderKey.rightClick=Shift-Rightclick on a vanilla ender chest to open the shared inventory.
+tooltip.enderthing.enderLock.rightClick=Shift-Rightclick on a ender chest to set or replace the color key.

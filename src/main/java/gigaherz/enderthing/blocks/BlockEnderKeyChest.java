@@ -1,6 +1,7 @@
 package gigaherz.enderthing.blocks;
 
 import com.google.common.collect.Lists;
+import com.mojang.realmsclient.gui.ChatFormatting;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.gui.GuiHandler;
 import net.minecraft.block.Block;
@@ -10,7 +11,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -26,6 +26,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -250,9 +251,27 @@ public class BlockEnderKeyChest
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
     {
-        super.addInformation(stack, player, tooltip, advanced);
+        tooltip.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".enderKeyChest.rightClick"));
 
-        int id = getId(stack);
+        int id = 0;
+        boolean idFound = false;
+
+        NBTTagCompound tag = stack.getTagCompound();
+        if (tag != null)
+        {
+            NBTTagCompound etag = tag.getCompoundTag("BlockEntityTag");
+            if (etag != null)
+            {
+                idFound = true;
+                id = etag.getInteger("InventoryId");
+            }
+        }
+
+        if (!idFound)
+        {
+            tooltip.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".colorMissing"));
+            return;
+        }
 
         int color1 = id & 15;
         int color2 = (id >> 4) & 15;
@@ -262,7 +281,7 @@ public class BlockEnderKeyChest
         EnumDyeColor c2 = EnumDyeColor.byMetadata(color2);
         EnumDyeColor c3 = EnumDyeColor.byMetadata(color3);
 
-        tooltip.add(I18n.format("tooltip." + Enderthing.MODID + ".colors", c1.getName(), c2.getName(), c3.getName()));
+        tooltip.add(I18n.translateToLocalFormatted("tooltip." + Enderthing.MODID + ".colors", c1.getName(), c2.getName(), c3.getName()));
     }
 
     public static int getId(ItemStack stack)
