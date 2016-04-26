@@ -1,10 +1,14 @@
 package gigaherz.enderthing;
 
-import gigaherz.enderthing.blocks.BlockSharedChest;
-import gigaherz.enderthing.blocks.TileSharedChest;
-import gigaherz.enderthing.items.ItemEnderKey;
+import gigaherz.enderthing.blocks.BlockEnderKeyChest;
+import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import gigaherz.enderthing.gui.GuiHandler;
+import gigaherz.enderthing.items.ItemEnderKey;
+import gigaherz.enderthing.items.ItemEnderLock;
 import gigaherz.enderthing.recipes.KeyRecipe;
+import gigaherz.enderthing.recipes.LockRecipe;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -22,8 +26,9 @@ public class Enderthing
     public static final String MODID = "enderthing";
     public static final String VERSION = "@VERSION@";
 
-    public static BlockSharedChest sharedChest;
+    public static BlockEnderKeyChest blockEnderKeyChest;
     public static ItemEnderKey enderKey;
+    public static ItemEnderLock enderLock;
 
     @Mod.Instance(value = Enderthing.MODID)
     public static Enderthing instance;
@@ -33,16 +38,28 @@ public class Enderthing
 
     public static GuiHandler guiHandler = new GuiHandler();
 
+    public static CreativeTabs tabEnderthing = new CreativeTabs("tabEnderthing")
+    {
+        @Override
+        public Item getTabIconItem()
+        {
+            return enderKey;
+        }
+    };
+
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        sharedChest = new BlockSharedChest("blockSharedChest");
-        GameRegistry.register(sharedChest);
-        GameRegistry.register(sharedChest.createItemBlock());
-        GameRegistry.registerTileEntity(TileSharedChest.class, "tileSharedChest");
+        blockEnderKeyChest = new BlockEnderKeyChest("blockEnderKeyChest");
+        GameRegistry.register(blockEnderKeyChest);
+        GameRegistry.register(blockEnderKeyChest.createItemBlock());
+        GameRegistry.registerTileEntity(TileEnderKeyChest.class, "tileEnderKeyChest");
 
         enderKey = new ItemEnderKey("enderKey");
         GameRegistry.register(enderKey);
+
+        enderLock = new ItemEnderLock("enderLock");
+        GameRegistry.register(enderLock);
 
         NetworkRegistry.INSTANCE.registerGuiHandler(this, guiHandler);
 
@@ -55,7 +72,8 @@ public class Enderthing
         proxy.init();
 
         GameRegistry.addRecipe(new KeyRecipe());
+        GameRegistry.addRecipe(new LockRecipe());
         RecipeSorter.register(MODID + ":key_recipe", KeyRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
-
+        RecipeSorter.register(MODID + ":lock_recipe", LockRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
     }
 }

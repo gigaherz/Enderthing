@@ -1,7 +1,7 @@
 package gigaherz.enderthing.storage;
 
 import com.google.common.collect.Lists;
-import gigaherz.enderthing.blocks.TileSharedChest;
+import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import net.minecraftforge.items.ItemStackHandler;
 
 import java.lang.ref.Reference;
@@ -10,18 +10,18 @@ import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.List;
 
-public class SharedInventory extends ItemStackHandler
+public class EnderKeyInventory extends ItemStackHandler
 {
     public static final int SLOT_COUNT = 27;
 
     private final SharedInventoryManager manager;
 
-    final List<Reference<? extends TileSharedChest>> listeners = Lists.newArrayList();
-    final ReferenceQueue<TileSharedChest> deadListeners = new ReferenceQueue<TileSharedChest>();
+    final List<Reference<? extends TileEnderKeyChest>> listeners = Lists.newArrayList();
+    final ReferenceQueue<TileEnderKeyChest> deadListeners = new ReferenceQueue<TileEnderKeyChest>();
 
-    public void addWeakListener(TileSharedChest e)
+    public void addWeakListener(TileEnderKeyChest e)
     {
-        listeners.add(new WeakReference<TileSharedChest>(e, deadListeners));
+        listeners.add(new WeakReference<TileEnderKeyChest>(e, deadListeners));
     }
 
     @Override
@@ -29,7 +29,7 @@ public class SharedInventory extends ItemStackHandler
     {
         super.onContentsChanged(slot);
 
-        for (Reference<? extends TileSharedChest>
+        for (Reference<? extends TileEnderKeyChest>
              ref = deadListeners.poll();
              ref != null;
              ref = deadListeners.poll())
@@ -37,9 +37,9 @@ public class SharedInventory extends ItemStackHandler
             listeners.remove(ref);
         }
 
-        for (Iterator<Reference<? extends TileSharedChest>> it = listeners.iterator(); it.hasNext(); )
+        for (Iterator<Reference<? extends TileEnderKeyChest>> it = listeners.iterator(); it.hasNext(); )
         {
-            TileSharedChest rift = it.next().get();
+            TileEnderKeyChest rift = it.next().get();
             if (rift == null || rift.isInvalid())
             {
                 it.remove();
@@ -53,7 +53,7 @@ public class SharedInventory extends ItemStackHandler
         manager.markDirty();
     }
 
-    SharedInventory(SharedInventoryManager manager)
+    EnderKeyInventory(SharedInventoryManager manager)
     {
         super(SLOT_COUNT);
         this.manager = manager;

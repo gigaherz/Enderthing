@@ -4,7 +4,6 @@ import gigaherz.enderthing.storage.SharedInventoryManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -23,9 +22,9 @@ public class ContainerKey extends Container
     public ContainerKey(InventoryPlayer playerInventory, int id, EntityPlayer player, World world, BlockPos pos)
     {
         TileEntity te = world.getTileEntity(pos);
-        if(te instanceof TileEntityEnderChest)
+        if (te instanceof TileEntityEnderChest)
         {
-            TileEntityEnderChest chest = (TileEntityEnderChest)te;
+            TileEntityEnderChest chest = (TileEntityEnderChest) te;
             chest.openChest();
         }
 
@@ -63,9 +62,9 @@ public class ContainerKey extends Container
         super.onContainerClosed(playerIn);
 
         TileEntity te = world.getTileEntity(pos);
-        if(te instanceof TileEntityEnderChest)
+        if (te instanceof TileEntityEnderChest)
         {
-            TileEntityEnderChest chest = (TileEntityEnderChest)te;
+            TileEntityEnderChest chest = (TileEntityEnderChest) te;
             chest.closeChest();
         }
     }

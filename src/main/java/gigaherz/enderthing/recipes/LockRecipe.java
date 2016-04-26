@@ -1,7 +1,7 @@
 package gigaherz.enderthing.recipes;
 
 import gigaherz.enderthing.Enderthing;
-import gigaherz.enderthing.items.ItemEnderKey;
+import gigaherz.enderthing.items.ItemEnderLock;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
@@ -10,11 +10,11 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
-public class KeyRecipe implements IRecipe
+public class LockRecipe implements IRecipe
 {
     ItemStack[] pattern = {
-            new ItemStack(Blocks.OBSIDIAN), null, null,
-            new ItemStack(Items.ENDER_EYE), new ItemStack(Blocks.OBSIDIAN), new ItemStack(Blocks.OBSIDIAN),
+            null, new ItemStack(Items.GOLD_INGOT), null,
+            new ItemStack(Items.GOLD_INGOT), new ItemStack(Items.ENDER_EYE), new ItemStack(Items.GOLD_INGOT),
             new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
             new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
             new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE)
@@ -61,7 +61,7 @@ public class KeyRecipe implements IRecipe
         int c2 = wool2.getMetadata();
         int c3 = wool3.getMetadata();
 
-        return ItemEnderKey.getItem(c1, c2, c3);
+        return ItemEnderLock.getItem(c1, c2, c3);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class KeyRecipe implements IRecipe
     @Override
     public ItemStack getRecipeOutput()
     {
-        return new ItemStack(Enderthing.enderKey);
+        return new ItemStack(Enderthing.enderLock);
     }
 
     @Override

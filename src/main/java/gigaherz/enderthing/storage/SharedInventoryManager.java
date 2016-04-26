@@ -15,7 +15,7 @@ public class SharedInventoryManager extends WorldSavedData
 {
     private static final String StorageKey = Enderthing.MODID + "_InventoryStorageManager";
 
-    private Map<Integer, SharedInventory> inventories = new HashMap<Integer, SharedInventory>();
+    private Map<Integer, EnderKeyInventory> inventories = new HashMap<Integer, EnderKeyInventory>();
 
     public SharedInventoryManager()
     {
@@ -40,13 +40,13 @@ public class SharedInventoryManager extends WorldSavedData
         return instance;
     }
 
-    public SharedInventory getInventory(int id)
+    public EnderKeyInventory getInventory(int id)
     {
-        SharedInventory rift = inventories.get(id);
+        EnderKeyInventory rift = inventories.get(id);
 
         if (rift == null)
         {
-            rift = new SharedInventory(this);
+            rift = new EnderKeyInventory(this);
             inventories.put(id, rift);
         }
 
@@ -65,7 +65,7 @@ public class SharedInventoryManager extends WorldSavedData
             NBTTagCompound inventoryTag = nbtTagList.getCompoundTagAt(i);
             int j = inventoryTag.getInteger("InventoryId");
 
-            SharedInventory inventory = new SharedInventory(this);
+            EnderKeyInventory inventory = new EnderKeyInventory(this);
 
             inventory.deserializeNBT(inventoryTag.getCompoundTag("InventoryContents"));
 
@@ -78,9 +78,9 @@ public class SharedInventoryManager extends WorldSavedData
     {
         NBTTagList inventories = new NBTTagList();
 
-        for (Map.Entry<Integer, SharedInventory> entry : this.inventories.entrySet())
+        for (Map.Entry<Integer, EnderKeyInventory> entry : this.inventories.entrySet())
         {
-            SharedInventory inventory = entry.getValue();
+            EnderKeyInventory inventory = entry.getValue();
 
             NBTTagCompound inventoryTag = new NBTTagCompound();
             inventoryTag.setInteger("InventoryId", entry.getKey());

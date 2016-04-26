@@ -1,18 +1,21 @@
 package gigaherz.enderthing.items;
 
 import gigaherz.enderthing.Enderthing;
-import gigaherz.enderthing.gui.GuiHandler;
+import gigaherz.enderthing.blocks.BlockEnderKeyChest;
+import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockEnderChest;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.stats.StatList;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -21,9 +24,9 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
-public class ItemEnderKey extends ItemRegistered
+public class ItemEnderLock extends ItemRegistered
 {
-    public ItemEnderKey(String name)
+    public ItemEnderLock(String name)
     {
         super(name);
         this.maxStackSize = 16;
@@ -41,7 +44,7 @@ public class ItemEnderKey extends ItemRegistered
 
     public static ItemStack getItem(int c1, int c2, int c3)
     {
-        ItemStack key = new ItemStack(Enderthing.enderKey);
+        ItemStack key = new ItemStack(Enderthing.enderLock);
 
         NBTTagCompound tag = new NBTTagCompound();
         tag.setByte("Color1", (byte) c1);
@@ -83,10 +86,67 @@ public class ItemEnderKey extends ItemRegistered
 
         IBlockState state = worldIn.getBlockState(pos);
 
-        Block b = state.getBlock();
-        if (b != Blocks.ENDER_CHEST)
-            return EnumActionResult.PASS;
+        int id = getId(stack);
 
+        Block b = state.getBlock();
+
+        TileEntity te = worldIn.getTileEntity(pos);
+
+        if (b == Blocks.ENDER_CHEST)
+        {
+            worldIn.setBlockState(pos, Enderthing.blockEnderKeyChest.getDefaultState()
+                    .withProperty(BlockEnderKeyChest.FACING, state.getValue(BlockEnderChest.FACING)));
+
+            state = worldIn.getBlockState(pos);
+            te = worldIn.getTileEntity(pos);
+
+            if (te instanceof TileEnderKeyChest)
+            {
+                ((TileEnderKeyChest) te).setInventoryId(id >> 4);
+                worldIn.notifyBlockUpdate(pos, state, state, 3);
+            }
+
+            if (!playerIn.capabilities.isCreativeMode)
+                stack.stackSize--;
+
+            return EnumActionResult.SUCCESS;
+        }
+
+        if (b == Enderthing.blockEnderKeyChest)
+        {
+            if (te instanceof TileEnderKeyChest)
+            {
+                int oldId = ((TileEnderKeyChest) te).getInventoryId();
+                int oldColor1 = oldId & 15;
+                int oldColor2 = (oldId >> 4) & 15;
+                int oldColor3 = (oldId >> 8) & 15;
+
+                ItemStack oldStack = new ItemStack(Enderthing.enderLock);
+
+                NBTTagCompound oldTag = new NBTTagCompound();
+                oldTag.setByte("Color1", (byte) oldColor1);
+                oldTag.setByte("Color2", (byte) oldColor2);
+                oldTag.setByte("Color3", (byte) oldColor3);
+
+                oldStack.setTagCompound(oldTag);
+
+                InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
+
+                ((TileEnderKeyChest) te).setInventoryId(id >> 4);
+                worldIn.notifyBlockUpdate(pos, state, state, 3);
+            }
+
+            if (!playerIn.capabilities.isCreativeMode)
+                stack.stackSize--;
+
+            return EnumActionResult.SUCCESS;
+        }
+
+        return EnumActionResult.PASS;
+    }
+
+    public static int getId(ItemStack stack)
+    {
         int color1 = 0;
         int color2 = 0;
         int color3 = 0;
@@ -99,12 +159,6 @@ public class ItemEnderKey extends ItemRegistered
             color3 = tag.getByte("Color3");
         }
 
-        int id = (color1 << 4) | (color2 << 8) | (color3 << 12);
-
-        //noinspection PointlessBitwiseExpression
-        playerIn.openGui(Enderthing.instance, id | GuiHandler.GUI_KEY, worldIn, pos.getX(), pos.getY(), pos.getZ());
-        playerIn.addStat(StatList.ENDERCHEST_OPENED);
-
-        return EnumActionResult.SUCCESS;
+        return (color1 << 4) | (color2 << 8) | (color3 << 12);
     }
 }

@@ -1,27 +1,37 @@
 package gigaherz.enderthing.blocks;
 
-import gigaherz.enderthing.storage.SharedInventory;
+import gigaherz.enderthing.storage.EnderKeyInventory;
 import gigaherz.enderthing.storage.SharedInventoryManager;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.CapabilityItemHandler;
 
-public class TileSharedChest
-        extends TileEntity
+public class TileEnderKeyChest
+        extends TileEntityEnderChest
 {
     private int inventoryId;
+
     public int getInventoryId()
     {
         return inventoryId;
     }
 
-    private SharedInventory inventory;
-    public SharedInventory getInventory()
+    public void setInventoryId(int inventoryId)
+    {
+        this.inventoryId = inventoryId;
+    }
+
+    private EnderKeyInventory inventory;
+
+    public EnderKeyInventory getInventory()
     {
         if (inventoryId < 0)
             return null;
@@ -40,22 +50,16 @@ public class TileSharedChest
         return oldState.getBlock() != newSate.getBlock();
     }
 
-    @Override
-    public boolean shouldRenderInPass(int pass)
+    public void readFromNBT(NBTTagCompound tag)
     {
-        return pass == 1;
+        super.readFromNBT(tag);
+        inventoryId = tag.getInteger(BlockEnderKeyChest.INVENTORY_ID_KEY);
     }
 
-    public void readFromNBT(NBTTagCompound nbtTagCompound)
+    public void writeToNBT(NBTTagCompound tag)
     {
-        super.readFromNBT(nbtTagCompound);
-        inventoryId = nbtTagCompound.getInteger(BlockSharedChest.INVENTORY_ID_KEY);
-    }
-
-    public void writeToNBT(NBTTagCompound nbtTagCompound)
-    {
-        super.writeToNBT(nbtTagCompound);
-        nbtTagCompound.setInteger(BlockSharedChest.INVENTORY_ID_KEY, inventoryId);
+        super.writeToNBT(tag);
+        tag.setInteger(BlockEnderKeyChest.INVENTORY_ID_KEY, inventoryId);
     }
 
     @Override
@@ -75,4 +79,18 @@ public class TileSharedChest
         return super.getCapability(capability, facing);
     }
 
+    @Override
+    public Packet getDescriptionPacket()
+    {
+        NBTTagCompound tag = new NBTTagCompound();
+        this.writeToNBT(tag);
+        return new SPacketUpdateTileEntity(this.pos, 0, tag);
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
+    {
+        super.onDataPacket(net, packet);
+        readFromNBT(packet.getNbtCompound());
+    }
 }

@@ -1,2 +1,5 @@
-tile.enderthing.blockSharedChest.name=Shared Chest
+tile.enderthing.blockEnderKeyChest.name=Ender Key Chest
+container.enderthing.enderKey.name=Ender Key Chest
 tooltip.enderthing.colors=Colors: %s, %s, %s
+item.enderthing.enderKey.name=Ender Key
+item.enderthing.enderLock.name=Ender Lock

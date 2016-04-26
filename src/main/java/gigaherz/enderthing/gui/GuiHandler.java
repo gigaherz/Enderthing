@@ -15,7 +15,7 @@ public class GuiHandler implements IGuiHandler
         switch (id & 4)
         {
             case GUI_KEY:
-                return new ContainerKey(player.inventory, id >> 4, player, world, new BlockPos(x,y,z));
+                return new ContainerKey(player.inventory, id >> 4, player, world, new BlockPos(x, y, z));
         }
 
         return null;
@@ -27,7 +27,7 @@ public class GuiHandler implements IGuiHandler
         switch (id & 4)
         {
             case GUI_KEY:
-                return new GuiKey(player.inventory, id >> 4, player, world, new BlockPos(x,y,z));
+                return new GuiKey(player.inventory, id >> 4, player, world, new BlockPos(x, y, z));
         }
 
         return null;
