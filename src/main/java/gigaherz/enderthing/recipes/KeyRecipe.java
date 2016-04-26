@@ -12,7 +12,7 @@ import net.minecraftforge.oredict.OreDictionary;
 
 public class KeyRecipe implements IRecipe
 {
-    ItemStack[] pattern = {
+    public static final ItemStack[] PATTERN = {
             new ItemStack(Blocks.OBSIDIAN), null, null,
             new ItemStack(Items.ENDER_EYE), new ItemStack(Blocks.OBSIDIAN), new ItemStack(Blocks.OBSIDIAN),
             new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
@@ -28,7 +28,7 @@ public class KeyRecipe implements IRecipe
 
         for (int i = 0; i < 9; i++)
         {
-            ItemStack pat = pattern[i];
+            ItemStack pat = PATTERN[i];
             ItemStack stack = inv.getStackInSlot(i);
 
             if (pat == null)

@@ -47,6 +47,9 @@ public class Enderthing
         }
     };
 
+    public static KeyRecipe keyRecipe;
+    public static LockRecipe lockRecipe;
+
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
@@ -71,8 +74,8 @@ public class Enderthing
     {
         proxy.init();
 
-        GameRegistry.addRecipe(new KeyRecipe());
-        GameRegistry.addRecipe(new LockRecipe());
+        GameRegistry.addRecipe(keyRecipe = new KeyRecipe());
+        GameRegistry.addRecipe(lockRecipe = new LockRecipe());
         RecipeSorter.register(MODID + ":key_recipe", KeyRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
         RecipeSorter.register(MODID + ":lock_recipe", LockRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
     }
