@@ -1,5 +1,6 @@
 package gigaherz.enderthing.items;
 
+import com.mojang.realmsclient.gui.ChatFormatting;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.blocks.BlockEnderKeyChest;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
@@ -59,17 +60,16 @@ public class ItemEnderLock extends ItemRegistered
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> information, boolean advanced)
     {
-        int color1 = 0;
-        int color2 = 0;
-        int color3 = 0;
-
         NBTTagCompound tag = stack.getTagCompound();
-        if (tag != null)
+        if (tag == null)
         {
-            color1 = tag.getByte("Color1");
-            color2 = tag.getByte("Color2");
-            color3 = tag.getByte("Color3");
+            information.add(ChatFormatting.ITALIC + "The color depends on the wools used.");
+            return;
         }
+
+        int color1 = tag.getByte("Color1");
+        int color2 = tag.getByte("Color2");
+        int color3 = tag.getByte("Color3");
 
         EnumDyeColor c1 = EnumDyeColor.byMetadata(color1);
         EnumDyeColor c2 = EnumDyeColor.byMetadata(color2);

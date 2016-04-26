@@ -48,8 +48,10 @@ public class BlockEnderKeyChest
         super(name, Material.ROCK);
         setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
         setCreativeTab(Enderthing.tabEnderthing);
-        setHardness(3.0F);
-        setSoundType(SoundType.METAL);
+        setHardness(22.5F);
+        setResistance(1000.0F);
+        setSoundType(SoundType.STONE);
+        setLightLevel(0.5F);
     }
 
     @Override

@@ -1,12 +1,14 @@
 package gigaherz.enderthing.integration;
 
 import com.google.common.collect.Lists;
-import gigaherz.enderthing.items.ItemEnderKey;
+import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.recipes.KeyRecipe;
 import mezz.jei.api.recipe.BlankRecipeWrapper;
 import mezz.jei.api.recipe.wrapper.IShapedCraftingRecipeWrapper;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.oredict.OreDictionary;
+
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,43 +16,22 @@ import java.util.List;
 
 public class EnderKeyRecipeWrapper extends BlankRecipeWrapper implements IShapedCraftingRecipeWrapper
 {
-    public static List<EnderKeyRecipeWrapper> getAllCombinations()
-    {
-        List<EnderKeyRecipeWrapper> combinations = Lists.newArrayList();
-
-        for (int c1 = 0; c1 < 16; c1++)
-        {
-            for (int c2 = 0; c2 < 16; c2++)
-            {
-                for (int c3 = 0; c3 < 16; c3++)
-                {
-                    combinations.add(new EnderKeyRecipeWrapper(c1, c2, c3));
-                }
-            }
-        }
-
-        return combinations;
-    }
-
-
     @Nonnull
     private final List<ItemStack> inputs;
 
     @Nonnull
     private final List<ItemStack> outputs;
 
-    public EnderKeyRecipeWrapper(int c1, int c2, int c3) {
+    public EnderKeyRecipeWrapper() {
 
         inputs = Lists.newArrayList();
         inputs.addAll(Arrays.asList(KeyRecipe.PATTERN).subList(0, 6));
 
-        inputs.add(new ItemStack(Blocks.WOOL, 1, c1));
-        inputs.add(new ItemStack(Blocks.WOOL, 1, c2));
-        inputs.add(new ItemStack(Blocks.WOOL, 1, c3));
+        inputs.add(new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE));
+        inputs.add(new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE));
+        inputs.add(new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE));
 
-        this.outputs = Collections.singletonList(
-                ItemEnderKey.getItem(c1, c2, c3)
-        );
+        this.outputs = Collections.singletonList(new ItemStack(Enderthing.enderKey));
     }
 
     @Override
