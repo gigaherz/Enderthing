@@ -1,11 +1,14 @@
 package gigaherz.enderthing.integration;
 
+import gigaherz.enderthing.Enderthing;
 import mezz.jei.api.IJeiHelpers;
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
+import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 
 @mezz.jei.api.JEIPlugin
 public class JEIPlugin implements IModPlugin
@@ -13,12 +16,17 @@ public class JEIPlugin implements IModPlugin
     @Override
     public void register(@Nonnull IModRegistry registry)
     {
-        IJeiHelpers jeiHelpers = registry.getJeiHelpers();
-
         registry.addRecipeHandlers(
                 new EnderKeyRecipeHandler(),
-                new EnderLockRecipeHandler()
+                new EnderLockRecipeHandler(),
+                new MakePrivateRecipeHandler()
         );
+
+        registry.addRecipes(
+                Arrays.asList(
+                        new MakePrivateRecipeWrapper(new ItemStack(Enderthing.enderKey), new ItemStack(Enderthing.enderKey, 1, 1)),
+                        new MakePrivateRecipeWrapper(new ItemStack(Enderthing.enderLock), new ItemStack(Enderthing.enderLock, 1, 1))
+                ));
     }
 
     @Override

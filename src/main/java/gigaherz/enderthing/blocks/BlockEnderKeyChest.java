@@ -263,7 +263,7 @@ public class BlockEnderKeyChest
 
         if ((stack.getMetadata() & 8) != 0)
         {
-            tooltip.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".private"));
+            tooltip.add(ChatFormatting.BOLD + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".private"));
         }
 
         int id = 0;

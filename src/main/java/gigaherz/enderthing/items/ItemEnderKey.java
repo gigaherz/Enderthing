@@ -62,7 +62,7 @@ public class ItemEnderKey extends ItemRegistered
 
         if ((stack.getMetadata() & 1) != 0)
         {
-            information.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".private"));
+            information.add(ChatFormatting.BOLD + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".private"));
         }
 
         NBTTagCompound tag = stack.getTagCompound();
