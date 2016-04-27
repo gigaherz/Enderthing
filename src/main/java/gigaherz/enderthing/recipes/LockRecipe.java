@@ -13,11 +13,11 @@ import net.minecraftforge.oredict.OreDictionary;
 public class LockRecipe implements IRecipe
 {
     public static final ItemStack[] PATTERN = {
-            null, new ItemStack(Items.GOLD_INGOT), null,
-            new ItemStack(Items.GOLD_INGOT), new ItemStack(Items.ENDER_EYE), new ItemStack(Items.GOLD_INGOT),
-            new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
-            new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
-            new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE)
+            null, new ItemStack(Items.gold_ingot), null,
+            new ItemStack(Items.gold_ingot), new ItemStack(Items.ender_eye), new ItemStack(Items.gold_ingot),
+            new ItemStack(Blocks.wool, 1, OreDictionary.WILDCARD_VALUE),
+            new ItemStack(Blocks.wool, 1, OreDictionary.WILDCARD_VALUE),
+            new ItemStack(Blocks.wool, 1, OreDictionary.WILDCARD_VALUE)
     };
 
     @Override

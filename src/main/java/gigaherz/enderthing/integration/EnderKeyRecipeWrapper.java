@@ -28,9 +28,9 @@ public class EnderKeyRecipeWrapper extends BlankRecipeWrapper implements IShaped
         inputs = Lists.newArrayList();
         inputs.addAll(Arrays.asList(KeyRecipe.PATTERN).subList(0, 6));
 
-        inputs.add(new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE));
-        inputs.add(new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE));
-        inputs.add(new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE));
+        inputs.add(new ItemStack(Blocks.wool, 1, OreDictionary.WILDCARD_VALUE));
+        inputs.add(new ItemStack(Blocks.wool, 1, OreDictionary.WILDCARD_VALUE));
+        inputs.add(new ItemStack(Blocks.wool, 1, OreDictionary.WILDCARD_VALUE));
 
         this.outputs = Collections.singletonList(new ItemStack(Enderthing.enderKey));
     }

@@ -5,19 +5,16 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.gui.GuiHandler;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockHorizontal;
-import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
-import net.minecraft.block.state.BlockStateContainer;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Enchantments;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -26,10 +23,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -42,33 +35,34 @@ import java.util.Random;
 public class BlockEnderKeyChest
         extends BlockRegistered
 {
-    public static final PropertyDirection FACING = BlockHorizontal.FACING;
+    public static final PropertyDirection FACING = PropertyDirection.create("facing");
     public static final PropertyBool PRIVATE = PropertyBool.create("private");
-    protected static final AxisAlignedBB ENDER_CHEST_AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0625D, 0.9375D, 0.875D, 0.9375D);
 
     public static final String INVENTORY_ID_KEY = "InventoryId";
 
     public BlockEnderKeyChest(String name)
     {
-        super(name, Material.ROCK);
+        super(name, Material.rock);
         setDefaultState(this.blockState.getBaseState()
                 .withProperty(FACING, EnumFacing.NORTH)
                 .withProperty(PRIVATE, false));
         setCreativeTab(Enderthing.tabEnderthing);
         setHardness(22.5F);
         setResistance(1000.0F);
-        setSoundType(SoundType.STONE);
+        setStepSound(soundTypeStone);
         setLightLevel(0.5F);
+        setBlockBounds( 1 / 16F,  0 / 16F,  1 / 16F,
+                       15 / 16F, 14 / 16F, 15 / 16F);
     }
 
     @Override
-    public boolean isOpaqueCube(IBlockState state)
+    public boolean isOpaqueCube()
     {
         return false;
     }
 
     @Override
-    public boolean isFullCube(IBlockState state)
+    public boolean isFullCube()
     {
         return false;
     }
@@ -88,22 +82,22 @@ public class BlockEnderKeyChest
     }
 
     @Override
-    public EnumBlockRenderType getRenderType(IBlockState state)
+    public int getRenderType()
     {
-        return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
+        return 2;
     }
 
     @Override
-    public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
+    public boolean removedByPlayer(World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
     {
         //If it will harvest, delay deletion of the block until after getDrops
-        return willHarvest || super.removedByPlayer(state, world, pos, player, false);
+        return willHarvest || super.removedByPlayer(world, pos, player, false);
     }
 
     @Override
-    public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player)
+    public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos, EntityPlayer player)
     {
-        return getItem(world, pos);
+        return getAsItem(world, pos);
     }
 
     @Override
@@ -111,22 +105,22 @@ public class BlockEnderKeyChest
     {
         ArrayList<ItemStack> ret = Lists.newArrayList();
 
-        ret.add(new ItemStack(Blocks.OBSIDIAN, 8));
+        ret.add(new ItemStack(Blocks.obsidian, 8));
         ret.add(getLock(getId(world, pos), state.getValue(PRIVATE)));
 
         return ret;
     }
 
     @Override
-    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack)
+    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te)
     {
-        player.addStat(StatList.getBlockStats(this));
+        player.triggerAchievement(StatList.mineBlockStatArray[getIdFromBlock(this)]);
         player.addExhaustion(0.025F);
 
-        if (this.canSilkHarvest(worldIn, pos, state, player) && EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) > 0)
+        if (this.canSilkHarvest(worldIn, pos, state, player) && EnchantmentHelper.getSilkTouchModifier(player))
         {
-            java.util.List<ItemStack> items = new java.util.ArrayList<ItemStack>();
-            ItemStack itemstack = this.getItem(worldIn, pos);
+            java.util.List<ItemStack> items = Lists.newArrayList();
+            ItemStack itemstack = this.getAsItem(worldIn, pos);
 
             if (itemstack != null)
             {
@@ -142,7 +136,7 @@ public class BlockEnderKeyChest
         else
         {
             harvesters.set(player);
-            int i = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, stack);
+            int i = EnchantmentHelper.getFortuneModifier(player);
             this.dropBlockAsItem(worldIn, pos, state, i);
             harvesters.set(null);
         }
@@ -151,14 +145,14 @@ public class BlockEnderKeyChest
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         TileEntity te = worldIn.getTileEntity(pos);
 
         if (te == null || !(te instanceof TileEnderKeyChest))
             return true;
 
-        if (worldIn.getBlockState(pos.up()).isNormalCube())
+        if (worldIn.getBlockState(pos.up()).getBlock().isNormalCube(worldIn, pos.up()))
             return true;
 
         if (worldIn.isRemote)
@@ -170,14 +164,8 @@ public class BlockEnderKeyChest
         int id = chest.getInventoryId() << 4 | (state.getValue(PRIVATE) ? GuiHandler.GUI_KEY_PRIVATE : GuiHandler.GUI_KEY);
 
         playerIn.openGui(Enderthing.instance, id, worldIn, pos.getX(), pos.getY(), pos.getZ());
-        playerIn.addStat(StatList.ENDERCHEST_OPENED);
 
         return true;
-    }
-
-    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
-    {
-        return ENDER_CHEST_AABB;
     }
 
     @Override
@@ -202,7 +190,7 @@ public class BlockEnderKeyChest
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
+    public void randomDisplayTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
     {
         for (int i = 0; i < 3; ++i)
         {
@@ -239,62 +227,9 @@ public class BlockEnderKeyChest
     }
 
     @Override
-    public IBlockState withRotation(IBlockState state, Rotation rot)
+    protected BlockState createBlockState()
     {
-        return state.withProperty(FACING, rot.rotate(state.getValue(FACING)));
-    }
-
-    @Override
-    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
-    {
-        return state.withRotation(mirrorIn.toRotation(state.getValue(FACING)));
-    }
-
-    @Override
-    protected BlockStateContainer createBlockState()
-    {
-        return new BlockStateContainer(this, FACING, PRIVATE);
-    }
-
-    @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
-    {
-        tooltip.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".enderKeyChest.rightClick"));
-
-        if ((stack.getMetadata() & 8) != 0)
-        {
-            tooltip.add(ChatFormatting.BOLD + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".private"));
-        }
-
-        int id = 0;
-        boolean idFound = false;
-
-        NBTTagCompound tag = stack.getTagCompound();
-        if (tag != null)
-        {
-            NBTTagCompound etag = tag.getCompoundTag("BlockEntityTag");
-            if (etag != null)
-            {
-                idFound = true;
-                id = etag.getInteger("InventoryId");
-            }
-        }
-
-        if (!idFound)
-        {
-            tooltip.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".colorMissing"));
-            return;
-        }
-
-        int color1 = id & 15;
-        int color2 = (id >> 4) & 15;
-        int color3 = (id >> 8) & 15;
-
-        EnumDyeColor c1 = EnumDyeColor.byMetadata(color1);
-        EnumDyeColor c2 = EnumDyeColor.byMetadata(color2);
-        EnumDyeColor c3 = EnumDyeColor.byMetadata(color3);
-
-        tooltip.add(I18n.translateToLocalFormatted("tooltip." + Enderthing.MODID + ".colors", c1.getName(), c2.getName(), c3.getName()));
+        return new BlockState(this, FACING, PRIVATE);
     }
 
     int getId(IBlockAccess world, BlockPos pos)
@@ -309,7 +244,7 @@ public class BlockEnderKeyChest
         return 0;
     }
 
-    private ItemStack getItem(IBlockAccess world, BlockPos pos)
+    private ItemStack getAsItem(IBlockAccess world, BlockPos pos)
     {
         IBlockState state = world.getBlockState(pos);
         TileEntity te = world.getTileEntity(pos);
@@ -404,7 +339,7 @@ public class BlockEnderKeyChest
         }
 
         @Override
-        public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand)
+        public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn)
         {
             if (playerIn.isSneaking())
             {
@@ -414,25 +349,105 @@ public class BlockEnderKeyChest
 
                 if (!playerIn.inventory.addItemStackToInventory(oldStack))
                 {
-                    playerIn.dropItem(oldStack, false);
+                    playerIn.dropItem(oldStack, true, false);
                 }
 
                 if (itemStackIn.stackSize > 1)
                 {
-                    ItemStack stack = new ItemStack(Blocks.ENDER_CHEST);
+                    ItemStack stack = new ItemStack(Blocks.ender_chest);
                     if (!playerIn.inventory.addItemStackToInventory(stack))
                     {
-                        playerIn.dropItem(stack, false);
+                        playerIn.dropItem(stack, true, false);
                     }
 
                     itemStackIn.stackSize--;
-                    return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
+                    return itemStackIn;
                 }
 
-                return ActionResult.newResult(EnumActionResult.SUCCESS, new ItemStack(Blocks.ENDER_CHEST));
+                return new ItemStack(Blocks.ender_chest);
             }
 
-            return super.onItemRightClick(itemStackIn, worldIn, playerIn, hand);
+            return super.onItemRightClick(itemStackIn, worldIn, playerIn);
         }
+
+        @Override
+        public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
+        {
+            tooltip.add(ChatFormatting.ITALIC + StatCollector.translateToLocal("tooltip." + Enderthing.MODID + ".enderKeyChest.rightClick"));
+
+            if ((stack.getMetadata() & 8) != 0)
+            {
+                tooltip.add(ChatFormatting.BOLD + StatCollector.translateToLocal("tooltip." + Enderthing.MODID + ".private"));
+            }
+
+            int id = 0;
+            boolean idFound = false;
+
+            NBTTagCompound tag = stack.getTagCompound();
+            if (tag != null)
+            {
+                NBTTagCompound etag = tag.getCompoundTag("BlockEntityTag");
+                if (etag != null)
+                {
+                    idFound = true;
+                    id = etag.getInteger("InventoryId");
+                }
+            }
+
+            if (!idFound)
+            {
+                tooltip.add(ChatFormatting.ITALIC + StatCollector.translateToLocal("tooltip." + Enderthing.MODID + ".colorMissing"));
+                return;
+            }
+
+            int color1 = id & 15;
+            int color2 = (id >> 4) & 15;
+            int color3 = (id >> 8) & 15;
+
+            EnumDyeColor c1 = EnumDyeColor.byMetadata(color1);
+            EnumDyeColor c2 = EnumDyeColor.byMetadata(color2);
+            EnumDyeColor c3 = EnumDyeColor.byMetadata(color3);
+
+            tooltip.add(StatCollector.translateToLocalFormatted("tooltip." + Enderthing.MODID + ".colors", c1.getName(), c2.getName(), c3.getName()));
+        }
+
+        @Override
+        public int getColorFromItemStack(ItemStack stack, int tintIndex)
+        {
+            int color1 = 0;
+            int color2 = 0;
+            int color3 = 0;
+
+            NBTTagCompound tag = stack.getTagCompound();
+            if (tag != null)
+            {
+                NBTTagCompound etag = tag.getCompoundTag("BlockEntityTag");
+                if (etag != null)
+                {
+                    int id = etag.getInteger("InventoryId");
+
+                    color1 = id & 15;
+                    color2 = (id >> 4) & 15;
+                    color3 = (id >> 8) & 15;
+                }
+            }
+
+            EnumDyeColor c1 = EnumDyeColor.byMetadata(color1);
+            EnumDyeColor c2 = EnumDyeColor.byMetadata(color2);
+            EnumDyeColor c3 = EnumDyeColor.byMetadata(color3);
+
+            switch (tintIndex)
+            {
+                case 1:
+                    return c1.getMapColor().colorValue;
+                case 2:
+                    return c2.getMapColor().colorValue;
+                case 3:
+                    return c3.getMapColor().colorValue;
+            }
+
+            return 0xFFFFFFFF;
+        }
+
     }
 }

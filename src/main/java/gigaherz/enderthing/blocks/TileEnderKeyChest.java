@@ -5,16 +5,17 @@ import gigaherz.enderthing.network.UpdatePlayersUsing;
 import gigaherz.enderthing.storage.EnderKeyInventory;
 import gigaherz.enderthing.storage.GlobalInventoryManager;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.client.audio.SoundCategory;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.sound.SoundEvent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -110,11 +111,11 @@ public class TileEnderKeyChest
     {
         NBTTagCompound tag = new NBTTagCompound();
         this.writeToNBT(tag);
-        return new SPacketUpdateTileEntity(this.pos, 0, tag);
+        return new S35PacketUpdateTileEntity(this.pos, 0, tag);
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
+    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
     {
         super.onDataPacket(net, packet);
         readFromNBT(packet.getNbtCompound());
@@ -134,25 +135,24 @@ public class TileEnderKeyChest
             if (!worldObj.isRemote)
             {
                 Enderthing.channel.sendToAllAround(new UpdatePlayersUsing(pos, 1, numPlayersUsing),
-                        new NetworkRegistry.TargetPoint(worldObj.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 64));
+                        new NetworkRegistry.TargetPoint(worldObj.provider.getDimensionId(), pos.getX(), pos.getY(), pos.getZ(), 64));
             }
         }
 
         this.prevLidAngle = this.lidAngle;
         int x = this.pos.getX();
         int y = this.pos.getY();
-        int z = this.pos.getZ();
+        int Z = this.pos.getZ();
         float f = 0.1F;
 
         if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F)
         {
-            this.worldObj.playSound(null, x + 0.5D, y + 0.5D, z + 0.5D,
-                    SoundEvents.BLOCK_ENDERCHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
+            this.worldObj.playSoundEffect(x + 0.5D, y + 0.5D, Z + 0.5D, "random.chestopen", 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
         }
 
         if (this.numPlayersUsing == 0 && this.lidAngle > 0.0F || this.numPlayersUsing > 0 && this.lidAngle < 1.0F)
         {
-            float prevAngle = this.lidAngle;
+            float f2 = this.lidAngle;
 
             if (this.numPlayersUsing > 0)
             {
@@ -170,10 +170,9 @@ public class TileEnderKeyChest
 
             float closedThreshold = 0.5F;
 
-            if (this.lidAngle < closedThreshold && prevAngle >= closedThreshold)
+            if (this.lidAngle < closedThreshold && f2 >= closedThreshold)
             {
-                this.worldObj.playSound(null, x + 0.5D, y + 0.5D, z + 0.5D,
-                        SoundEvents.BLOCK_ENDERCHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
+                this.worldObj.playSoundEffect(x + 0.5D, y + 0.5D, Z + 0.5D, "random.chestclosed", 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
             }
 
             if (this.lidAngle < 0.0F)
@@ -182,6 +181,7 @@ public class TileEnderKeyChest
             }
         }
     }
+
 
     public void receiveUpdate(int id, int value)
     {

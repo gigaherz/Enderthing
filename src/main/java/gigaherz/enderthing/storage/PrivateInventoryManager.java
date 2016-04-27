@@ -90,11 +90,12 @@ public class PrivateInventoryManager
                 return capability == INSTANCE;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             public <T> T getCapability(Capability<T> capability, EnumFacing facing)
             {
                 if (capability == INSTANCE)
-                    return INSTANCE.cast(container);
+                    return (T) container;
 
                 return null;
             }

@@ -1,6 +1,7 @@
 package gigaherz.enderthing.items;
 
 import gigaherz.enderthing.Enderthing;
+import gigaherz.enderthing.InventoryHelper;
 import gigaherz.enderthing.blocks.BlockEnderKeyChest;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import net.minecraft.block.Block;
@@ -9,15 +10,12 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -54,10 +52,10 @@ public class ItemEnderLock extends ItemEnderKey
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (worldIn.isRemote)
-            return EnumActionResult.SUCCESS;
+            return true;
 
         IBlockState state = worldIn.getBlockState(pos);
 
@@ -67,25 +65,24 @@ public class ItemEnderLock extends ItemEnderKey
 
         TileEntity te = worldIn.getTileEntity(pos);
 
-        if (b == Blocks.ENDER_CHEST)
+        if (b == Blocks.ender_chest)
         {
             worldIn.setBlockState(pos, Enderthing.blockEnderKeyChest.getDefaultState()
                     .withProperty(BlockEnderKeyChest.FACING, state.getValue(BlockEnderChest.FACING))
                     .withProperty(BlockEnderKeyChest.PRIVATE, (stack.getMetadata() & 1) != 0));
 
-            state = worldIn.getBlockState(pos);
             te = worldIn.getTileEntity(pos);
 
             if (te instanceof TileEnderKeyChest)
             {
                 ((TileEnderKeyChest) te).setInventoryId(id >> 4);
-                worldIn.notifyBlockUpdate(pos, state, state, 3);
+                worldIn.markBlockForUpdate(pos);
             }
 
             if (!playerIn.capabilities.isCreativeMode)
                 stack.stackSize--;
 
-            return EnumActionResult.SUCCESS;
+            return true;
         }
 
         if (b == Enderthing.blockEnderKeyChest)
@@ -109,15 +106,15 @@ public class ItemEnderLock extends ItemEnderKey
                 InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
 
                 ((TileEnderKeyChest) te).setInventoryId(id >> 4);
-                worldIn.notifyBlockUpdate(pos, state, state, 3);
+                worldIn.markBlockForUpdate(pos);
             }
 
             if (!playerIn.capabilities.isCreativeMode)
                 stack.stackSize--;
 
-            return EnumActionResult.SUCCESS;
+            return true;
         }
 
-        return EnumActionResult.PASS;
+        return false;
     }
 }

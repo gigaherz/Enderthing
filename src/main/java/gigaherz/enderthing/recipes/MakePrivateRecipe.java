@@ -12,11 +12,11 @@ import net.minecraftforge.oredict.OreDictionary;
 public class MakePrivateRecipe implements IRecipe
 {
     public static final ItemStack[] PATTERN = {
-            null, new ItemStack(Items.GOLD_NUGGET), null,
-            new ItemStack(Items.GOLD_NUGGET),
+            null, new ItemStack(Items.gold_nugget), null,
+            new ItemStack(Items.gold_nugget),
             new ItemStack(Enderthing.enderKey),
-            new ItemStack(Items.GOLD_NUGGET),
-            null, new ItemStack(Items.GOLD_NUGGET), null
+            new ItemStack(Items.gold_nugget),
+            null, new ItemStack(Items.gold_nugget), null
 
     };
 

@@ -67,16 +67,15 @@ public class Enderthing
         logger = event.getModLog();
 
         blockEnderKeyChest = new BlockEnderKeyChest("blockEnderKeyChest");
-        GameRegistry.register(blockEnderKeyChest);
-        GameRegistry.register(blockEnderKeyChest.createItemBlock());
+        GameRegistry.registerBlock(blockEnderKeyChest, BlockEnderKeyChest.AsItem.class);
         GameRegistry.registerTileEntity(TileEnderKeyChest.class, "tileEnderKeyChest");
         GameRegistry.registerTileEntity(TileEnderKeyChest.Private.class, "tileEnderKeyPrivateChest");
 
         enderKey = new ItemEnderKey("enderKey");
-        GameRegistry.register(enderKey);
+        GameRegistry.registerItem(enderKey);
 
         enderLock = new ItemEnderLock("enderLock");
-        GameRegistry.register(enderLock);
+        GameRegistry.registerItem(enderLock);
 
         NetworkRegistry.INSTANCE.registerGuiHandler(this, guiHandler);
 
