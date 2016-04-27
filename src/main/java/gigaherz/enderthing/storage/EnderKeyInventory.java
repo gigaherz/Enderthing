@@ -14,7 +14,7 @@ public class EnderKeyInventory extends ItemStackHandler
 {
     public static final int SLOT_COUNT = 27;
 
-    private final SharedInventoryManager manager;
+    private final IInventoryManager manager;
 
     final List<Reference<? extends TileEnderKeyChest>> listeners = Lists.newArrayList();
     final ReferenceQueue<TileEnderKeyChest> deadListeners = new ReferenceQueue<TileEnderKeyChest>();
@@ -53,7 +53,7 @@ public class EnderKeyInventory extends ItemStackHandler
         manager.markDirty();
     }
 
-    EnderKeyInventory(SharedInventoryManager manager)
+    EnderKeyInventory(IInventoryManager manager)
     {
         super(SLOT_COUNT);
         this.manager = manager;

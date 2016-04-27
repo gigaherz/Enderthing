@@ -1,6 +1,8 @@
 package gigaherz.enderthing.gui;
 
-import gigaherz.enderthing.storage.SharedInventoryManager;
+import gigaherz.enderthing.storage.GlobalInventoryManager;
+import gigaherz.enderthing.storage.IInventoryManager;
+import gigaherz.enderthing.storage.PrivateInventoryManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -15,24 +17,29 @@ import net.minecraftforge.items.SlotItemHandler;
 
 public class ContainerKey extends Container
 {
-    private EntityPlayer player;
     private World world;
     private BlockPos pos;
 
     public ContainerKey(InventoryPlayer playerInventory, int id, EntityPlayer player, World world, BlockPos pos)
     {
-        TileEntity te = world.getTileEntity(pos);
-        if (te instanceof TileEntityEnderChest)
+        if (world != null)
         {
-            TileEntityEnderChest chest = (TileEntityEnderChest) te;
-            chest.openChest();
+            TileEntity te = world.getTileEntity(pos);
+            if (te instanceof TileEntityEnderChest)
+            {
+                TileEntityEnderChest chest = (TileEntityEnderChest) te;
+                chest.openChest();
+            }
+
+            this.world = world;
+            this.pos = pos;
         }
 
-        this.player = player;
-        this.world = world;
-        this.pos = pos;
+        IInventoryManager mgr = (id&1) != 0 ?
+                PrivateInventoryManager.get(player) :
+                GlobalInventoryManager.get(world);
 
-        IItemHandler inventory = SharedInventoryManager.get(player.worldObj).getInventory(id);
+        IItemHandler inventory = mgr.getInventory(id>>4);
 
         for (int j = 0; j < 3; ++j)
         {
@@ -61,11 +68,14 @@ public class ContainerKey extends Container
     {
         super.onContainerClosed(playerIn);
 
-        TileEntity te = world.getTileEntity(pos);
-        if (te instanceof TileEntityEnderChest)
+        if(world != null)
         {
-            TileEntityEnderChest chest = (TileEntityEnderChest) te;
-            chest.closeChest();
+            TileEntity te = world.getTileEntity(pos);
+            if (te instanceof TileEntityEnderChest)
+            {
+                TileEntityEnderChest chest = (TileEntityEnderChest) te;
+                chest.closeChest();
+            }
         }
     }
 

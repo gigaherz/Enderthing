@@ -24,21 +24,24 @@ public class ClientProxy implements IModProxy
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEnderKeyChest.class, new RenderEnderKeyChest());
 
-        registerBlockModelAsItem(Enderthing.blockEnderKeyChest);
-        registerItemModel(Enderthing.enderKey);
-        registerItemModel(Enderthing.enderLock);
+        registerBlockModelAsItem(Enderthing.blockEnderKeyChest, 0, "facing=north,inventory=true,private=false");
+        registerBlockModelAsItem(Enderthing.blockEnderKeyChest, 8, "facing=north,inventory=true,private=true");
+        registerItemModel(Enderthing.enderKey, 0, "enderKey");
+        registerItemModel(Enderthing.enderKey, 1, "privateEnderKey");
+        registerItemModel(Enderthing.enderLock, 0, "enderLock");
+        registerItemModel(Enderthing.enderLock, 1, "privateEnderLock");
     }
 
-    public void registerBlockModelAsItem(final Block block)
+    public void registerBlockModelAsItem(final Block block, int meta, final String itemModelVariant)
     {
-        ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0,
-                new ModelResourceLocation(block.getRegistryName(), "inventory"));
+        ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), meta,
+                new ModelResourceLocation(block.getRegistryName(), itemModelVariant));
     }
 
-    public void registerItemModel(final Item item)
+    public void registerItemModel(final Item item, int meta, final String itemModelName)
     {
-        ModelLoader.setCustomModelResourceLocation(item, 0,
-                new ModelResourceLocation(item.getRegistryName(), "inventory"));
+        ModelLoader.setCustomModelResourceLocation(item, meta,
+                new ModelResourceLocation(Enderthing.MODID + ":" + itemModelName, "inventory"));
     }
 
     @Override

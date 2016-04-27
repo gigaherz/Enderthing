@@ -11,29 +11,29 @@ import net.minecraftforge.common.util.Constants;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SharedInventoryManager extends WorldSavedData
+public class GlobalInventoryManager extends WorldSavedData implements IInventoryManager
 {
     private static final String StorageKey = Enderthing.MODID + "_InventoryStorageManager";
 
     private Map<Integer, EnderKeyInventory> inventories = new HashMap<Integer, EnderKeyInventory>();
 
-    public SharedInventoryManager()
+    public GlobalInventoryManager()
     {
         super(StorageKey);
     }
 
-    public SharedInventoryManager(String s)
+    public GlobalInventoryManager(String s)
     {
         super(s);
     }
 
-    public static SharedInventoryManager get(World world)
+    public static GlobalInventoryManager get(World world)
     {
         MapStorage storage = world.getMapStorage();
-        SharedInventoryManager instance = (SharedInventoryManager) storage.loadData(SharedInventoryManager.class, StorageKey);
+        GlobalInventoryManager instance = (GlobalInventoryManager) storage.loadData(GlobalInventoryManager.class, StorageKey);
         if (instance == null)
         {
-            instance = new SharedInventoryManager();
+            instance = new GlobalInventoryManager();
             storage.setData(StorageKey, instance);
         }
 

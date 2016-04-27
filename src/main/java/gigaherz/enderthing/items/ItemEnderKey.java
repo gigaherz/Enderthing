@@ -36,13 +36,14 @@ public class ItemEnderKey extends ItemRegistered
     {
         for (int i = 0; i < 16; i++)
         {
-            subItems.add(getItem(i, i, i));
+            subItems.add(getItem(i, i, i, false));
+            subItems.add(getItem(i, i, i, true));
         }
     }
 
-    public static ItemStack getItem(int c1, int c2, int c3)
+    public static ItemStack getItem(int c1, int c2, int c3, boolean priv)
     {
-        ItemStack key = new ItemStack(Enderthing.enderKey);
+        ItemStack key = new ItemStack(Enderthing.enderKey, 1, priv ? 1 : 0);
 
         NBTTagCompound tag = new NBTTagCompound();
         tag.setByte("Color1", (byte) c1);
@@ -58,6 +59,11 @@ public class ItemEnderKey extends ItemRegistered
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> information, boolean advanced)
     {
         information.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".enderKey.rightClick"));
+
+        if((stack.getMetadata()&1) != 0)
+        {
+            information.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".private"));
+        }
 
         NBTTagCompound tag = stack.getTagCompound();
         if (tag == null)
@@ -101,12 +107,29 @@ public class ItemEnderKey extends ItemRegistered
             color3 = tag.getByte("Color3");
         }
 
-        int id = (color1 << 4) | (color2 << 8) | (color3 << 12);
+        int id = (color1 << 4) | (color2 << 8) | (color3 << 12) | (stack.getMetadata() != 0 ? GuiHandler.GUI_KEY_PRIVATE : GuiHandler.GUI_KEY);
 
         //noinspection PointlessBitwiseExpression
         playerIn.openGui(Enderthing.instance, id | GuiHandler.GUI_KEY, worldIn, pos.getX(), pos.getY(), pos.getZ());
         playerIn.addStat(StatList.ENDERCHEST_OPENED);
 
         return EnumActionResult.SUCCESS;
+    }
+
+    public static int getId(ItemStack stack)
+    {
+        int color1 = 0;
+        int color2 = 0;
+        int color3 = 0;
+
+        NBTTagCompound tag = stack.getTagCompound();
+        if (tag != null)
+        {
+            color1 = tag.getByte("Color1");
+            color2 = tag.getByte("Color2");
+            color3 = tag.getByte("Color3");
+        }
+
+        return (color1 << 4) | (color2 << 8) | (color3 << 12);
     }
 }

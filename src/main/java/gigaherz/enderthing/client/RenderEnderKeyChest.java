@@ -21,6 +21,9 @@ public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyC
         public ModelRenderer chestKey2;
         public ModelRenderer chestKey3;
 
+        public ModelRenderer chestKnob2;
+        public ModelRenderer chestKnob3;
+
         public ModelChestCustom()
         {
             super();
@@ -43,6 +46,17 @@ public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyC
             this.chestKey3.rotationPointY = 7.0F;
             this.chestKey3.rotationPointZ = 15.0F;
 
+            this.chestKnob2 = (new ModelRenderer(this, 0, 0)).setTextureSize(64, 64);
+            this.chestKnob2.addBox(-5.0F, -2.0F, -15.0F, 2, 4, 1, 0.0F);
+            this.chestKnob2.rotationPointX = 8.0F;
+            this.chestKnob2.rotationPointY = 7.0F;
+            this.chestKnob2.rotationPointZ = 15.0F;
+
+            this.chestKnob3 = (new ModelRenderer(this, 0, 0)).setTextureSize(64, 64);
+            this.chestKnob3.addBox(3.0F, -2.0F, -15.0F, 2, 4, 1, 0.0F);
+            this.chestKnob3.rotationPointX = 8.0F;
+            this.chestKnob3.rotationPointY = 7.0F;
+            this.chestKnob3.rotationPointZ = 15.0F;
         }
 
         @Override
@@ -52,6 +66,12 @@ public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyC
             this.chestKey2.rotateAngleX = this.chestLid.rotateAngleX;
             this.chestKey3.rotateAngleX = this.chestLid.rotateAngleX;
             super.renderAll();
+        }
+
+        public void renderExtraKnobs()
+        {
+            this.chestKnob2.render(1 / 16.0F);
+            this.chestKnob3.render(1 / 16.0F);
         }
 
         public void renderKeys(int color1, int color2, int color3)
@@ -102,7 +122,7 @@ public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyC
         int j = 0;
         if (te.hasWorldObj())
         {
-            switch (te.getBlockMetadata())
+            switch (te.getBlockMetadata()&7)
             {
                 case 2:
                     j = 180;
@@ -136,6 +156,9 @@ public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyC
         this.modelChest.chestLid.rotateAngleX = -(f * ((float) Math.PI / 2F));
 
         this.modelChest.renderAll();
+
+        if(te.isPrivate())
+            this.modelChest.renderExtraKnobs();
 
         if (destroyStage < 0)
         {

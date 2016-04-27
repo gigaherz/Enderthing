@@ -1,14 +1,21 @@
 package gigaherz.enderthing.blocks;
 
+import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.storage.EnderKeyInventory;
-import gigaherz.enderthing.storage.SharedInventoryManager;
+import gigaherz.enderthing.storage.GlobalInventoryManager;
+import gigaherz.enderthing.storage.IInventoryManager;
+import gigaherz.enderthing.storage.PrivateInventoryManager;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -17,7 +24,24 @@ import net.minecraftforge.items.CapabilityItemHandler;
 public class TileEnderKeyChest
         extends TileEntityEnderChest
 {
+    public static class Private extends TileEnderKeyChest
+    {
+        public Private()
+        {
+            isPrivate = true;
+        }
+    }
+
     private int inventoryId;
+
+    private int ticksSinceSync;
+
+    protected boolean isPrivate;
+    public boolean isPrivate() { return this.isPrivate; }
+
+    public TileEnderKeyChest()
+    {
+    }
 
     public int getInventoryId()
     {
@@ -36,9 +60,9 @@ public class TileEnderKeyChest
         if (inventoryId < 0)
             return null;
 
-        if (inventory == null)
+        if (inventory == null && !isPrivate)
         {
-            inventory = SharedInventoryManager.get(worldObj).getInventory(inventoryId);
+            inventory = GlobalInventoryManager.get(worldObj).getInventory(inventoryId);
             inventory.addWeakListener(this);
         }
         return inventory;
@@ -98,5 +122,74 @@ public class TileEnderKeyChest
     public boolean canRenderBreaking()
     {
         return true;
+    }
+
+    @Override
+    public void update()
+    {
+        if (++this.ticksSinceSync % 20 * 4 == 0)
+        {
+            //this.worldObj.addBlockEvent(this.pos, Enderthing.blockEnderKeyChest, 1, this.numPlayersUsing);
+        }
+
+        this.prevLidAngle = this.lidAngle;
+        int i = this.pos.getX();
+        int j = this.pos.getY();
+        int k = this.pos.getZ();
+        float f = 0.1F;
+
+        if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F)
+        {
+            double d0 = (double)i + 0.5D;
+            double d1 = (double)k + 0.5D;
+            this.worldObj.playSound(null, d0, (double)j + 0.5D, d1, SoundEvents.BLOCK_ENDERCHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
+        }
+
+        if (this.numPlayersUsing == 0 && this.lidAngle > 0.0F || this.numPlayersUsing > 0 && this.lidAngle < 1.0F)
+        {
+            float f2 = this.lidAngle;
+
+            if (this.numPlayersUsing > 0)
+            {
+                this.lidAngle += f;
+            }
+            else
+            {
+                this.lidAngle -= f;
+            }
+
+            if (this.lidAngle > 1.0F)
+            {
+                this.lidAngle = 1.0F;
+            }
+
+            float f1 = 0.5F;
+
+            if (this.lidAngle < f1 && f2 >= f1)
+            {
+                double d3 = (double)i + 0.5D;
+                double d2 = (double)k + 0.5D;
+                this.worldObj.playSound(null, d3, (double)j + 0.5D, d2, SoundEvents.BLOCK_ENDERCHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
+            }
+
+            if (this.lidAngle < 0.0F)
+            {
+                this.lidAngle = 0.0F;
+            }
+        }
+    }
+
+    @Override
+    public boolean receiveClientEvent(int id, int type)
+    {
+        if (id == 1)
+        {
+            this.numPlayersUsing = type;
+            return true;
+        }
+        else
+        {
+            return super.receiveClientEvent(id, type);
+        }
     }
 }

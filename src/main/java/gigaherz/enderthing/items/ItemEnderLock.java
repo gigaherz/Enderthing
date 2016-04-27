@@ -25,13 +25,11 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
-public class ItemEnderLock extends ItemRegistered
+public class ItemEnderLock extends ItemEnderKey
 {
     public ItemEnderLock(String name)
     {
         super(name);
-        this.maxStackSize = 16;
-        this.setCreativeTab(Enderthing.tabEnderthing);
     }
 
     @Override
@@ -39,13 +37,14 @@ public class ItemEnderLock extends ItemRegistered
     {
         for (int i = 0; i < 16; i++)
         {
-            subItems.add(getItem(i, i, i));
+            subItems.add(getItem(i, i, i, false));
+            subItems.add(getItem(i, i, i, true));
         }
     }
 
-    public static ItemStack getItem(int c1, int c2, int c3)
+    public static ItemStack getItem(int c1, int c2, int c3, boolean priv)
     {
-        ItemStack key = new ItemStack(Enderthing.enderLock);
+        ItemStack key = new ItemStack(Enderthing.enderLock, 1, priv ? 1 : 0);
 
         NBTTagCompound tag = new NBTTagCompound();
         tag.setByte("Color1", (byte) c1);
@@ -55,29 +54,6 @@ public class ItemEnderLock extends ItemRegistered
         key.setTagCompound(tag);
 
         return key;
-    }
-
-    @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List<String> information, boolean advanced)
-    {
-        information.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".enderLock.rightClick"));
-
-        NBTTagCompound tag = stack.getTagCompound();
-        if (tag == null)
-        {
-            information.add(ChatFormatting.ITALIC + I18n.translateToLocal("text." + Enderthing.MODID + ".colorMissing"));
-            return;
-        }
-
-        int color1 = tag.getByte("Color1");
-        int color2 = tag.getByte("Color2");
-        int color3 = tag.getByte("Color3");
-
-        EnumDyeColor c1 = EnumDyeColor.byMetadata(color1);
-        EnumDyeColor c2 = EnumDyeColor.byMetadata(color2);
-        EnumDyeColor c3 = EnumDyeColor.byMetadata(color3);
-
-        information.add(I18n.translateToLocalFormatted("tooltip." + Enderthing.MODID + ".colors", c1.getName(), c2.getName(), c3.getName()));
     }
 
     @Override
@@ -97,7 +73,8 @@ public class ItemEnderLock extends ItemRegistered
         if (b == Blocks.ENDER_CHEST)
         {
             worldIn.setBlockState(pos, Enderthing.blockEnderKeyChest.getDefaultState()
-                    .withProperty(BlockEnderKeyChest.FACING, state.getValue(BlockEnderChest.FACING)));
+                    .withProperty(BlockEnderKeyChest.FACING, state.getValue(BlockEnderChest.FACING))
+                    .withProperty(BlockEnderKeyChest.PRIVATE, (stack.getMetadata()&1) != 0));
 
             state = worldIn.getBlockState(pos);
             te = worldIn.getTileEntity(pos);
@@ -123,7 +100,7 @@ public class ItemEnderLock extends ItemRegistered
                 int oldColor2 = (oldId >> 4) & 15;
                 int oldColor3 = (oldId >> 8) & 15;
 
-                ItemStack oldStack = new ItemStack(Enderthing.enderLock);
+                ItemStack oldStack = new ItemStack(Enderthing.enderLock, 1, state.getValue(BlockEnderKeyChest.PRIVATE) ? 1 : 0);
 
                 NBTTagCompound oldTag = new NBTTagCompound();
                 oldTag.setByte("Color1", (byte) oldColor1);
@@ -145,22 +122,5 @@ public class ItemEnderLock extends ItemRegistered
         }
 
         return EnumActionResult.PASS;
-    }
-
-    public static int getId(ItemStack stack)
-    {
-        int color1 = 0;
-        int color2 = 0;
-        int color3 = 0;
-
-        NBTTagCompound tag = stack.getTagCompound();
-        if (tag != null)
-        {
-            color1 = tag.getByte("Color1");
-            color2 = tag.getByte("Color2");
-            color3 = tag.getByte("Color3");
-        }
-
-        return (color1 << 4) | (color2 << 8) | (color3 << 12);
     }
 }

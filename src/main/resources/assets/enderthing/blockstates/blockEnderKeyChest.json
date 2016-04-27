@@ -1,16 +1,24 @@
 {
+  "forge_marker": 1,
+  "defaults": {
+    "model": "enderthing:builtin_entity"
+  },
   "variants": {
-    "facing=north": {
+    "facing=north,inventory=true,private=false": [{
       "model": "enderthing:blockEnderKeyChest"
+    }],
+    "facing=north,inventory=true,private=true": [{
+      "model": "enderthing:blockEnderKeyPrivateChest"
+    }],
+    "facing": {
+      "north": {},
+      "south": {},
+      "east": {},
+      "west": {}
     },
-    "facing=south": {
-      "model": "enderthing:blockEnderKeyChest"
-    },
-    "facing=east": {
-      "model": "enderthing:blockEnderKeyChest"
-    },
-    "facing=west": {
-      "model": "enderthing:blockEnderKeyChest"
+    "private": {
+      "false": {},
+      "true": {}
     }
   }
 }

@@ -61,7 +61,7 @@ public class LockRecipe implements IRecipe
         int c2 = wool2.getMetadata();
         int c3 = wool3.getMetadata();
 
-        return ItemEnderLock.getItem(c1, c2, c3);
+        return ItemEnderLock.getItem(c1, c2, c3, false);
     }
 
     @Override

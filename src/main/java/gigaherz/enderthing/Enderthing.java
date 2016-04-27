@@ -7,6 +7,8 @@ import gigaherz.enderthing.items.ItemEnderKey;
 import gigaherz.enderthing.items.ItemEnderLock;
 import gigaherz.enderthing.recipes.KeyRecipe;
 import gigaherz.enderthing.recipes.LockRecipe;
+import gigaherz.enderthing.recipes.MakePrivateRecipe;
+import gigaherz.enderthing.storage.PrivateInventoryManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.Mod;
@@ -49,6 +51,7 @@ public class Enderthing
 
     public static KeyRecipe keyRecipe;
     public static LockRecipe lockRecipe;
+    public static MakePrivateRecipe makePrivate;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -57,6 +60,7 @@ public class Enderthing
         GameRegistry.register(blockEnderKeyChest);
         GameRegistry.register(blockEnderKeyChest.createItemBlock());
         GameRegistry.registerTileEntity(TileEnderKeyChest.class, "tileEnderKeyChest");
+        GameRegistry.registerTileEntity(TileEnderKeyChest.Private.class, "tileEnderKeyPrivateChest");
 
         enderKey = new ItemEnderKey("enderKey");
         GameRegistry.register(enderKey);
@@ -65,6 +69,8 @@ public class Enderthing
         GameRegistry.register(enderLock);
 
         NetworkRegistry.INSTANCE.registerGuiHandler(this, guiHandler);
+
+        PrivateInventoryManager.register();
 
         proxy.preInit();
     }
@@ -76,7 +82,9 @@ public class Enderthing
 
         GameRegistry.addRecipe(keyRecipe = new KeyRecipe());
         GameRegistry.addRecipe(lockRecipe = new LockRecipe());
+        GameRegistry.addRecipe(makePrivate = new MakePrivateRecipe());
         RecipeSorter.register(MODID + ":key_recipe", KeyRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
         RecipeSorter.register(MODID + ":lock_recipe", LockRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
+        RecipeSorter.register(MODID + ":make_private", MakePrivateRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
     }
 }

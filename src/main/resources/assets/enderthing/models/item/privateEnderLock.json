@@ -1,0 +1,6 @@
+{
+  "parent": "enderthing:item/enderLock",
+  "textures": {
+    "layer4": "enderthing:items/lock_private"
+  }
+}

@@ -7,17 +7,19 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
-public class KeyRecipe implements IRecipe
+public class MakePrivateRecipe implements IRecipe
 {
     public static final ItemStack[] PATTERN = {
-            new ItemStack(Blocks.OBSIDIAN), null, null,
-            new ItemStack(Items.ENDER_EYE), new ItemStack(Blocks.OBSIDIAN), new ItemStack(Blocks.OBSIDIAN),
-            new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
-            new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
-            new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE)
+            null, new ItemStack(Items.GOLD_NUGGET), null,
+            new ItemStack(Items.GOLD_NUGGET),
+            new ItemStack(Enderthing.enderKey),
+            new ItemStack(Items.GOLD_NUGGET),
+            null, new ItemStack(Items.GOLD_NUGGET), null
+
     };
 
     @Override
@@ -34,6 +36,12 @@ public class KeyRecipe implements IRecipe
             if (pat == null)
             {
                 if (stack != null)
+                    return false;
+            }
+            else if (pat.getItem() == Enderthing.enderKey)
+            {
+                if (stack.getItem() != Enderthing.enderKey
+                        && stack.getItem() != Enderthing.enderLock || (stack.getMetadata()&1) != 0)
                     return false;
             }
             else
@@ -53,15 +61,17 @@ public class KeyRecipe implements IRecipe
     @Override
     public ItemStack getCraftingResult(InventoryCrafting inv)
     {
-        ItemStack wool1 = inv.getStackInSlot(6);
-        ItemStack wool2 = inv.getStackInSlot(7);
-        ItemStack wool3 = inv.getStackInSlot(8);
+        ItemStack itemStack = inv.getStackInSlot(4);
 
-        int c1 = wool1.getMetadata();
-        int c2 = wool2.getMetadata();
-        int c3 = wool3.getMetadata();
+        NBTTagCompound tag = itemStack.getTagCompound();
+        if(tag != null)
+            tag = (NBTTagCompound)tag.copy();
 
-        return ItemEnderKey.getItem(c1, c2, c3, false);
+        ItemStack out = new ItemStack(itemStack.getItem(), 1, 1);
+
+        out.setTagCompound(tag);
+
+        return out;
     }
 
     @Override

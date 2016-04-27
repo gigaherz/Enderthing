@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.network.IGuiHandler;
 public class GuiHandler implements IGuiHandler
 {
     public static final int GUI_KEY = 0;
+    public static final int GUI_KEY_PRIVATE = 1;
 
     @Override
     public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
@@ -15,7 +16,8 @@ public class GuiHandler implements IGuiHandler
         switch (id & 4)
         {
             case GUI_KEY:
-                return new ContainerKey(player.inventory, id >> 4, player, world, new BlockPos(x, y, z));
+            case GUI_KEY_PRIVATE:
+                return new ContainerKey(player.inventory, id, player, world, new BlockPos(x, y, z));
         }
 
         return null;
@@ -27,7 +29,8 @@ public class GuiHandler implements IGuiHandler
         switch (id & 4)
         {
             case GUI_KEY:
-                return new GuiKey(player.inventory, id >> 4, player, world, new BlockPos(x, y, z));
+            case GUI_KEY_PRIVATE:
+                return new GuiKey(player.inventory, id, player, world, new BlockPos(x, y, z));
         }
 
         return null;
