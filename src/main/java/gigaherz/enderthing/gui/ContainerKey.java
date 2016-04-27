@@ -6,6 +6,7 @@ import gigaherz.enderthing.storage.PrivateInventoryManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -22,7 +23,11 @@ public class ContainerKey extends Container
 
     public ContainerKey(InventoryPlayer playerInventory, int id, EntityPlayer player, World world, BlockPos pos)
     {
-        if (world != null)
+        boolean hasTE = world != null && (id & 2) == 0;
+
+        int lockedSlot = -1;
+
+        if (hasTE)
         {
             TileEntity te = world.getTileEntity(pos);
             if (te instanceof TileEntityEnderChest)
@@ -33,6 +38,10 @@ public class ContainerKey extends Container
 
             this.world = world;
             this.pos = pos;
+        }
+        else
+        {
+            lockedSlot = pos.getX();
         }
 
         IInventoryManager mgr = (id & 1) != 0 ?
@@ -49,17 +58,44 @@ public class ContainerKey extends Container
             }
         }
 
-        for (int l = 0; l < 3; ++l)
+        for (int py = 0; py < 3; ++py)
         {
-            for (int j1 = 0; j1 < 9; ++j1)
+            for (int px = 0; px < 9; ++px)
             {
-                this.addSlotToContainer(new Slot(playerInventory, j1 + l * 9 + 9, 8 + j1 * 18, 103 + l * 18 - 18));
+                int slot = px + py * 9 + 9;
+                if (slot == lockedSlot)
+                    this.addSlotToContainer(new SlotNoAccess(playerInventory, slot, 8 + px * 18, 103 + py * 18 - 18));
+                else
+                    this.addSlotToContainer(new Slot(playerInventory, slot, 8 + px * 18, 103 + py * 18 - 18));
             }
         }
 
-        for (int i1 = 0; i1 < 9; ++i1)
+        for (int slot = 0; slot < 9; ++slot)
         {
-            this.addSlotToContainer(new Slot(playerInventory, i1, 8 + i1 * 18, 143));
+            if (slot == lockedSlot)
+                this.addSlotToContainer(new SlotNoAccess(playerInventory, slot, 8 + slot * 18, 143));
+            else
+                this.addSlotToContainer(new Slot(playerInventory, slot, 8 + slot * 18, 143));
+        }
+    }
+
+    public static class SlotNoAccess extends Slot
+    {
+        public SlotNoAccess(IInventory inventoryIn, int index, int xPosition, int yPosition)
+        {
+            super(inventoryIn, index, xPosition, yPosition);
+        }
+
+        @Override
+        public boolean canTakeStack(EntityPlayer playerIn)
+        {
+            return false;
+        }
+
+        @Override
+        public boolean isItemValid(ItemStack stack)
+        {
+            return false;
         }
     }
 

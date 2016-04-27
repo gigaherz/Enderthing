@@ -17,7 +17,6 @@ public class MakePrivateRecipe implements IRecipe
             new ItemStack(Enderthing.enderKey),
             new ItemStack(Items.gold_nugget),
             null, new ItemStack(Items.gold_nugget), null
-
     };
 
     @Override
@@ -38,8 +37,9 @@ public class MakePrivateRecipe implements IRecipe
             }
             else if (pat.getItem() == Enderthing.enderKey)
             {
-                if (stack.getItem() != Enderthing.enderKey
-                        && stack.getItem() != Enderthing.enderLock || (stack.getMetadata() & 1) != 0)
+                if ((stack.getItem() != Enderthing.enderKey
+                        && stack.getItem() != Enderthing.enderLock
+                        && stack.getItem() != Enderthing.enderPack) || (stack.getMetadata() & 1) != 0)
                     return false;
             }
             else

@@ -6,13 +6,13 @@ import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 
 import javax.annotation.Nonnull;
 
-public class EnderKeyRecipeHandler implements IRecipeHandler<EnderKeyRecipeWrapper>
+public class EnderPackRecipeHandler implements IRecipeHandler<EnderPackRecipeWrapper>
 {
     @Nonnull
     @Override
-    public Class<EnderKeyRecipeWrapper> getRecipeClass()
+    public Class<EnderPackRecipeWrapper> getRecipeClass()
     {
-        return EnderKeyRecipeWrapper.class;
+        return EnderPackRecipeWrapper.class;
     }
 
     @Nonnull
@@ -24,13 +24,13 @@ public class EnderKeyRecipeHandler implements IRecipeHandler<EnderKeyRecipeWrapp
 
     @Nonnull
     @Override
-    public IRecipeWrapper getRecipeWrapper(@Nonnull EnderKeyRecipeWrapper recipe)
+    public IRecipeWrapper getRecipeWrapper(@Nonnull EnderPackRecipeWrapper recipe)
     {
         return recipe;
     }
 
     @Override
-    public boolean isRecipeValid(@Nonnull EnderKeyRecipeWrapper recipe)
+    public boolean isRecipeValid(@Nonnull EnderPackRecipeWrapper recipe)
     {
         return true;
     }

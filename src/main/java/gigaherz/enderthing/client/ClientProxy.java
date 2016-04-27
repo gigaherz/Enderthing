@@ -29,6 +29,8 @@ public class ClientProxy implements IModProxy
         registerItemModel(Enderthing.enderKey, 1, "privateEnderKey");
         registerItemModel(Enderthing.enderLock, 0, "enderLock");
         registerItemModel(Enderthing.enderLock, 1, "privateEnderLock");
+        registerItemModel(Enderthing.enderPack, 0, "enderPack");
+        registerItemModel(Enderthing.enderPack, 1, "privateEnderPack");
     }
 
     public void registerBlockModelAsItem(final Block block, int meta, final String itemModelVariant)

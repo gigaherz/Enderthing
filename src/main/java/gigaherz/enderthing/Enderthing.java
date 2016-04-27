@@ -5,10 +5,12 @@ import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import gigaherz.enderthing.gui.GuiHandler;
 import gigaherz.enderthing.items.ItemEnderKey;
 import gigaherz.enderthing.items.ItemEnderLock;
+import gigaherz.enderthing.items.ItemEnderPack;
 import gigaherz.enderthing.network.UpdatePlayersUsing;
 import gigaherz.enderthing.recipes.KeyRecipe;
 import gigaherz.enderthing.recipes.LockRecipe;
 import gigaherz.enderthing.recipes.MakePrivateRecipe;
+import gigaherz.enderthing.recipes.PackRecipe;
 import gigaherz.enderthing.storage.PrivateInventoryManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -36,6 +38,7 @@ public class Enderthing
     public static BlockEnderKeyChest blockEnderKeyChest;
     public static ItemEnderKey enderKey;
     public static ItemEnderLock enderLock;
+    public static ItemEnderPack enderPack;
 
     @Mod.Instance(value = Enderthing.MODID)
     public static Enderthing instance;
@@ -56,6 +59,7 @@ public class Enderthing
 
     public static KeyRecipe keyRecipe;
     public static LockRecipe lockRecipe;
+    public static PackRecipe packRecipe;
     public static MakePrivateRecipe makePrivate;
 
     public static SimpleNetworkWrapper channel;
@@ -77,6 +81,9 @@ public class Enderthing
         enderLock = new ItemEnderLock("enderLock");
         GameRegistry.registerItem(enderLock);
 
+        enderPack = new ItemEnderPack("enderPack");
+        GameRegistry.registerItem(enderPack);
+
         NetworkRegistry.INSTANCE.registerGuiHandler(this, guiHandler);
 
         PrivateInventoryManager.register();
@@ -97,9 +104,11 @@ public class Enderthing
 
         GameRegistry.addRecipe(keyRecipe = new KeyRecipe());
         GameRegistry.addRecipe(lockRecipe = new LockRecipe());
+        GameRegistry.addRecipe(packRecipe = new PackRecipe());
         GameRegistry.addRecipe(makePrivate = new MakePrivateRecipe());
         RecipeSorter.register(MODID + ":key_recipe", KeyRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
         RecipeSorter.register(MODID + ":lock_recipe", LockRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
+        RecipeSorter.register(MODID + ":pack_recipe", PackRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
         RecipeSorter.register(MODID + ":make_private", MakePrivateRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
     }
 }

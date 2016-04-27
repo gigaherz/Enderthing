@@ -10,14 +10,14 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
-public class KeyRecipe implements IRecipe
+public class PackRecipe implements IRecipe
 {
     public static final ItemStack[] PATTERN = {
-            new ItemStack(Blocks.obsidian), null, null,
-            new ItemStack(Items.ender_eye), new ItemStack(Blocks.obsidian), new ItemStack(Blocks.obsidian),
+            new ItemStack(Items.leather), new ItemStack(Items.ender_eye), new ItemStack(Items.leather),
             new ItemStack(Blocks.wool, 1, OreDictionary.WILDCARD_VALUE),
             new ItemStack(Blocks.wool, 1, OreDictionary.WILDCARD_VALUE),
-            new ItemStack(Blocks.wool, 1, OreDictionary.WILDCARD_VALUE)
+            new ItemStack(Blocks.wool, 1, OreDictionary.WILDCARD_VALUE),
+            new ItemStack(Items.leather), new ItemStack(Blocks.ender_chest), new ItemStack(Items.leather)
     };
 
     @Override
@@ -53,15 +53,15 @@ public class KeyRecipe implements IRecipe
     @Override
     public ItemStack getCraftingResult(InventoryCrafting inv)
     {
-        ItemStack wool1 = inv.getStackInSlot(6);
-        ItemStack wool2 = inv.getStackInSlot(7);
-        ItemStack wool3 = inv.getStackInSlot(8);
+        ItemStack wool1 = inv.getStackInSlot(3);
+        ItemStack wool2 = inv.getStackInSlot(4);
+        ItemStack wool3 = inv.getStackInSlot(5);
 
         int c1 = wool1.getMetadata();
         int c2 = wool2.getMetadata();
         int c3 = wool3.getMetadata();
 
-        return ItemEnderthing.getItem(Enderthing.enderKey, c1, c2, c3, false);
+        return ItemEnderthing.getItem(Enderthing.enderPack, c1, c2, c3, false);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class KeyRecipe implements IRecipe
     @Override
     public ItemStack getRecipeOutput()
     {
-        return new ItemStack(Enderthing.enderKey);
+        return new ItemStack(Enderthing.enderLock);
     }
 
     @Override

@@ -1,0 +1,6 @@
+{
+  "parent": "enderthing:item/enderPack",
+  "textures": {
+    "layer4": "enderthing:items/pack_private"
+  }
+}
