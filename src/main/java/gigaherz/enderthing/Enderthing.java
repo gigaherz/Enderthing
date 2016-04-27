@@ -5,6 +5,7 @@ import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import gigaherz.enderthing.gui.GuiHandler;
 import gigaherz.enderthing.items.ItemEnderKey;
 import gigaherz.enderthing.items.ItemEnderLock;
+import gigaherz.enderthing.network.UpdatePlayersUsing;
 import gigaherz.enderthing.recipes.KeyRecipe;
 import gigaherz.enderthing.recipes.LockRecipe;
 import gigaherz.enderthing.recipes.MakePrivateRecipe;
@@ -16,8 +17,11 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.RecipeSorter;
+import org.apache.logging.log4j.Logger;
 
 @Mod(name = Enderthing.NAME,
         modid = Enderthing.MODID,
@@ -27,6 +31,7 @@ public class Enderthing
     public static final String NAME = "Enderthing";
     public static final String MODID = "enderthing";
     public static final String VERSION = "@VERSION@";
+    public static final String CHANNEL = "Enderthing";
 
     public static BlockEnderKeyChest blockEnderKeyChest;
     public static ItemEnderKey enderKey;
@@ -53,9 +58,14 @@ public class Enderthing
     public static LockRecipe lockRecipe;
     public static MakePrivateRecipe makePrivate;
 
+    public static SimpleNetworkWrapper channel;
+    public static Logger logger;
+
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+        logger = event.getModLog();
+
         blockEnderKeyChest = new BlockEnderKeyChest("blockEnderKeyChest");
         GameRegistry.register(blockEnderKeyChest);
         GameRegistry.register(blockEnderKeyChest.createItemBlock());
@@ -71,6 +81,12 @@ public class Enderthing
         NetworkRegistry.INSTANCE.registerGuiHandler(this, guiHandler);
 
         PrivateInventoryManager.register();
+
+        channel = NetworkRegistry.INSTANCE.newSimpleChannel(CHANNEL);
+
+        int messageNumber = 0;
+        channel.registerMessage(UpdatePlayersUsing.Handler.class, UpdatePlayersUsing.class, messageNumber++, Side.CLIENT);
+        logger.debug("Final message number: " + messageNumber);
 
         proxy.preInit();
     }

@@ -2,7 +2,6 @@ package gigaherz.enderthing.integration;
 
 import com.google.common.collect.Lists;
 import gigaherz.enderthing.Enderthing;
-import gigaherz.enderthing.items.ItemEnderLock;
 import gigaherz.enderthing.recipes.LockRecipe;
 import mezz.jei.api.recipe.BlankRecipeWrapper;
 import mezz.jei.api.recipe.wrapper.IShapedCraftingRecipeWrapper;

@@ -1,6 +1,7 @@
 package gigaherz.enderthing.blocks;
 
 import gigaherz.enderthing.Enderthing;
+import gigaherz.enderthing.network.UpdatePlayersUsing;
 import gigaherz.enderthing.storage.EnderKeyInventory;
 import gigaherz.enderthing.storage.GlobalInventoryManager;
 import gigaherz.enderthing.storage.IInventoryManager;
@@ -19,6 +20,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.items.CapabilityItemHandler;
 
 public class TileEnderKeyChest
@@ -127,27 +129,30 @@ public class TileEnderKeyChest
     @Override
     public void update()
     {
-        if (++this.ticksSinceSync % 20 * 4 == 0)
+        if (++this.ticksSinceSync % (20 * 4) == 0)
         {
-            //this.worldObj.addBlockEvent(this.pos, Enderthing.blockEnderKeyChest, 1, this.numPlayersUsing);
+            if (!worldObj.isRemote)
+            {
+                Enderthing.channel.sendToAllAround(new UpdatePlayersUsing(pos, 1, numPlayersUsing),
+                        new NetworkRegistry.TargetPoint(worldObj.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 64));
+            }
         }
 
         this.prevLidAngle = this.lidAngle;
-        int i = this.pos.getX();
-        int j = this.pos.getY();
-        int k = this.pos.getZ();
+        int x = this.pos.getX();
+        int y = this.pos.getY();
+        int z = this.pos.getZ();
         float f = 0.1F;
 
         if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F)
         {
-            double d0 = (double)i + 0.5D;
-            double d1 = (double)k + 0.5D;
-            this.worldObj.playSound(null, d0, (double)j + 0.5D, d1, SoundEvents.BLOCK_ENDERCHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
+            this.worldObj.playSound(null, x + 0.5D, y + 0.5D, z + 0.5D,
+                    SoundEvents.BLOCK_ENDERCHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
         }
 
         if (this.numPlayersUsing == 0 && this.lidAngle > 0.0F || this.numPlayersUsing > 0 && this.lidAngle < 1.0F)
         {
-            float f2 = this.lidAngle;
+            float prevAngle = this.lidAngle;
 
             if (this.numPlayersUsing > 0)
             {
@@ -163,13 +168,12 @@ public class TileEnderKeyChest
                 this.lidAngle = 1.0F;
             }
 
-            float f1 = 0.5F;
+            float closedThreshold = 0.5F;
 
-            if (this.lidAngle < f1 && f2 >= f1)
+            if (this.lidAngle < closedThreshold && prevAngle >= closedThreshold)
             {
-                double d3 = (double)i + 0.5D;
-                double d2 = (double)k + 0.5D;
-                this.worldObj.playSound(null, d3, (double)j + 0.5D, d2, SoundEvents.BLOCK_ENDERCHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
+                this.worldObj.playSound(null, x + 0.5D, y + 0.5D, z + 0.5D,
+                        SoundEvents.BLOCK_ENDERCHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
             }
 
             if (this.lidAngle < 0.0F)
@@ -179,17 +183,11 @@ public class TileEnderKeyChest
         }
     }
 
-    @Override
-    public boolean receiveClientEvent(int id, int type)
+    public void receiveUpdate(int id, int value)
     {
         if (id == 1)
         {
-            this.numPlayersUsing = type;
-            return true;
-        }
-        else
-        {
-            return super.receiveClientEvent(id, type);
+            this.numPlayersUsing = value;
         }
     }
 }
