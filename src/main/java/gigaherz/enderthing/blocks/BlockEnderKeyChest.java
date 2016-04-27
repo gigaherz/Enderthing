@@ -175,6 +175,7 @@ public class BlockEnderKeyChest
         return true;
     }
 
+    @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return ENDER_CHEST_AABB;

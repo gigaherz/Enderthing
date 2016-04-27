@@ -19,9 +19,9 @@ repositories {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "0.4.0"
+version = "0.4.1"
 group= "gigaherz.enderthing" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "enderthing"
+archivesBaseName = "enderthing-1.9"
 
 minecraft {
     version = "1.9-12.16.0.1865-1.9"
