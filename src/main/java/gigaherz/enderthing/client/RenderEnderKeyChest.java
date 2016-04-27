@@ -122,7 +122,7 @@ public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyC
         int j = 0;
         if (te.hasWorldObj())
         {
-            switch (te.getBlockMetadata()&7)
+            switch (te.getBlockMetadata() & 7)
             {
                 case 2:
                     j = 180;
@@ -157,7 +157,7 @@ public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyC
 
         this.modelChest.renderAll();
 
-        if(te.isPrivate())
+        if (te.isPrivate())
             this.modelChest.renderExtraKnobs();
 
         if (destroyStage < 0)

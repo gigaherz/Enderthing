@@ -4,11 +4,7 @@ import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.network.UpdatePlayersUsing;
 import gigaherz.enderthing.storage.EnderKeyInventory;
 import gigaherz.enderthing.storage.GlobalInventoryManager;
-import gigaherz.enderthing.storage.IInventoryManager;
-import gigaherz.enderthing.storage.PrivateInventoryManager;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -39,7 +35,11 @@ public class TileEnderKeyChest
     private int ticksSinceSync;
 
     protected boolean isPrivate;
-    public boolean isPrivate() { return this.isPrivate; }
+
+    public boolean isPrivate()
+    {
+        return this.isPrivate;
+    }
 
     public TileEnderKeyChest()
     {

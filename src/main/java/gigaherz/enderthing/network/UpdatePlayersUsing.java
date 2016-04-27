@@ -3,10 +3,8 @@ package gigaherz.enderthing.network;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -68,7 +66,7 @@ public class UpdatePlayersUsing
                     TileEntity te = Minecraft.getMinecraft().theWorld.getTileEntity(pos);
                     if (te instanceof TileEnderKeyChest)
                     {
-                        TileEnderKeyChest chest = (TileEnderKeyChest)te;
+                        TileEnderKeyChest chest = (TileEnderKeyChest) te;
                         chest.receiveUpdate(field, value);
                     }
                 }

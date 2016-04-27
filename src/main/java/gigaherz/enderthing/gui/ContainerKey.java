@@ -35,11 +35,11 @@ public class ContainerKey extends Container
             this.pos = pos;
         }
 
-        IInventoryManager mgr = (id&1) != 0 ?
+        IInventoryManager mgr = (id & 1) != 0 ?
                 PrivateInventoryManager.get(player) :
                 GlobalInventoryManager.get(world);
 
-        IItemHandler inventory = mgr.getInventory(id>>4);
+        IItemHandler inventory = mgr.getInventory(id >> 4);
 
         for (int j = 0; j < 3; ++j)
         {
@@ -68,7 +68,7 @@ public class ContainerKey extends Container
     {
         super.onContainerClosed(playerIn);
 
-        if(world != null)
+        if (world != null)
         {
             TileEntity te = world.getTileEntity(pos);
             if (te instanceof TileEntityEnderChest)

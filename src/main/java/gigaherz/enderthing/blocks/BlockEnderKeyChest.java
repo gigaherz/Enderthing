@@ -82,7 +82,7 @@ public class BlockEnderKeyChest
     @Override
     public TileEntity createTileEntity(World world, IBlockState state)
     {
-        if(state.getValue(PRIVATE))
+        if (state.getValue(PRIVATE))
             return new TileEnderKeyChest.Private();
         return new TileEnderKeyChest();
     }
@@ -167,7 +167,7 @@ public class BlockEnderKeyChest
         TileEnderKeyChest chest = (TileEnderKeyChest) te;
 
         //noinspection PointlessBitwiseExpression
-        int id = chest.getInventoryId() << 4 |  (state.getValue(PRIVATE) ? GuiHandler.GUI_KEY_PRIVATE : GuiHandler.GUI_KEY);
+        int id = chest.getInventoryId() << 4 | (state.getValue(PRIVATE) ? GuiHandler.GUI_KEY_PRIVATE : GuiHandler.GUI_KEY);
 
         playerIn.openGui(Enderthing.instance, id, worldIn, pos.getX(), pos.getY(), pos.getZ());
         playerIn.addStat(StatList.ENDERCHEST_OPENED);
@@ -190,14 +190,14 @@ public class BlockEnderKeyChest
     public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite())
-                .withProperty(PRIVATE, (meta&8) != 0);
+                .withProperty(PRIVATE, (meta & 8) != 0);
     }
 
     @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
         worldIn.setBlockState(pos, state.withProperty(FACING, placer.getHorizontalFacing().getOpposite())
-                .withProperty(PRIVATE, (stack.getMetadata()&8) != 0), 2);
+                .withProperty(PRIVATE, (stack.getMetadata() & 8) != 0), 2);
     }
 
     @Override
@@ -221,7 +221,7 @@ public class BlockEnderKeyChest
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        EnumFacing enumfacing = EnumFacing.getFront(meta&7);
+        EnumFacing enumfacing = EnumFacing.getFront(meta & 7);
 
         if (enumfacing.getAxis() == EnumFacing.Axis.Y)
         {
@@ -229,7 +229,7 @@ public class BlockEnderKeyChest
         }
 
         return this.getDefaultState().withProperty(FACING, enumfacing)
-                .withProperty(PRIVATE, (meta&8) != 0);
+                .withProperty(PRIVATE, (meta & 8) != 0);
     }
 
     @Override
@@ -261,7 +261,7 @@ public class BlockEnderKeyChest
     {
         tooltip.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".enderKeyChest.rightClick"));
 
-        if((stack.getMetadata()&8) != 0)
+        if ((stack.getMetadata() & 8) != 0)
         {
             tooltip.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".private"));
         }
@@ -383,8 +383,8 @@ public class BlockEnderKeyChest
         {
             int id = i | (i << 4) | (i << 8);
 
-            list.add(getItem(id,false));
-            list.add(getItem(id,true));
+            list.add(getItem(id, false));
+            list.add(getItem(id, true));
         }
     }
 

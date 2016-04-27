@@ -1,8 +1,6 @@
 package gigaherz.enderthing.recipes;
 
 import gigaherz.enderthing.Enderthing;
-import gigaherz.enderthing.items.ItemEnderKey;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
@@ -41,7 +39,7 @@ public class MakePrivateRecipe implements IRecipe
             else if (pat.getItem() == Enderthing.enderKey)
             {
                 if (stack.getItem() != Enderthing.enderKey
-                        && stack.getItem() != Enderthing.enderLock || (stack.getMetadata()&1) != 0)
+                        && stack.getItem() != Enderthing.enderLock || (stack.getMetadata() & 1) != 0)
                     return false;
             }
             else
@@ -64,8 +62,8 @@ public class MakePrivateRecipe implements IRecipe
         ItemStack itemStack = inv.getStackInSlot(4);
 
         NBTTagCompound tag = itemStack.getTagCompound();
-        if(tag != null)
-            tag = (NBTTagCompound)tag.copy();
+        if (tag != null)
+            tag = (NBTTagCompound) tag.copy();
 
         ItemStack out = new ItemStack(itemStack.getItem(), 1, 1);
 

@@ -18,7 +18,8 @@ public class EnderKeyRecipeHandler implements IRecipeHandler<KeyRecipe>
 
     @Nonnull
     @Override
-    public String getRecipeCategoryUid() {
+    public String getRecipeCategoryUid()
+    {
         return VanillaRecipeCategoryUid.CRAFTING;
     }
 

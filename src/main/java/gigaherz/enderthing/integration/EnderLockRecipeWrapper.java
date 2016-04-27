@@ -22,7 +22,8 @@ public class EnderLockRecipeWrapper extends BlankRecipeWrapper implements IShape
     @Nonnull
     private final List<ItemStack> outputs;
 
-    public EnderLockRecipeWrapper() {
+    public EnderLockRecipeWrapper()
+    {
 
         inputs = Lists.newArrayList();
         inputs.addAll(Arrays.asList(LockRecipe.PATTERN).subList(0, 6));

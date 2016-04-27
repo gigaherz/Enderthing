@@ -65,7 +65,7 @@ public class PrivateInventoryManager
     @SubscribeEvent
     public void attachCapabilities(AttachCapabilitiesEvent.Entity ev)
     {
-        if(!(ev.getEntity() instanceof EntityPlayer))
+        if (!(ev.getEntity() instanceof EntityPlayer))
             return;
 
         ev.addCapability(KEY, new ICapabilitySerializable<NBTTagCompound>()

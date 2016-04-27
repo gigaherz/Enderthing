@@ -18,7 +18,8 @@ public class EnderLockRecipeHandler implements IRecipeHandler<LockRecipe>
 
     @Nonnull
     @Override
-    public String getRecipeCategoryUid() {
+    public String getRecipeCategoryUid()
+    {
         return VanillaRecipeCategoryUid.CRAFTING;
     }
 

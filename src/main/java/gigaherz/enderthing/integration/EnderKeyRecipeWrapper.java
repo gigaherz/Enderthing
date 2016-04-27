@@ -22,7 +22,8 @@ public class EnderKeyRecipeWrapper extends BlankRecipeWrapper implements IShaped
     @Nonnull
     private final List<ItemStack> outputs;
 
-    public EnderKeyRecipeWrapper() {
+    public EnderKeyRecipeWrapper()
+    {
 
         inputs = Lists.newArrayList();
         inputs.addAll(Arrays.asList(KeyRecipe.PATTERN).subList(0, 6));

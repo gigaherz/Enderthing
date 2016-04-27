@@ -60,7 +60,7 @@ public class ItemEnderKey extends ItemRegistered
     {
         information.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".enderKey.rightClick"));
 
-        if((stack.getMetadata()&1) != 0)
+        if ((stack.getMetadata() & 1) != 0)
         {
             information.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".private"));
         }

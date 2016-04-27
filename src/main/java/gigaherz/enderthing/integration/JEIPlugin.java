@@ -1,9 +1,11 @@
 package gigaherz.enderthing.integration;
 
-import mezz.jei.api.*;
+import mezz.jei.api.IJeiHelpers;
+import mezz.jei.api.IJeiRuntime;
+import mezz.jei.api.IModPlugin;
+import mezz.jei.api.IModRegistry;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
 
 @mezz.jei.api.JEIPlugin
 public class JEIPlugin implements IModPlugin

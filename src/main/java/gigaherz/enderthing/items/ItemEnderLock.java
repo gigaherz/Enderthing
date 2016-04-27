@@ -1,6 +1,5 @@
 package gigaherz.enderthing.items;
 
-import com.mojang.realmsclient.gui.ChatFormatting;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.blocks.BlockEnderKeyChest;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
@@ -11,7 +10,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -20,7 +18,6 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -74,7 +71,7 @@ public class ItemEnderLock extends ItemEnderKey
         {
             worldIn.setBlockState(pos, Enderthing.blockEnderKeyChest.getDefaultState()
                     .withProperty(BlockEnderKeyChest.FACING, state.getValue(BlockEnderChest.FACING))
-                    .withProperty(BlockEnderKeyChest.PRIVATE, (stack.getMetadata()&1) != 0));
+                    .withProperty(BlockEnderKeyChest.PRIVATE, (stack.getMetadata() & 1) != 0));
 
             state = worldIn.getBlockState(pos);
             te = worldIn.getTileEntity(pos);
