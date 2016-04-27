@@ -159,7 +159,7 @@ public class PrivateInventoryManager
         }
 
         @Override
-        public void markDirty()
+        public void setDirty()
         {
 
         }

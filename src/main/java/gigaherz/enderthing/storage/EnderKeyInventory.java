@@ -50,7 +50,7 @@ public class EnderKeyInventory extends ItemStackHandler
             }
         }
 
-        manager.markDirty();
+        manager.setDirty();
     }
 
     EnderKeyInventory(IInventoryManager manager)

@@ -40,6 +40,12 @@ public class GlobalInventoryManager extends WorldSavedData implements IInventory
         return instance;
     }
 
+    @Override
+    public void setDirty()
+    {
+        markDirty();
+    }
+
     public EnderKeyInventory getInventory(int id)
     {
         EnderKeyInventory rift = inventories.get(id);

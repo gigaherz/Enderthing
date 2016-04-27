@@ -19,7 +19,7 @@ repositories {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "0.3.0"
+version = "0.4.0"
 group= "gigaherz.enderthing" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "enderthing"
 
