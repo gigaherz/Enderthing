@@ -1,0 +1,9 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "enderthing:items/pack_base",
+    "layer1": "enderthing:items/pack_layer1",
+    "layer2": "enderthing:items/pack_layer2",
+    "layer3": "enderthing:items/pack_layer3"
+  }
+}

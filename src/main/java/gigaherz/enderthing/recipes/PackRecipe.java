@@ -1,23 +1,24 @@
 package gigaherz.enderthing.recipes;
 
 import gigaherz.enderthing.Enderthing;
+import gigaherz.enderthing.items.ItemEnderLock;
+import gigaherz.enderthing.items.ItemEnderPack;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
-public class MakePrivateRecipe implements IRecipe
+public class PackRecipe implements IRecipe
 {
     public static final ItemStack[] PATTERN = {
-            null, new ItemStack(Items.GOLD_NUGGET), null,
-            new ItemStack(Items.GOLD_NUGGET),
-            new ItemStack(Enderthing.enderKey),
-            new ItemStack(Items.GOLD_NUGGET),
-            null, new ItemStack(Items.GOLD_NUGGET), null
-
+            new ItemStack(Items.LEATHER), new ItemStack(Items.ENDER_EYE), new ItemStack(Items.LEATHER),
+            new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
+            new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
+            new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
+            new ItemStack(Blocks.OBSIDIAN), new ItemStack(Blocks.OBSIDIAN), new ItemStack(Blocks.OBSIDIAN)
     };
 
     @Override
@@ -34,13 +35,6 @@ public class MakePrivateRecipe implements IRecipe
             if (pat == null)
             {
                 if (stack != null)
-                    return false;
-            }
-            else if (pat.getItem() == Enderthing.enderKey)
-            {
-                if ((stack.getItem() != Enderthing.enderKey
-                        && stack.getItem() != Enderthing.enderLock
-                        && stack.getItem() != Enderthing.enderPack) || (stack.getMetadata() & 1) != 0)
                     return false;
             }
             else
@@ -60,17 +54,15 @@ public class MakePrivateRecipe implements IRecipe
     @Override
     public ItemStack getCraftingResult(InventoryCrafting inv)
     {
-        ItemStack itemStack = inv.getStackInSlot(4);
+        ItemStack wool1 = inv.getStackInSlot(3);
+        ItemStack wool2 = inv.getStackInSlot(4);
+        ItemStack wool3 = inv.getStackInSlot(5);
 
-        NBTTagCompound tag = itemStack.getTagCompound();
-        if (tag != null)
-            tag = (NBTTagCompound) tag.copy();
+        int c1 = wool1.getMetadata();
+        int c2 = wool2.getMetadata();
+        int c3 = wool3.getMetadata();
 
-        ItemStack out = new ItemStack(itemStack.getItem(), 1, 1);
-
-        out.setTagCompound(tag);
-
-        return out;
+        return ItemEnderPack.getItem(c1, c2, c3, false);
     }
 
     @Override
@@ -82,7 +74,7 @@ public class MakePrivateRecipe implements IRecipe
     @Override
     public ItemStack getRecipeOutput()
     {
-        return new ItemStack(Enderthing.enderKey);
+        return new ItemStack(Enderthing.enderLock);
     }
 
     @Override

@@ -15,25 +15,18 @@ public class GuiKey extends GuiContainer
 {
     private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
 
-    private static final String textBrowser = "container." + Enderthing.MODID + ".enderKey.name";
+    private static final String textGlobal = "container." + Enderthing.MODID + ".global.name";
+    private static final String textPrivate = "container." + Enderthing.MODID + ".private.name";
 
     protected InventoryPlayer player;
 
-    final EnumDyeColor c1;
-    final EnumDyeColor c2;
-    final EnumDyeColor c3;
+    final boolean isPrivate;
 
     public GuiKey(InventoryPlayer playerInventory, int id, EntityPlayer player, World world, BlockPos pos)
     {
         super(new ContainerKey(playerInventory, id, player, world, pos));
 
-        int color1 = id & 15;
-        int color2 = (id >> 4) & 15;
-        int color3 = (id >> 8) & 15;
-
-        c1 = EnumDyeColor.byMetadata(color1);
-        c2 = EnumDyeColor.byMetadata(color2);
-        c3 = EnumDyeColor.byMetadata(color3);
+        isPrivate = (id&1) != 0;
 
         this.player = playerInventory;
     }
@@ -51,7 +44,7 @@ public class GuiKey extends GuiContainer
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.translateToLocal(textBrowser), 8, 6, 4210752);
+        this.fontRendererObj.drawString(I18n.translateToLocal(isPrivate ? textPrivate : textGlobal), 8, 6, 4210752);
 
         mc.fontRendererObj.drawString(I18n.translateToLocal(player.getName()), 8, ySize - 96 + 2, 0x404040);
     }

@@ -19,13 +19,15 @@ public class JEIPlugin implements IModPlugin
         registry.addRecipeHandlers(
                 new EnderKeyRecipeHandler(),
                 new EnderLockRecipeHandler(),
+                new EnderPackRecipeHandler(),
                 new MakePrivateRecipeHandler()
         );
 
         registry.addRecipes(
                 Arrays.asList(
                         new MakePrivateRecipeWrapper(new ItemStack(Enderthing.enderKey), new ItemStack(Enderthing.enderKey, 1, 1)),
-                        new MakePrivateRecipeWrapper(new ItemStack(Enderthing.enderLock), new ItemStack(Enderthing.enderLock, 1, 1))
+                        new MakePrivateRecipeWrapper(new ItemStack(Enderthing.enderLock), new ItemStack(Enderthing.enderLock, 1, 1)),
+                        new MakePrivateRecipeWrapper(new ItemStack(Enderthing.enderPack), new ItemStack(Enderthing.enderPack, 1, 1))
                 ));
     }
 

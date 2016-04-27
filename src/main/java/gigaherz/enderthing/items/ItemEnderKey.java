@@ -27,8 +27,9 @@ public class ItemEnderKey extends ItemRegistered
     public ItemEnderKey(String name)
     {
         super(name);
-        this.maxStackSize = 16;
-        this.setCreativeTab(Enderthing.tabEnderthing);
+        setMaxStackSize(16);
+        setHasSubtypes(true);
+        setCreativeTab(Enderthing.tabEnderthing);
     }
 
     @Override
@@ -95,19 +96,7 @@ public class ItemEnderKey extends ItemRegistered
         if (b != Blocks.ENDER_CHEST && b != Enderthing.blockEnderKeyChest)
             return EnumActionResult.PASS;
 
-        int color1 = 0;
-        int color2 = 0;
-        int color3 = 0;
-
-        NBTTagCompound tag = stack.getTagCompound();
-        if (tag != null)
-        {
-            color1 = tag.getByte("Color1");
-            color2 = tag.getByte("Color2");
-            color3 = tag.getByte("Color3");
-        }
-
-        int id = (color1 << 4) | (color2 << 8) | (color3 << 12) | (stack.getMetadata() != 0 ? GuiHandler.GUI_KEY_PRIVATE : GuiHandler.GUI_KEY);
+        int id = getId(stack) | (stack.getMetadata() != 0 ? GuiHandler.GUI_KEY_PRIVATE : GuiHandler.GUI_KEY);
 
         //noinspection PointlessBitwiseExpression
         playerIn.openGui(Enderthing.instance, id | GuiHandler.GUI_KEY, worldIn, pos.getX(), pos.getY(), pos.getZ());

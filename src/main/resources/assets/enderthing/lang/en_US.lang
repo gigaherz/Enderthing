@@ -1,7 +1,9 @@
 tile.enderthing.blockEnderKeyChest.name=Ender Key Chest
-container.enderthing.enderKey.name=Ender Key Chest
+container.enderthing.global.name=Global Ender Inventory
+container.enderthing.private.name=Private Ender Inventory
 item.enderthing.enderKey.name=Ender Key
 item.enderthing.enderLock.name=Ender Lock
+item.enderthing.enderPack.name=Ender Pack
 itemGroup.tabEnderthing=Enderthing... Things
 
 tooltip.enderthing.colorMissing=The color depends on the wools used.
