@@ -7,13 +7,18 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.color.IItemColor;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.management.PlayerList;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+
+import java.util.UUID;
 
 public class ClientProxy implements IModProxy
 {
@@ -32,6 +37,7 @@ public class ClientProxy implements IModProxy
         registerItemModel(Enderthing.enderLock, 1, "privateEnderLock");
         registerItemModel(Enderthing.enderPack, 0, "enderPack");
         registerItemModel(Enderthing.enderPack, 1, "privateEnderPack");
+        registerItemModel(Enderthing.enderCard, 0, "enderCard");
     }
 
     public void registerBlockModelAsItem(final Block block, int meta, final String itemModelVariant)
@@ -125,5 +131,17 @@ public class ClientProxy implements IModProxy
                         return 0xFFFFFFFF;
                     }
                 }, Enderthing.blockEnderKeyChest);
+    }
+
+    @Override
+    public String queryNameFromUUID(ItemStack stack, UUID uuid)
+    {
+        PlayerList playerList = FMLClientHandler.instance().getServer().getPlayerList();
+        if(playerList == null)
+            return null;
+        EntityPlayer player = playerList.getPlayerByUUID(uuid);
+        if(player != null)
+            return player.getName();
+        return null;
     }
 }

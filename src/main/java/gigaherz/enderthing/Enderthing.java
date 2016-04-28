@@ -3,17 +3,21 @@ package gigaherz.enderthing;
 import gigaherz.enderthing.blocks.BlockEnderKeyChest;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import gigaherz.enderthing.gui.GuiHandler;
+import gigaherz.enderthing.items.ItemEnderCard;
 import gigaherz.enderthing.items.ItemEnderKey;
 import gigaherz.enderthing.items.ItemEnderLock;
 import gigaherz.enderthing.items.ItemEnderPack;
+import gigaherz.enderthing.items.ItemEnderCard;
 import gigaherz.enderthing.network.UpdatePlayersUsing;
 import gigaherz.enderthing.recipes.KeyRecipe;
 import gigaherz.enderthing.recipes.LockRecipe;
 import gigaherz.enderthing.recipes.MakePrivateRecipe;
 import gigaherz.enderthing.recipes.PackRecipe;
-import gigaherz.enderthing.storage.PrivateInventoryManager;
+import gigaherz.enderthing.storage.PrivateInventoryCapability;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -39,6 +43,7 @@ public class Enderthing
     public static ItemEnderKey enderKey;
     public static ItemEnderLock enderLock;
     public static ItemEnderPack enderPack;
+    public static ItemEnderCard enderCard;
 
     @Mod.Instance(value = Enderthing.MODID)
     public static Enderthing instance;
@@ -64,11 +69,13 @@ public class Enderthing
 
     public static SimpleNetworkWrapper channel;
     public static Logger logger;
+    public static Configuration config;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
         logger = event.getModLog();
+        config = new Configuration(event.getSuggestedConfigurationFile());
 
         blockEnderKeyChest = new BlockEnderKeyChest("blockEnderKeyChest");
         GameRegistry.register(blockEnderKeyChest);
@@ -85,9 +92,18 @@ public class Enderthing
         enderPack = new ItemEnderPack("enderPack");
         GameRegistry.register(enderPack);
 
+        enderCard = new ItemEnderCard("enderCard");
+        GameRegistry.register(enderCard);
+
         NetworkRegistry.INSTANCE.registerGuiHandler(this, guiHandler);
 
-        PrivateInventoryManager.register();
+        Property prop = config.get("Compatibility", "ImportCapabilityPrivateData", true);
+        if(prop.getBoolean())
+        {
+            PrivateInventoryCapability.register();
+            prop.set(false);
+            config.save();
+        }
 
         channel = NetworkRegistry.INSTANCE.newSimpleChannel(CHANNEL);
 

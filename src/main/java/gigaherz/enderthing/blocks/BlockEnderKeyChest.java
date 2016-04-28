@@ -45,6 +45,7 @@ public class BlockEnderKeyChest
 {
     public static final PropertyDirection FACING = BlockHorizontal.FACING;
     public static final PropertyBool PRIVATE = PropertyBool.create("private");
+    public static final PropertyBool BOUND = PropertyBool.create("bound");
     protected static final AxisAlignedBB ENDER_CHEST_AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0625D, 0.9375D, 0.875D, 0.9375D);
 
     public static final String INVENTORY_ID_KEY = "InventoryId";
@@ -54,7 +55,8 @@ public class BlockEnderKeyChest
         super(name, Material.ROCK);
         setDefaultState(this.blockState.getBaseState()
                 .withProperty(FACING, EnumFacing.NORTH)
-                .withProperty(PRIVATE, false));
+                .withProperty(PRIVATE, false)
+                .withProperty(BOUND, false));
         setCreativeTab(Enderthing.tabEnderthing);
         setHardness(22.5F);
         setResistance(1000.0F);
@@ -126,7 +128,7 @@ public class BlockEnderKeyChest
 
         if (this.canSilkHarvest(worldIn, pos, state, player) && EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) > 0)
         {
-            java.util.List<ItemStack> items = new java.util.ArrayList<ItemStack>();
+            List<ItemStack> items = Lists.newArrayList();
             ItemStack itemstack = this.getItem(worldIn, pos);
 
             if (itemstack != null)
@@ -279,36 +281,32 @@ public class BlockEnderKeyChest
     {
         for (int i = 0; i < 3; ++i)
         {
-            int j = rand.nextInt(2) * 2 - 1;
-            int k = rand.nextInt(2) * 2 - 1;
-            double d0 = (double) pos.getX() + 0.5D + 0.25D * (double) j;
-            double d1 = (double) ((float) pos.getY() + rand.nextFloat());
-            double d2 = (double) pos.getZ() + 0.5D + 0.25D * (double) k;
-            double d3 = (double) (rand.nextFloat() * (float) j);
-            double d4 = ((double) rand.nextFloat() - 0.5D) * 0.125D;
-            double d5 = (double) (rand.nextFloat() * (float) k);
-            worldIn.spawnParticle(EnumParticleTypes.PORTAL, d0, d1, d2, d3, d4, d5);
+            int xOffset = rand.nextInt(2) * 2 - 1;
+            int zOffset = rand.nextInt(2) * 2 - 1;
+            double xPos = pos.getX() + 0.5 + xOffset * 0.25;
+            double yPos = pos.getY() + rand.nextFloat();
+            double zPos = pos.getZ() + 0.5 + zOffset * 0.25;
+            double xSpeed = rand.nextFloat() * xOffset;
+            double ySpeed = rand.nextFloat() * 0.125 - 0.0625;
+            double zSpeed = rand.nextFloat() * zOffset;
+            worldIn.spawnParticle(EnumParticleTypes.PORTAL, xPos, yPos, zPos, xSpeed, ySpeed, zSpeed);
         }
     }
 
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        EnumFacing enumfacing = EnumFacing.getFront(meta & 7);
-
-        if (enumfacing.getAxis() == EnumFacing.Axis.Y)
-        {
-            enumfacing = EnumFacing.NORTH;
-        }
-
-        return this.getDefaultState().withProperty(FACING, enumfacing)
-                .withProperty(PRIVATE, (meta & 8) != 0);
+        return this.getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta & 3))
+                .withProperty(PRIVATE, (meta & 8) != 0)
+                .withProperty(BOUND, (meta & 12) == 12);
     }
 
     @Override
     public int getMetaFromState(IBlockState state)
     {
-        return state.getValue(FACING).getIndex() | (state.getValue(PRIVATE) ? 8 : 0);
+        return state.getValue(FACING).getHorizontalIndex()
+                | (state.getValue(PRIVATE) ? 8 : 0)
+                | (state.getValue(BOUND) ? 4:0);
     }
 
     @Override
@@ -326,7 +324,7 @@ public class BlockEnderKeyChest
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, FACING, PRIVATE);
+        return new BlockStateContainer(this, FACING, PRIVATE, BOUND);
     }
 
     @Override

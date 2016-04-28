@@ -1,8 +1,8 @@
 package gigaherz.enderthing.gui;
 
-import gigaherz.enderthing.storage.GlobalInventoryManager;
+import gigaherz.enderthing.blocks.TileEnderKeyChest;
+import gigaherz.enderthing.storage.InventoryManager;
 import gigaherz.enderthing.storage.IInventoryManager;
-import gigaherz.enderthing.storage.PrivateInventoryManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -16,6 +16,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
+import java.util.UUID;
+
 public class ContainerKey extends Container
 {
     private World world;
@@ -27,13 +29,24 @@ public class ContainerKey extends Container
 
         int lockedSlot = -1;
 
+        UUID bound = player.getUniqueID();
+
         if (hasTE)
         {
             TileEntity te = world.getTileEntity(pos);
             if (te instanceof TileEntityEnderChest)
             {
                 TileEntityEnderChest chest = (TileEntityEnderChest) te;
+
                 chest.openChest();
+            }
+
+            if (te instanceof TileEnderKeyChest)
+            {
+                TileEnderKeyChest chest = (TileEnderKeyChest) te;
+
+                if(chest.isBoundToPlayer())
+                    bound = chest.getPlayerBound();
             }
 
             this.world = world;
@@ -45,8 +58,8 @@ public class ContainerKey extends Container
         }
 
         IInventoryManager mgr = (id & 1) != 0 ?
-                PrivateInventoryManager.get(player) :
-                GlobalInventoryManager.get(world);
+                InventoryManager.get(world).getPrivate(bound) :
+                InventoryManager.get(world);
 
         IItemHandler inventory = mgr.getInventory(id >> 4);
 
