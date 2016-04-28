@@ -57,13 +57,11 @@ public class ItemEnderLock extends ItemEnderthing
                     .withProperty(BlockEnderKeyChest.FACING, state.getValue(BlockEnderChest.FACING))
                     .withProperty(BlockEnderKeyChest.PRIVATE, (stack.getMetadata() & 1) != 0));
 
-            state = worldIn.getBlockState(pos);
             te = worldIn.getTileEntity(pos);
 
             if (te instanceof TileEnderKeyChest)
             {
                 ((TileEnderKeyChest) te).setInventoryId(id >> 4);
-                worldIn.notifyBlockUpdate(pos, state, state, 3);
             }
 
             if (!playerIn.capabilities.isCreativeMode)
@@ -93,7 +91,6 @@ public class ItemEnderLock extends ItemEnderthing
                 InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
 
                 ((TileEnderKeyChest) te).setInventoryId(id >> 4);
-                worldIn.notifyBlockUpdate(pos, state, state, 3);
             }
 
             if (!playerIn.capabilities.isCreativeMode)

@@ -53,6 +53,9 @@ public class TileEnderKeyChest
     public void setInventoryId(int inventoryId)
     {
         this.inventoryId = inventoryId;
+
+        IBlockState state = worldObj.getBlockState(pos);
+        worldObj.notifyBlockUpdate(pos, state, state, 3);
     }
 
     private EnderKeyInventory inventory;

@@ -18,6 +18,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Enchantments;
+import net.minecraft.init.Items;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -165,6 +166,77 @@ public class BlockEnderKeyChest
             return true;
 
         TileEnderKeyChest chest = (TileEnderKeyChest) te;
+
+        if (side == EnumFacing.UP && heldItem.getItem() == Items.DYE)
+        {
+            int meta = EnumDyeColor.byDyeDamage(heldItem.getMetadata()).getMetadata();
+
+            //  5, 8, 11; +-1.5
+            // 3.5..6.5, 6.5..9.5,9.5..12.5
+
+            float z = hitZ;
+            float x = hitX;
+
+            switch (state.getValue(FACING))
+            {
+                case EAST:
+                    x = hitZ;
+                    z = 1 - hitX;
+                    break;
+                case SOUTH:
+                    x = 1 - hitX;
+                    z = 1 - hitZ;
+                    break;
+                case WEST:
+                    x = 1 - hitZ;
+                    z = hitX;
+                    break;
+            }
+
+            x *= 16;
+            z *= 16;
+
+            boolean hitSuccess = false;
+            int oldId = chest.getInventoryId();
+            int id = oldId;
+            if (z >= 1 && z <= 8)
+            {
+                int color1 = id & 15;
+                int color2 = (id >> 4) & 15;
+                int color3 = (id >> 8) & 15;
+
+                if (x >= 3.5 && x < 6.5)
+                {
+                    color3 = meta;
+                    hitSuccess = true;
+                }
+                else if (x >= 6.5 && x < 9.5)
+                {
+                    color2 = meta;
+                    hitSuccess = true;
+                }
+                else if (x >= 9.5 && x < 12.5)
+                {
+                    color1 = meta;
+                    hitSuccess = true;
+                }
+
+                id = (color1) | (color2 << 4) | (color3 << 8);
+            }
+
+            if (oldId != id)
+            {
+                if(!playerIn.capabilities.isCreativeMode)
+                    heldItem.stackSize--;
+                chest.setInventoryId(id);
+            }
+
+            if (hitSuccess)
+            {
+                return true;
+            }
+        }
+
 
         //noinspection PointlessBitwiseExpression
         int id = chest.getInventoryId() << 4 | (state.getValue(PRIVATE) ? GuiHandler.GUI_KEY_PRIVATE : GuiHandler.GUI_KEY);
