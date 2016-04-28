@@ -60,7 +60,6 @@ public class ItemEnderLock extends ItemEnderthing
             if (te instanceof TileEnderKeyChest)
             {
                 ((TileEnderKeyChest) te).setInventoryId(id >> 4);
-                worldIn.markBlockForUpdate(pos);
             }
 
             if (!playerIn.capabilities.isCreativeMode)
@@ -90,7 +89,6 @@ public class ItemEnderLock extends ItemEnderthing
                 InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
 
                 ((TileEnderKeyChest) te).setInventoryId(id >> 4);
-                worldIn.markBlockForUpdate(pos);
             }
 
             if (!playerIn.capabilities.isCreativeMode)
