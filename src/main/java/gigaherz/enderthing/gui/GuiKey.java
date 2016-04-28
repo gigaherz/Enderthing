@@ -5,7 +5,6 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.item.EnumDyeColor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.translation.I18n;
@@ -26,7 +25,7 @@ public class GuiKey extends GuiContainer
     {
         super(new ContainerKey(playerInventory, id, player, world, pos));
 
-        isPrivate = (id&1) != 0;
+        isPrivate = (id & 1) != 0;
 
         this.player = playerInventory;
     }

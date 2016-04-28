@@ -13,3 +13,4 @@ tooltip.enderthing.private=Private
 tooltip.enderthing.enderKeyChest.rightClick=Craft an Ender Lock and Shift-rightclick on a vanilla chest.
 tooltip.enderthing.enderKey.rightClick=Shift-Rightclick on a vanilla ender chest to open the shared inventory.
 tooltip.enderthing.enderLock.rightClick=Shift-Rightclick on a ender chest to set or replace the color key.
+tooltip.enderthing.enderPack.rightClick=Rightclick to open the shared inventory.

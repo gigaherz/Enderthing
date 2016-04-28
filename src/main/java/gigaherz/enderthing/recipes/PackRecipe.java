@@ -1,8 +1,7 @@
 package gigaherz.enderthing.recipes;
 
 import gigaherz.enderthing.Enderthing;
-import gigaherz.enderthing.items.ItemEnderLock;
-import gigaherz.enderthing.items.ItemEnderPack;
+import gigaherz.enderthing.items.ItemEnderthing;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
@@ -18,7 +17,7 @@ public class PackRecipe implements IRecipe
             new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
             new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
             new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
-            new ItemStack(Blocks.OBSIDIAN), new ItemStack(Blocks.OBSIDIAN), new ItemStack(Blocks.OBSIDIAN)
+            new ItemStack(Items.LEATHER), new ItemStack(Blocks.ENDER_CHEST), new ItemStack(Items.LEATHER)
     };
 
     @Override
@@ -62,7 +61,7 @@ public class PackRecipe implements IRecipe
         int c2 = wool2.getMetadata();
         int c3 = wool3.getMetadata();
 
-        return ItemEnderPack.getItem(c1, c2, c3, false);
+        return ItemEnderthing.getItem(Enderthing.enderPack, c1, c2, c3, false);
     }
 
     @Override

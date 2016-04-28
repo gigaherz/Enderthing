@@ -1,19 +1,18 @@
 package gigaherz.enderthing.integration;
 
-import gigaherz.enderthing.recipes.KeyRecipe;
 import mezz.jei.api.recipe.IRecipeHandler;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 
 import javax.annotation.Nonnull;
 
-public class EnderKeyRecipeHandler implements IRecipeHandler<KeyRecipe>
+public class EnderKeyRecipeHandler implements IRecipeHandler<EnderKeyRecipeWrapper>
 {
     @Nonnull
     @Override
-    public Class<KeyRecipe> getRecipeClass()
+    public Class<EnderKeyRecipeWrapper> getRecipeClass()
     {
-        return KeyRecipe.class;
+        return EnderKeyRecipeWrapper.class;
     }
 
     @Nonnull
@@ -25,13 +24,13 @@ public class EnderKeyRecipeHandler implements IRecipeHandler<KeyRecipe>
 
     @Nonnull
     @Override
-    public IRecipeWrapper getRecipeWrapper(@Nonnull KeyRecipe recipe)
+    public IRecipeWrapper getRecipeWrapper(@Nonnull EnderKeyRecipeWrapper recipe)
     {
-        return new EnderKeyRecipeWrapper();
+        return recipe;
     }
 
     @Override
-    public boolean isRecipeValid(@Nonnull KeyRecipe recipe)
+    public boolean isRecipeValid(@Nonnull EnderKeyRecipeWrapper recipe)
     {
         return true;
     }

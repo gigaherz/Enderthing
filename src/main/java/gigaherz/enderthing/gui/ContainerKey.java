@@ -23,7 +23,7 @@ public class ContainerKey extends Container
 
     public ContainerKey(InventoryPlayer playerInventory, int id, EntityPlayer player, World world, BlockPos pos)
     {
-        boolean hasTE = world != null && (id&2) == 0;
+        boolean hasTE = world != null && (id & 2) == 0;
 
         int lockedSlot = -1;
 

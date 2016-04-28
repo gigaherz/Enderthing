@@ -17,7 +17,6 @@ public class MakePrivateRecipe implements IRecipe
             new ItemStack(Enderthing.enderKey),
             new ItemStack(Items.GOLD_NUGGET),
             null, new ItemStack(Items.GOLD_NUGGET), null
-
     };
 
     @Override

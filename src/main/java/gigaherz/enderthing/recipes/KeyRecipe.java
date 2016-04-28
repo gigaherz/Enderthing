@@ -1,7 +1,7 @@
 package gigaherz.enderthing.recipes;
 
 import gigaherz.enderthing.Enderthing;
-import gigaherz.enderthing.items.ItemEnderKey;
+import gigaherz.enderthing.items.ItemEnderthing;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
@@ -61,7 +61,7 @@ public class KeyRecipe implements IRecipe
         int c2 = wool2.getMetadata();
         int c3 = wool3.getMetadata();
 
-        return ItemEnderKey.getItem(c1, c2, c3, false);
+        return ItemEnderthing.getItem(Enderthing.enderKey, c1, c2, c3, false);
     }
 
     @Override
