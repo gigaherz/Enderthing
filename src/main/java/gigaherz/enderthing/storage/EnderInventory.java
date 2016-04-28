@@ -10,7 +10,7 @@ import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.List;
 
-public class EnderKeyInventory extends ItemStackHandler
+public class EnderInventory extends ItemStackHandler
 {
     public static final int SLOT_COUNT = 27;
 
@@ -53,7 +53,7 @@ public class EnderKeyInventory extends ItemStackHandler
         manager.setDirty();
     }
 
-    EnderKeyInventory(IInventoryManager manager)
+    EnderInventory(IInventoryManager manager)
     {
         super(SLOT_COUNT);
         this.manager = manager;

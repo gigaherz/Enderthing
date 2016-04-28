@@ -2,8 +2,8 @@ package gigaherz.enderthing.blocks;
 
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.network.UpdatePlayersUsing;
-import gigaherz.enderthing.storage.EnderKeyInventory;
-import gigaherz.enderthing.storage.GlobalInventoryManager;
+import gigaherz.enderthing.storage.EnderInventory;
+import gigaherz.enderthing.storage.InventoryManager;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.audio.SoundCategory;
 import net.minecraft.init.Blocks;
@@ -19,6 +19,8 @@ import net.minecraftforge.client.event.sound.SoundEvent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.items.CapabilityItemHandler;
+
+import java.util.UUID;
 
 public class TileEnderKeyChest
         extends TileEntityEnderChest
@@ -36,6 +38,7 @@ public class TileEnderKeyChest
     private int ticksSinceSync;
 
     protected boolean isPrivate;
+    private UUID boundToPlayer;
 
     public boolean isPrivate()
     {
@@ -60,16 +63,19 @@ public class TileEnderKeyChest
         worldObj.markBlockForUpdate(pos);
     }
 
-    private EnderKeyInventory inventory;
+    private EnderInventory inventory;
 
-    public EnderKeyInventory getInventory()
+    public EnderInventory getInventory()
     {
         if (inventoryId < 0)
             return null;
 
-        if (inventory == null && !isPrivate)
+        if (inventory == null && (!isPrivate ||isBoundToPlayer()))
         {
-            inventory = GlobalInventoryManager.get(worldObj).getInventory(inventoryId);
+            if (isBoundToPlayer())
+                inventory = InventoryManager.get(worldObj).getPrivate(boundToPlayer).getInventory(inventoryId);
+            else
+                inventory = InventoryManager.get(worldObj).getInventory(inventoryId);
             inventory.addWeakListener(this);
         }
         return inventory;
@@ -79,19 +85,25 @@ public class TileEnderKeyChest
     public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState)
     {
         return oldState.getBlock() != newState.getBlock() ||
-                oldState.getValue(BlockEnderKeyChest.PRIVATE) != newState.getValue(BlockEnderKeyChest.PRIVATE);
+                oldState.getValue(BlockEnderKeyChest.PRIVATE) != newState.getValue(BlockEnderKeyChest.PRIVATE) ||
+                oldState.getValue(BlockEnderKeyChest.BOUND) != newState.getValue(BlockEnderKeyChest.BOUND);
     }
 
     public void readFromNBT(NBTTagCompound tag)
     {
         super.readFromNBT(tag);
         inventoryId = tag.getInteger(BlockEnderKeyChest.INVENTORY_ID_KEY);
+        boundToPlayer = InventoryManager.uuidFromNBT(tag);
     }
 
     public void writeToNBT(NBTTagCompound tag)
     {
         super.writeToNBT(tag);
         tag.setInteger(BlockEnderKeyChest.INVENTORY_ID_KEY, inventoryId);
+        if (boundToPlayer != null)
+        {
+            InventoryManager.uuidToNBT(tag, boundToPlayer);
+        }
     }
 
     @Override
@@ -194,5 +206,24 @@ public class TileEnderKeyChest
         {
             this.numPlayersUsing = value;
         }
+    }
+
+    public UUID getPlayerBound()
+    {
+        return boundToPlayer;
+    }
+
+    public void bindToPlayer(UUID boundToPlayer)
+    {
+        this.boundToPlayer = boundToPlayer;
+
+        markDirty();
+
+        worldObj.markBlockForUpdate(pos);
+    }
+
+    public boolean isBoundToPlayer()
+    {
+        return boundToPlayer != null;
     }
 }
