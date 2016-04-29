@@ -72,6 +72,7 @@ public class ItemEnderLock extends ItemEnderthing
 
         if (b == Enderthing.blockEnderKeyChest)
         {
+            boolean oldPrivate = state.getValue(BlockEnderKeyChest.PRIVATE);
             if (te instanceof TileEnderKeyChest)
             {
                 int oldId = ((TileEnderKeyChest) te).getInventoryId();
@@ -79,7 +80,7 @@ public class ItemEnderLock extends ItemEnderthing
                 int oldColor2 = (oldId >> 4) & 15;
                 int oldColor3 = (oldId >> 8) & 15;
 
-                ItemStack oldStack = new ItemStack(Enderthing.enderLock, 1, state.getValue(BlockEnderKeyChest.PRIVATE) ? 1 : 0);
+                ItemStack oldStack = new ItemStack(Enderthing.enderLock, 1, oldPrivate ? 1 : 0);
 
                 NBTTagCompound oldTag = new NBTTagCompound();
                 oldTag.setByte("Color1", (byte) oldColor1);
@@ -90,6 +91,18 @@ public class ItemEnderLock extends ItemEnderthing
 
                 InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
 
+            }
+
+            boolean newPrivate = stack.getMetadata() != 0;
+
+            if(oldPrivate != newPrivate)
+            {
+                worldIn.setBlockState(pos, state.withProperty(BlockEnderKeyChest.PRIVATE, newPrivate));
+                te = worldIn.getTileEntity(pos);
+            }
+
+            if (te instanceof TileEnderKeyChest)
+            {
                 ((TileEnderKeyChest) te).setInventoryId(id >> 4);
             }
 

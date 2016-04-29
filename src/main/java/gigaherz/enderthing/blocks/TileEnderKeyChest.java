@@ -54,6 +54,8 @@ public class TileEnderKeyChest
     {
         this.inventoryId = inventoryId;
 
+        markDirty();
+
         IBlockState state = worldObj.getBlockState(pos);
         worldObj.notifyBlockUpdate(pos, state, state, 3);
     }
@@ -74,9 +76,10 @@ public class TileEnderKeyChest
     }
 
     @Override
-    public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate)
+    public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState)
     {
-        return oldState.getBlock() != newSate.getBlock();
+        return oldState.getBlock() != newState.getBlock() ||
+                oldState.getValue(BlockEnderKeyChest.PRIVATE) != newState.getValue(BlockEnderKeyChest.PRIVATE);
     }
 
     public void readFromNBT(NBTTagCompound tag)
