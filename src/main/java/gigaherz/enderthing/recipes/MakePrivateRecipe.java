@@ -37,7 +37,7 @@ public class MakePrivateRecipe implements IRecipe
             }
             else if (pat.getItem() == Enderthing.enderKey)
             {
-                if ((stack.getItem() != Enderthing.enderKey
+                if (stack == null || (stack.getItem() != Enderthing.enderKey
                         && stack.getItem() != Enderthing.enderLock
                         && stack.getItem() != Enderthing.enderPack) || (stack.getMetadata() & 1) != 0)
                     return false;
