@@ -1,5 +1,6 @@
 package gigaherz.enderthing.items;
 
+import com.mojang.realmsclient.gui.ChatFormatting;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.blocks.BlockEnderKeyChest;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
@@ -10,9 +11,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.*;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import org.lwjgl.input.Keyboard;
@@ -71,7 +70,7 @@ public class ItemEnderCard extends ItemRegistered
         {
             bindToPlayer(itemStackIn, playerIn);
 
-            playerIn.addChatMessage(new ChatComponentText("Card is now bound to: " + playerIn.getUniqueID()));
+            playerIn.addChatMessage(new ChatComponentTranslation("text."+Enderthing.MODID+".enderCard.bound", new ChatComponentText(playerIn.getUniqueID().toString())));
 
             return itemStackIn;
         }
@@ -114,7 +113,7 @@ public class ItemEnderCard extends ItemRegistered
             chest.setInventoryId(id);
             chest.bindToPlayer(uuid);
 
-            playerIn.addChatMessage(new ChatComponentText("Chest is now bound to: " + uuid));
+            playerIn.addChatMessage(new ChatComponentTranslation("text."+Enderthing.MODID+".enderChest.bound", new ChatComponentText(uuid.toString())));
         }
 
         return true;
@@ -123,11 +122,14 @@ public class ItemEnderCard extends ItemRegistered
     @Override
     public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
     {
+        tooltip.add(ChatFormatting.ITALIC + StatCollector.translateToLocal("tooltip." + Enderthing.MODID + ".enderCard.rightClick1"));
+        tooltip.add(ChatFormatting.ITALIC + StatCollector.translateToLocal("tooltip." + Enderthing.MODID + ".enderCard.rightClick2"));
+
         UUID uuid = getBoundPlayerUniqueID(stack);
 
         if(uuid == null)
         {
-            tooltip.add("Unbound: Shift-rightclick to bind.");
+            tooltip.add(StatCollector.translateToLocal("tooltip." + Enderthing.MODID + ".enderCard.unbound"));
             return;
         }
 
@@ -141,12 +143,9 @@ public class ItemEnderCard extends ItemRegistered
             uuidText = uuidBegin + "..." + uuidEnd;
         }
 
-        String tooltipText;
-        if (name != null)
-            tooltipText = uuidText + " (" + name + ")";
+        if (name == null)
+            tooltip.add(StatCollector.translateToLocalFormatted("tooltip." + Enderthing.MODID + ".enderCard.bound1", uuidText));
         else
-            tooltipText = uuidText;
-
-        tooltip.add("Bound to: " + tooltipText);
+            tooltip.add(StatCollector.translateToLocalFormatted("tooltip." + Enderthing.MODID + ".enderCard.bound2", uuidText, name));
     }
 }
