@@ -36,7 +36,7 @@ import java.util.Random;
 public class BlockEnderKeyChest
         extends BlockRegistered
 {
-    public static final PropertyDirection FACING = PropertyDirection.create("facing");
+    public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
     public static final PropertyBool PRIVATE = PropertyBool.create("private");
     public static final PropertyBool BOUND = PropertyBool.create("bound");
     protected static final AxisAlignedBB ENDER_CHEST_AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0625D, 0.9375D, 0.875D, 0.9375D);
@@ -296,13 +296,13 @@ public class BlockEnderKeyChest
     {
         return state.getValue(FACING).getHorizontalIndex()
                 | (state.getValue(PRIVATE) ? 8 : 0)
-                | (state.getValue(BOUND) ? 4:0);
+                | (state.getValue(BOUND) ? 4 : 0);
     }
 
     @Override
     protected BlockState createBlockState()
     {
-        return new BlockState(this, FACING, PRIVATE);
+        return new BlockState(this, FACING, PRIVATE, BOUND);
     }
 
     int getId(IBlockAccess world, BlockPos pos)

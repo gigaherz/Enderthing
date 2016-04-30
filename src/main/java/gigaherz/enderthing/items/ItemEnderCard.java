@@ -64,6 +64,9 @@ public class ItemEnderCard extends ItemRegistered
     @Override
     public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn)
     {
+        if(worldIn.isRemote)
+            return itemStackIn;
+
         if(playerIn.isSneaking())
         {
             bindToPlayer(itemStackIn, playerIn);
