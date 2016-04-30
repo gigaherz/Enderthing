@@ -70,6 +70,9 @@ public class ItemEnderCard extends ItemRegistered
     @Override
     public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand)
     {
+        if(worldIn.isRemote)
+            return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
+
         if(playerIn.isSneaking())
         {
             bindToPlayer(itemStackIn, playerIn);

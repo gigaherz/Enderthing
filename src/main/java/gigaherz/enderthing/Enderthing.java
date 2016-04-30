@@ -15,7 +15,9 @@ import gigaherz.enderthing.recipes.MakePrivateRecipe;
 import gigaherz.enderthing.recipes.PackRecipe;
 import gigaherz.enderthing.storage.PrivateInventoryCapability;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.Mod;
@@ -118,6 +120,13 @@ public class Enderthing
     public void init(FMLInitializationEvent event)
     {
         proxy.init();
+
+        GameRegistry.addRecipe(new ItemStack(enderCard),
+                "nnn",
+                "ppp",
+                "nnn",
+                'n', Items.GOLD_NUGGET,
+                'p', Items.PAPER);
 
         GameRegistry.addRecipe(keyRecipe = new KeyRecipe());
         GameRegistry.addRecipe(lockRecipe = new LockRecipe());

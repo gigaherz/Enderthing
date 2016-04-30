@@ -306,7 +306,7 @@ public class BlockEnderKeyChest
     {
         return state.getValue(FACING).getHorizontalIndex()
                 | (state.getValue(PRIVATE) ? 8 : 0)
-                | (state.getValue(BOUND) ? 4:0);
+                | (state.getValue(BOUND) ? 4 : 0);
     }
 
     @Override
