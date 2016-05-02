@@ -12,6 +12,7 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
@@ -136,7 +137,10 @@ public class ClientProxy implements IModProxy
     @Override
     public String queryNameFromUUID(ItemStack stack, UUID uuid)
     {
-        PlayerList playerList = FMLClientHandler.instance().getServer().getPlayerList();
+        MinecraftServer svr = FMLClientHandler.instance().getServer();
+        if (svr == null)
+            return null;
+        PlayerList playerList = svr.getPlayerList();
         if(playerList == null)
             return null;
         EntityPlayer player = playerList.getPlayerByUUID(uuid);
