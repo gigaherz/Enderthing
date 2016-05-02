@@ -2,7 +2,6 @@ package gigaherz.enderthing.server;
 
 import gigaherz.enderthing.IModProxy;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraftforge.fml.server.FMLServerHandler;
 
@@ -21,7 +20,7 @@ public class ServerProxy implements IModProxy
     }
 
     @Override
-    public String queryNameFromUUID(ItemStack stack, UUID uuid)
+    public String queryNameFromUUID(UUID uuid)
     {
         ServerConfigurationManager playerList = FMLServerHandler.instance().getServer().getConfigurationManager();
         if(playerList == null)

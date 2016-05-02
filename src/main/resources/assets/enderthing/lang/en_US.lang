@@ -21,5 +21,5 @@ tooltip.enderthing.enderCard.unbound=Unbound
 tooltip.enderthing.enderCard.bound1=Bound to: %s
 tooltip.enderthing.enderCard.bound2=Bound to: %s (%s)
 
-text.enderthing.enderCard.bound=Card is now bound to: %s
-text.enderthing.enderChest.bound=Chest is now bound to: %s
+text.enderthing.enderCard.bound=Card is now bound to you
+text.enderthing.enderChest.bound=Chest is now bound to: %s (%s)

@@ -7,6 +7,7 @@ import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import gigaherz.enderthing.storage.InventoryManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -37,6 +38,8 @@ public class ItemEnderCard extends ItemRegistered
             stack.setTagCompound(tag);
         }
 
+        tag.setString("PlayerName", player.getName());
+
         InventoryManager.uuidToNBT(tag, player.getUniqueID());
     }
 
@@ -47,6 +50,27 @@ public class ItemEnderCard extends ItemRegistered
             return null;
 
         return InventoryManager.uuidFromNBT(tag);
+    }
+
+    public String getBoundPlayerCachedName(ItemStack stack)
+    {
+        NBTTagCompound tag = stack.getTagCompound();
+        if (tag == null)
+            return null;
+
+        return tag.getString("PlayerName");
+    }
+
+    public void setBoundPlayerCachedName(ItemStack stack, String newName)
+    {
+        NBTTagCompound tag = stack.getTagCompound();
+        if (tag == null)
+        {
+            tag = new NBTTagCompound();
+            stack.setTagCompound(tag);
+        }
+
+        tag.setString("PlayerName", newName);
     }
 
     @Override
@@ -70,7 +94,7 @@ public class ItemEnderCard extends ItemRegistered
         {
             bindToPlayer(itemStackIn, playerIn);
 
-            playerIn.addChatMessage(new ChatComponentTranslation("text."+Enderthing.MODID+".enderCard.bound", new ChatComponentText(playerIn.getUniqueID().toString())));
+            playerIn.addChatMessage(new ChatComponentTranslation("text."+Enderthing.MODID+".enderCard.bound"));
 
             return itemStackIn;
         }
@@ -113,10 +137,30 @@ public class ItemEnderCard extends ItemRegistered
             chest.setInventoryId(id);
             chest.bindToPlayer(uuid);
 
-            playerIn.addChatMessage(new ChatComponentTranslation("text."+Enderthing.MODID+".enderChest.bound", new ChatComponentText(uuid.toString())));
+            playerIn.addChatMessage(new ChatComponentTranslation("text."+Enderthing.MODID+".enderChest.bound",
+                    new ChatComponentText(uuid.toString()),
+                    new ChatComponentText(getBoundPlayerCachedName(stack))));
         }
 
         return true;
+    }
+
+    @Override
+    public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected)
+    {
+        if (!worldIn.isRemote && (stack.hashCode() % 120) == (worldIn.getTotalWorldTime() % 120))
+        {
+            UUID uuid = getBoundPlayerUniqueID(stack);
+            if(uuid != null)
+            {
+                String name = getBoundPlayerCachedName(stack);
+                String newName = Enderthing.proxy.queryNameFromUUID(uuid);
+                if (newName != null && !newName.equals(name))
+                {
+                    setBoundPlayerCachedName(stack, newName);
+                }
+            }
+        }
     }
 
     @Override
@@ -133,7 +177,7 @@ public class ItemEnderCard extends ItemRegistered
             return;
         }
 
-        String name = Enderthing.proxy.queryNameFromUUID(stack, uuid);
+        String name = getBoundPlayerCachedName(stack);
         String uuidText = uuid.toString();
 
         if(!advanced && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))

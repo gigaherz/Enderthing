@@ -7,8 +7,6 @@ import net.minecraft.block.Block;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraftforge.client.model.ModelLoader;
@@ -53,10 +51,10 @@ public class ClientProxy implements IModProxy
     @Override
     public void init()
     {
-                        }
+    }
 
-                    @Override
-    public String queryNameFromUUID(ItemStack stack, UUID uuid)
+    @Override
+    public String queryNameFromUUID(UUID uuid)
     {
         MinecraftServer svr = FMLClientHandler.instance().getServer();
         if (svr == null)
