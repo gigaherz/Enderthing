@@ -72,7 +72,7 @@ public class ClientProxy implements IModProxy
                             color1 = tag.getByte("Color1");
                             color2 = tag.getByte("Color2");
                             color3 = tag.getByte("Color3");
-                        }
+    }
 
                         EnumDyeColor c1 = EnumDyeColor.byMetadata(color1);
                         EnumDyeColor c2 = EnumDyeColor.byMetadata(color2);
@@ -135,7 +135,7 @@ public class ClientProxy implements IModProxy
     }
 
     @Override
-    public String queryNameFromUUID(ItemStack stack, UUID uuid)
+    public String queryNameFromUUID(UUID uuid)
     {
         MinecraftServer svr = FMLClientHandler.instance().getServer();
         if (svr == null)
