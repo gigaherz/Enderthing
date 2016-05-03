@@ -66,6 +66,8 @@ public class ItemEnderCard extends ItemRegistered
         if (tag == null)
             return null;
 
+        if (!tag.hasKey("PlayerName", Constants.NBT.TAG_STRING))
+            return null;
         return tag.getString("PlayerName");
     }
 
@@ -144,9 +146,15 @@ public class ItemEnderCard extends ItemRegistered
             chest.setInventoryId(id);
             chest.bindToPlayer(uuid);
 
-            playerIn.addChatMessage(new TextComponentTranslation("text."+Enderthing.MODID+".enderChest.bound",
-                    new TextComponentString(uuid.toString()),
-                    new TextComponentString(getBoundPlayerCachedName(stack))));
+            String name = getBoundPlayerCachedName(stack);
+
+            if (name == null || name.length() == 0)
+                playerIn.addChatMessage(new TextComponentTranslation("text."+Enderthing.MODID+".enderChest.bound1",
+                        new TextComponentString(uuid.toString())));
+            else
+                playerIn.addChatMessage(new TextComponentTranslation("text."+Enderthing.MODID+".enderChest.bound2",
+                        new TextComponentString(uuid.toString()),
+                        new TextComponentString(name)));
         }
 
         return EnumActionResult.SUCCESS;
@@ -194,7 +202,7 @@ public class ItemEnderCard extends ItemRegistered
             uuidText = uuidBegin + "..." + uuidEnd;
         }
 
-        if (name == null)
+        if (name == null || name.length() == 0)
             tooltip.add(I18n.translateToLocalFormatted("tooltip." + Enderthing.MODID + ".enderCard.bound1", uuidText));
         else
             tooltip.add(I18n.translateToLocalFormatted("tooltip." + Enderthing.MODID + ".enderCard.bound2", uuidText, name));
