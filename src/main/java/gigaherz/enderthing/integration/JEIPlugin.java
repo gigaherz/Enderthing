@@ -24,15 +24,9 @@ public class JEIPlugin implements IModPlugin
         );
 
         INbtIgnoreList nbtIgnoreList = registry.getJeiHelpers().getNbtIgnoreList();
-        nbtIgnoreList.ignoreNbtTagNames(Enderthing.enderKey, "Color1");
-        nbtIgnoreList.ignoreNbtTagNames(Enderthing.enderKey, "Color2");
-        nbtIgnoreList.ignoreNbtTagNames(Enderthing.enderKey, "Color3");
-        nbtIgnoreList.ignoreNbtTagNames(Enderthing.enderLock, "Color1");
-        nbtIgnoreList.ignoreNbtTagNames(Enderthing.enderLock, "Color2");
-        nbtIgnoreList.ignoreNbtTagNames(Enderthing.enderLock, "Color3");
-        nbtIgnoreList.ignoreNbtTagNames(Enderthing.enderPack, "Color1");
-        nbtIgnoreList.ignoreNbtTagNames(Enderthing.enderPack, "Color2");
-        nbtIgnoreList.ignoreNbtTagNames(Enderthing.enderPack, "Color3");
+        nbtIgnoreList.ignoreNbtTagNames(Enderthing.enderKey, "Color1", "Color2", "Color3");
+        nbtIgnoreList.ignoreNbtTagNames(Enderthing.enderLock, "Color1", "Color2", "Color3");
+        nbtIgnoreList.ignoreNbtTagNames(Enderthing.enderPack, "Color1", "Color2", "Color3");
 
         registry.addRecipes(
                 Arrays.asList(
