@@ -166,7 +166,8 @@ public class BlockEnderKeyChest
 
         ItemStack heldItem = playerIn.getHeldItem();
 
-        if (side == EnumFacing.UP && heldItem != null && heldItem.getItem() == Items.dye)
+        if (side == EnumFacing.UP && heldItem != null && heldItem.getItem() == Items.dye
+                && (chest.getPlayerBound() == null || chest.getPlayerBound() == playerIn.getUniqueID()))
         {
             int meta = EnumDyeColor.byDyeDamage(heldItem.getMetadata()).getMetadata();
 
