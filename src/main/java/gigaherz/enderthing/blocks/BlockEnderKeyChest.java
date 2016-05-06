@@ -170,7 +170,7 @@ public class BlockEnderKeyChest
         TileEnderKeyChest chest = (TileEnderKeyChest) te;
 
         if (side == EnumFacing.UP && heldItem != null && heldItem.getItem() == Items.DYE
-                && (chest.getPlayerBound() == null || chest.getPlayerBound() == playerIn.getUniqueID()))
+                && (chest.getPlayerBound() == null || chest.getPlayerBound().equals(playerIn.getUniqueID())))
         {
             int meta = EnumDyeColor.byDyeDamage(heldItem.getMetadata()).getMetadata();
 
