@@ -1,0 +1,27 @@
+# translation by sky01
+tile.enderthing.blockEnderKeyChest.name=Cofre con Clave de Ender
+container.enderthing.global.name=Inventario de Ender Público
+container.enderthing.private.name=Inventario de Ender Privado
+item.enderthing.enderKey.name=Clave de Ender
+item.enderthing.enderLock.name=Cerradura de Ender
+item.enderthing.enderPack.name=Paquete de Seguridad
+item.enderthing.enderCard.name=Tarjeta de Seguridad
+itemGroup.tabEnderthing=Enderthing... Cosas
+
+tooltip.enderthing.colorMissing=El color se depende de las lanas que se usa.
+tooltip.enderthing.colors=Colores: %s, %s, %s
+tooltip.enderthing.private=Privado
+
+tooltip.enderthing.enderKeyChest.rightClick=Crea un Clave de Ender y Agacharse y usalo en un cofre regular.
+tooltip.enderthing.enderKey.rightClick=Agacharse y usa en un Cofre de Ender regular para abrir el inventario compartido.
+tooltip.enderthing.enderLock.rightClick=Agacharse y usa en un Cofre de Ender para definir o sustituir el clave.
+tooltip.enderthing.enderPack.rightClick=Usa para abrir el inventario compartido.
+tooltip.enderthing.enderCard.rightClick1=Agacharse y usalo en aire para ligar.
+tooltip.enderthing.enderCard.rightClick2==Agacharse y usa en un Cofre de Ender privado para ligarlo y permitir automatización
+tooltip.enderthing.enderCard.unbound=Sin Ligado
+tooltip.enderthing.enderCard.bound1=Ligado a: %s
+tooltip.enderthing.enderCard.bound2=Ligado a: %s (%s)
+
+text.enderthing.enderCard.bound=Tarjeta ahora se está ligado a ti
+text.enderthing.enderChest.bound1=Cofre ahora se está ligado a: %s
+text.enderthing.enderChest.bound2=Cofre ahora se está ligado a: %s (%s)
