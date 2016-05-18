@@ -451,13 +451,8 @@ public class BlockEnderKeyChest
     @Override
     public void getSubBlocks(Item itemIn, CreativeTabs tab, List<ItemStack> list)
     {
-        for (int i = 0; i < 16; i++)
-        {
-            int id = i | (i << 4) | (i << 8);
-
-            list.add(getItem(id, false));
-            list.add(getItem(id, true));
-        }
+        list.add(new ItemStack(Item.getItemFromBlock(this), 1, 0));
+        list.add(new ItemStack(Item.getItemFromBlock(this), 1, 8));
     }
 
     public static class AsItem extends ItemBlock

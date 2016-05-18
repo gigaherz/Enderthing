@@ -37,7 +37,7 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
     public static InventoryManager get(World world)
     {
         MapStorage storage = world.getMapStorage();
-        InventoryManager instance = (InventoryManager) storage.loadData(InventoryManager.class, StorageKey);
+        InventoryManager instance = (InventoryManager) storage.getOrLoadData(InventoryManager.class, StorageKey);
         if (instance == null)
         {
             instance = new InventoryManager();

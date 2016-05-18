@@ -22,14 +22,20 @@ public class ItemEnderthing extends ItemRegistered
         setCreativeTab(Enderthing.tabEnderthing);
     }
 
-    @Override
-    public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems)
+    public void getCreativeItems(List<ItemStack> subItems)
     {
         for (int i = 0; i < 16; i++)
         {
             subItems.add(getItem(this, i, i, i, false));
             subItems.add(getItem(this, i, i, i, true));
         }
+    }
+
+    @Override
+    public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems)
+    {
+        subItems.add(new ItemStack(this, 1, 0));
+        subItems.add(new ItemStack(this, 1, 1));
     }
 
     public static int getId(ItemStack stack)

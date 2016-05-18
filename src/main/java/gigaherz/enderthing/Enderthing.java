@@ -3,10 +3,7 @@ package gigaherz.enderthing;
 import gigaherz.enderthing.blocks.BlockEnderKeyChest;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import gigaherz.enderthing.gui.GuiHandler;
-import gigaherz.enderthing.items.ItemEnderCard;
-import gigaherz.enderthing.items.ItemEnderKey;
-import gigaherz.enderthing.items.ItemEnderLock;
-import gigaherz.enderthing.items.ItemEnderPack;
+import gigaherz.enderthing.items.*;
 import gigaherz.enderthing.items.ItemEnderCard;
 import gigaherz.enderthing.network.UpdatePlayersUsing;
 import gigaherz.enderthing.recipes.KeyRecipe;
@@ -15,6 +12,7 @@ import gigaherz.enderthing.recipes.MakePrivateRecipe;
 import gigaherz.enderthing.recipes.PackRecipe;
 import gigaherz.enderthing.storage.PrivateInventoryCapability;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -30,6 +28,8 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.RecipeSorter;
 import org.apache.logging.log4j.Logger;
+
+import java.util.List;
 
 @Mod(name = Enderthing.NAME,
         modid = Enderthing.MODID,

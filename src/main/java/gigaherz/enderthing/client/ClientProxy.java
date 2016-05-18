@@ -6,12 +6,8 @@ import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
 import net.minecraftforge.client.model.ModelLoader;
@@ -57,81 +53,9 @@ public class ClientProxy implements IModProxy
     public void init()
     {
         Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
-                new IItemColor()
-                {
-                    @Override
-                    public int getColorFromItemstack(ItemStack stack, int tintIndex)
-                    {
-                        int color1 = 0;
-                        int color2 = 0;
-                        int color3 = 0;
-
-                        NBTTagCompound tag = stack.getTagCompound();
-                        if (tag != null)
-                        {
-                            color1 = tag.getByte("Color1");
-                            color2 = tag.getByte("Color2");
-                            color3 = tag.getByte("Color3");
-    }
-
-                        EnumDyeColor c1 = EnumDyeColor.byMetadata(color1);
-                        EnumDyeColor c2 = EnumDyeColor.byMetadata(color2);
-                        EnumDyeColor c3 = EnumDyeColor.byMetadata(color3);
-
-                        switch (tintIndex)
-                        {
-                            case 1:
-                                return c1.getMapColor().colorValue;
-                            case 2:
-                                return c2.getMapColor().colorValue;
-                            case 3:
-                                return c3.getMapColor().colorValue;
-                        }
-
-                        return 0xFFFFFFFF;
-                    }
-                }, Enderthing.enderKey, Enderthing.enderLock, Enderthing.enderPack);
+                new ItemColorHandler.ItemTag(), Enderthing.enderKey, Enderthing.enderLock, Enderthing.enderPack);
         Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
-                new IItemColor()
-                {
-                    @Override
-                    public int getColorFromItemstack(ItemStack stack, int tintIndex)
-                    {
-                        int color1 = 0;
-                        int color2 = 0;
-                        int color3 = 0;
-
-                        NBTTagCompound tag = stack.getTagCompound();
-                        if (tag != null)
-                        {
-                            NBTTagCompound etag = tag.getCompoundTag("BlockEntityTag");
-                            if (etag != null)
-                            {
-                                int id = etag.getInteger("InventoryId");
-
-                                color1 = id & 15;
-                                color2 = (id >> 4) & 15;
-                                color3 = (id >> 8) & 15;
-                            }
-                        }
-
-                        EnumDyeColor c1 = EnumDyeColor.byMetadata(color1);
-                        EnumDyeColor c2 = EnumDyeColor.byMetadata(color2);
-                        EnumDyeColor c3 = EnumDyeColor.byMetadata(color3);
-
-                        switch (tintIndex)
-                        {
-                            case 1:
-                                return c1.getMapColor().colorValue;
-                            case 2:
-                                return c2.getMapColor().colorValue;
-                            case 3:
-                                return c3.getMapColor().colorValue;
-                        }
-
-                        return 0xFFFFFFFF;
-                    }
-                }, Enderthing.blockEnderKeyChest);
+                new ItemColorHandler.BlockTag(), Enderthing.blockEnderKeyChest);
     }
 
     @Override

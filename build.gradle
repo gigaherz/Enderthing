@@ -24,10 +24,10 @@ group= "gigaherz.enderthing" // http://maven.apache.org/guides/mini/guide-naming
 archivesBaseName = "enderthing-1.9"
 
 minecraft {
-    version = "1.9-12.16.1.1887"
+    version = "1.9-12.16.1.1907"
     runDir = "run"
 
-    mappings = "snapshot_20160504"
+    mappings = "stable_24"
 
     replace "@VERSION@", project.version
     replaceIn "Enderthing.java"
