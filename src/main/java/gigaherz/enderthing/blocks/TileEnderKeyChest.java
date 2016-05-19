@@ -96,14 +96,15 @@ public class TileEnderKeyChest
         boundToPlayer = InventoryManager.uuidFromNBT(tag);
     }
 
-    public void writeToNBT(NBTTagCompound tag)
+    public NBTTagCompound writeToNBT(NBTTagCompound tag)
     {
-        super.writeToNBT(tag);
+        tag = super.writeToNBT(tag);
         tag.setInteger(BlockEnderKeyChest.INVENTORY_ID_KEY, inventoryId);
         if (boundToPlayer != null)
         {
             InventoryManager.uuidToNBT(tag, boundToPlayer);
         }
+        return tag;
     }
 
     @Override
@@ -124,7 +125,7 @@ public class TileEnderKeyChest
     }
 
     @Override
-    public Packet getDescriptionPacket()
+    public SPacketUpdateTileEntity getUpdatePacket()
     {
         NBTTagCompound tag = new NBTTagCompound();
         this.writeToNBT(tag);
