@@ -12,6 +12,7 @@ import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
@@ -30,7 +31,6 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -64,12 +64,14 @@ public class BlockEnderKeyChest
         setLightLevel(0.5F);
     }
 
+    @Deprecated
     @Override
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    @Deprecated
     @Override
     public boolean isFullCube(IBlockState state)
     {
@@ -90,6 +92,7 @@ public class BlockEnderKeyChest
         return new TileEnderKeyChest();
     }
 
+    @Deprecated
     @Override
     public EnumBlockRenderType getRenderType(IBlockState state)
     {
@@ -229,7 +232,7 @@ public class BlockEnderKeyChest
 
             if (oldId != id)
             {
-                if(!playerIn.capabilities.isCreativeMode)
+                if (!playerIn.capabilities.isCreativeMode)
                     heldItem.stackSize--;
                 chest.setInventoryId(id);
             }
@@ -250,6 +253,7 @@ public class BlockEnderKeyChest
         return true;
     }
 
+    @Deprecated
     @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
@@ -294,6 +298,7 @@ public class BlockEnderKeyChest
         }
     }
 
+    @Deprecated
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
@@ -310,12 +315,14 @@ public class BlockEnderKeyChest
                 | (state.getValue(BOUND) ? 4 : 0);
     }
 
+    @Deprecated
     @Override
     public IBlockState withRotation(IBlockState state, Rotation rot)
     {
         return state.withProperty(FACING, rot.rotate(state.getValue(FACING)));
     }
 
+    @Deprecated
     @Override
     public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
@@ -331,11 +338,11 @@ public class BlockEnderKeyChest
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
     {
-        tooltip.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".enderKeyChest.rightClick"));
+        tooltip.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".enderKeyChest.rightClick"));
 
         if ((stack.getMetadata() & 8) != 0)
         {
-            tooltip.add(ChatFormatting.BOLD + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".private"));
+            tooltip.add(ChatFormatting.BOLD + I18n.format("tooltip." + Enderthing.MODID + ".private"));
         }
 
         int id = 0;
@@ -354,7 +361,7 @@ public class BlockEnderKeyChest
 
         if (!idFound)
         {
-            tooltip.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".colorMissing"));
+            tooltip.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".colorMissing"));
             return;
         }
 
@@ -366,7 +373,7 @@ public class BlockEnderKeyChest
         EnumDyeColor c2 = EnumDyeColor.byMetadata(color2);
         EnumDyeColor c3 = EnumDyeColor.byMetadata(color3);
 
-        tooltip.add(I18n.translateToLocalFormatted("tooltip." + Enderthing.MODID + ".colors", c1.getName(), c2.getName(), c3.getName()));
+        tooltip.add(I18n.format("tooltip." + Enderthing.MODID + ".colors", c1.getName(), c2.getName(), c3.getName()));
     }
 
     int getId(IBlockAccess world, BlockPos pos)

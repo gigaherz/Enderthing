@@ -4,7 +4,6 @@ import gigaherz.enderthing.Enderthing;
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
-import mezz.jei.api.INbtIgnoreList;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -22,11 +21,6 @@ public class JEIPlugin implements IModPlugin
                 new EnderPackRecipeHandler(),
                 new MakePrivateRecipeHandler()
         );
-
-        INbtIgnoreList nbtIgnoreList = registry.getJeiHelpers().getNbtIgnoreList();
-        nbtIgnoreList.ignoreNbtTagNames(Enderthing.enderKey, "Color1", "Color2", "Color3");
-        nbtIgnoreList.ignoreNbtTagNames(Enderthing.enderLock, "Color1", "Color2", "Color3");
-        nbtIgnoreList.ignoreNbtTagNames(Enderthing.enderPack, "Color1", "Color2", "Color3");
 
         registry.addRecipes(
                 Arrays.asList(

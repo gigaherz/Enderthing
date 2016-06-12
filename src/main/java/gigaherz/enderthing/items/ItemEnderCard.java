@@ -6,21 +6,20 @@ import gigaherz.enderthing.blocks.BlockEnderKeyChest;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import gigaherz.enderthing.storage.InventoryManager;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockEnderChest;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import org.lwjgl.input.Keyboard;
@@ -97,14 +96,14 @@ public class ItemEnderCard extends ItemRegistered
     @Override
     public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand)
     {
-        if(worldIn.isRemote)
+        if (worldIn.isRemote)
             return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
 
-        if(playerIn.isSneaking())
+        if (playerIn.isSneaking())
         {
             bindToPlayer(itemStackIn, playerIn);
 
-            playerIn.addChatMessage(new TextComponentTranslation("text."+Enderthing.MODID+".enderCard.bound"));
+            playerIn.addChatMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".enderCard.bound"));
 
             return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
         }
@@ -149,10 +148,10 @@ public class ItemEnderCard extends ItemRegistered
             String name = getBoundPlayerCachedName(stack);
 
             if (name == null || name.length() == 0)
-                playerIn.addChatMessage(new TextComponentTranslation("text."+Enderthing.MODID+".enderChest.bound1",
+                playerIn.addChatMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".enderChest.bound1",
                         new TextComponentString(uuid.toString())));
             else
-                playerIn.addChatMessage(new TextComponentTranslation("text."+Enderthing.MODID+".enderChest.bound2",
+                playerIn.addChatMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".enderChest.bound2",
                         new TextComponentString(uuid.toString()),
                         new TextComponentString(name)));
         }
@@ -166,7 +165,7 @@ public class ItemEnderCard extends ItemRegistered
         if (!worldIn.isRemote && (stack.hashCode() % 120) == (worldIn.getTotalWorldTime() % 120))
         {
             UUID uuid = getBoundPlayerUniqueID(stack);
-            if(uuid != null)
+            if (uuid != null)
             {
                 String name = getBoundPlayerCachedName(stack);
                 String newName = Enderthing.proxy.queryNameFromUUID(uuid);
@@ -181,30 +180,30 @@ public class ItemEnderCard extends ItemRegistered
     @Override
     public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
     {
-        tooltip.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".enderCard.rightClick1"));
-        tooltip.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".enderCard.rightClick2"));
+        tooltip.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".enderCard.rightClick1"));
+        tooltip.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".enderCard.rightClick2"));
 
         UUID uuid = getBoundPlayerUniqueID(stack);
 
-        if(uuid == null)
+        if (uuid == null)
         {
-            tooltip.add(I18n.translateToLocal("tooltip." + Enderthing.MODID + ".enderCard.unbound"));
+            tooltip.add(I18n.format("tooltip." + Enderthing.MODID + ".enderCard.unbound"));
             return;
         }
 
         String name = getBoundPlayerCachedName(stack);
         String uuidText = uuid.toString();
 
-        if(!advanced && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+        if (!advanced && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
         {
             String uuidBegin = uuidText.substring(0, 4);
-            String uuidEnd = uuidText.substring(uuidText.length()-4);
+            String uuidEnd = uuidText.substring(uuidText.length() - 4);
             uuidText = uuidBegin + "..." + uuidEnd;
         }
 
         if (name == null || name.length() == 0)
-            tooltip.add(I18n.translateToLocalFormatted("tooltip." + Enderthing.MODID + ".enderCard.bound1", uuidText));
+            tooltip.add(I18n.format("tooltip." + Enderthing.MODID + ".enderCard.bound1", uuidText));
         else
-            tooltip.add(I18n.translateToLocalFormatted("tooltip." + Enderthing.MODID + ".enderCard.bound2", uuidText, name));
+            tooltip.add(I18n.format("tooltip." + Enderthing.MODID + ".enderCard.bound2", uuidText, name));
     }
 }

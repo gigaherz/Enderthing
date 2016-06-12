@@ -15,11 +15,19 @@ public class EnderPackRecipeHandler implements IRecipeHandler<EnderPackRecipeWra
         return EnderPackRecipeWrapper.class;
     }
 
+    @Deprecated
     @Nonnull
     @Override
     public String getRecipeCategoryUid()
     {
         return VanillaRecipeCategoryUid.CRAFTING;
+    }
+
+    @Nonnull
+    @Override
+    public String getRecipeCategoryUid(@Nonnull EnderPackRecipeWrapper recipe)
+    {
+        return getRecipeCategoryUid();
     }
 
     @Nonnull

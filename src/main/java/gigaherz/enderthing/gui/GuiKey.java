@@ -3,11 +3,11 @@ package gigaherz.enderthing.gui;
 import gigaherz.enderthing.Enderthing;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 public class GuiKey extends GuiContainer
@@ -43,8 +43,8 @@ public class GuiKey extends GuiContainer
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.translateToLocal(isPrivate ? textPrivate : textGlobal), 8, 6, 4210752);
+        this.fontRendererObj.drawString(I18n.format(isPrivate ? textPrivate : textGlobal), 8, 6, 4210752);
 
-        mc.fontRendererObj.drawString(I18n.translateToLocal(player.getName()), 8, ySize - 96 + 2, 0x404040);
+        mc.fontRendererObj.drawString(I18n.format(player.getName()), 8, ySize - 96 + 2, 0x404040);
     }
 }

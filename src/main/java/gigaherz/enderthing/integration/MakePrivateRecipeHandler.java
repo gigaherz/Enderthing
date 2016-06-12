@@ -15,11 +15,19 @@ public class MakePrivateRecipeHandler implements IRecipeHandler<MakePrivateRecip
         return MakePrivateRecipeWrapper.class;
     }
 
+    @Deprecated
     @Nonnull
     @Override
     public String getRecipeCategoryUid()
     {
         return VanillaRecipeCategoryUid.CRAFTING;
+    }
+
+    @Nonnull
+    @Override
+    public String getRecipeCategoryUid(@Nonnull MakePrivateRecipeWrapper recipe)
+    {
+        return getRecipeCategoryUid();
     }
 
     @Nonnull

@@ -3,8 +3,10 @@ package gigaherz.enderthing;
 import gigaherz.enderthing.blocks.BlockEnderKeyChest;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import gigaherz.enderthing.gui.GuiHandler;
-import gigaherz.enderthing.items.*;
 import gigaherz.enderthing.items.ItemEnderCard;
+import gigaherz.enderthing.items.ItemEnderKey;
+import gigaherz.enderthing.items.ItemEnderLock;
+import gigaherz.enderthing.items.ItemEnderPack;
 import gigaherz.enderthing.network.UpdatePlayersUsing;
 import gigaherz.enderthing.recipes.KeyRecipe;
 import gigaherz.enderthing.recipes.LockRecipe;
@@ -12,7 +14,6 @@ import gigaherz.enderthing.recipes.MakePrivateRecipe;
 import gigaherz.enderthing.recipes.PackRecipe;
 import gigaherz.enderthing.storage.PrivateInventoryCapability;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -29,7 +30,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.RecipeSorter;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
+import javax.annotation.Nonnull;
 
 @Mod(name = Enderthing.NAME,
         modid = Enderthing.MODID,
@@ -57,6 +58,7 @@ public class Enderthing
 
     public static CreativeTabs tabEnderthing = new CreativeTabs("tabEnderthing")
     {
+        @Nonnull
         @Override
         public Item getTabIconItem()
         {
@@ -100,9 +102,9 @@ public class Enderthing
         NetworkRegistry.INSTANCE.registerGuiHandler(this, guiHandler);
 
         Property prop = config.get("Compatibility", "ImportCapabilityPrivateData", true);
-        if(prop.getBoolean())
+        if (prop.getBoolean())
         {
-            PrivateInventoryCapability.register();
+            initCapability();
             prop.set(false);
             config.save();
         }
@@ -114,6 +116,12 @@ public class Enderthing
         logger.debug("Final message number: " + messageNumber);
 
         proxy.preInit();
+    }
+
+    @SuppressWarnings("deprecation")
+    private void initCapability()
+    {
+        PrivateInventoryCapability.register();
     }
 
     @Mod.EventHandler
@@ -138,3 +146,4 @@ public class Enderthing
         RecipeSorter.register(MODID + ":make_private", MakePrivateRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
     }
 }
+

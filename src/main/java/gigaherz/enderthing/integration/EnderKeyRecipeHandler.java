@@ -15,11 +15,19 @@ public class EnderKeyRecipeHandler implements IRecipeHandler<EnderKeyRecipeWrapp
         return EnderKeyRecipeWrapper.class;
     }
 
+    @Deprecated
     @Nonnull
     @Override
     public String getRecipeCategoryUid()
     {
         return VanillaRecipeCategoryUid.CRAFTING;
+    }
+
+    @Nonnull
+    @Override
+    public String getRecipeCategoryUid(@Nonnull EnderKeyRecipeWrapper recipe)
+    {
+        return getRecipeCategoryUid();
     }
 
     @Nonnull

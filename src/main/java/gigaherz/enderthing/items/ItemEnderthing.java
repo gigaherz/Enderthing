@@ -2,13 +2,13 @@ package gigaherz.enderthing.items;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import gigaherz.enderthing.Enderthing;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.translation.I18n;
 
 import java.util.List;
 
@@ -74,13 +74,13 @@ public class ItemEnderthing extends ItemRegistered
     {
         if ((stack.getMetadata() & 1) != 0)
         {
-            information.add(ChatFormatting.BOLD + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".private"));
+            information.add(ChatFormatting.BOLD + I18n.format("tooltip." + Enderthing.MODID + ".private"));
         }
 
         NBTTagCompound tag = stack.getTagCompound();
         if (tag == null)
         {
-            information.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".colorMissing"));
+            information.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".colorMissing"));
             return;
         }
 
@@ -92,6 +92,6 @@ public class ItemEnderthing extends ItemRegistered
         EnumDyeColor c2 = EnumDyeColor.byMetadata(color2);
         EnumDyeColor c3 = EnumDyeColor.byMetadata(color3);
 
-        information.add(I18n.translateToLocalFormatted("tooltip." + Enderthing.MODID + ".colors", c1.getName(), c2.getName(), c3.getName()));
+        information.add(I18n.format("tooltip." + Enderthing.MODID + ".colors", c1.getName(), c2.getName(), c3.getName()));
     }
 }

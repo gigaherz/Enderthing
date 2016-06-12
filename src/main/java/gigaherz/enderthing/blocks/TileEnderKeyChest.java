@@ -8,7 +8,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.EnumFacing;
@@ -70,7 +69,7 @@ public class TileEnderKeyChest
         if (inventoryId < 0)
             return null;
 
-        if (inventory == null && (!isPrivate ||isBoundToPlayer()))
+        if (inventory == null && (!isPrivate || isBoundToPlayer()))
         {
             if (isBoundToPlayer())
                 inventory = InventoryManager.get(worldObj).getPrivate(boundToPlayer).getInventory(inventoryId);
