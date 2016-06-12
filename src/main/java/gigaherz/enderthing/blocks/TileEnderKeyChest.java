@@ -5,8 +5,6 @@ import gigaherz.enderthing.network.UpdatePlayersUsing;
 import gigaherz.enderthing.storage.EnderInventory;
 import gigaherz.enderthing.storage.InventoryManager;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.audio.SoundCategory;
-import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
@@ -15,7 +13,6 @@ import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import net.minecraftforge.client.event.sound.SoundEvent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -70,7 +67,7 @@ public class TileEnderKeyChest
         if (inventoryId < 0)
             return null;
 
-        if (inventory == null && (!isPrivate ||isBoundToPlayer()))
+        if (inventory == null && (!isPrivate || isBoundToPlayer()))
         {
             if (isBoundToPlayer())
                 inventory = InventoryManager.get(worldObj).getPrivate(boundToPlayer).getInventory(inventoryId);

@@ -55,8 +55,8 @@ public class BlockEnderKeyChest
         setResistance(1000.0F);
         setStepSound(soundTypeStone);
         setLightLevel(0.5F);
-        setBlockBounds( 1 / 16F,  0 / 16F,  1 / 16F,
-                       15 / 16F, 14 / 16F, 15 / 16F);
+        setBlockBounds(1 / 16F, 0 / 16F, 1 / 16F,
+                15 / 16F, 14 / 16F, 15 / 16F);
     }
 
     @Override
@@ -226,7 +226,7 @@ public class BlockEnderKeyChest
 
             if (oldId != id)
             {
-                if(!playerIn.capabilities.isCreativeMode)
+                if (!playerIn.capabilities.isCreativeMode)
                     heldItem.stackSize--;
                 chest.setInventoryId(id);
             }
@@ -522,6 +522,5 @@ public class BlockEnderKeyChest
 
             return 0xFFFFFFFF;
         }
-
     }
 }

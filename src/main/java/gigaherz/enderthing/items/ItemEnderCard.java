@@ -89,15 +89,14 @@ public class ItemEnderCard extends ItemRegistered
     @Override
     public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn)
     {
-        if(worldIn.isRemote)
+        if (worldIn.isRemote)
             return itemStackIn;
 
-        if(playerIn.isSneaking())
+        if (playerIn.isSneaking())
         {
             bindToPlayer(itemStackIn, playerIn);
 
-            playerIn.addChatMessage(new ChatComponentTranslation("text."+Enderthing.MODID+".enderCard.bound"));
-
+            playerIn.addChatMessage(new ChatComponentTranslation("text." + Enderthing.MODID + ".enderCard.bound"));
             return itemStackIn;
         }
         return super.onItemRightClick(itemStackIn, worldIn, playerIn);
@@ -142,10 +141,10 @@ public class ItemEnderCard extends ItemRegistered
             String name = getBoundPlayerCachedName(stack);
 
             if (name == null || name.length() == 0)
-                playerIn.addChatMessage(new ChatComponentTranslation("text."+Enderthing.MODID+".enderChest.bound1",
+                playerIn.addChatMessage(new ChatComponentTranslation("text." + Enderthing.MODID + ".enderChest.bound1",
                         new ChatComponentText(uuid.toString())));
             else
-                playerIn.addChatMessage(new ChatComponentTranslation("text."+Enderthing.MODID+".enderChest.bound2",
+                playerIn.addChatMessage(new ChatComponentTranslation("text." + Enderthing.MODID + ".enderChest.bound2",
                         new ChatComponentText(uuid.toString()),
                         new ChatComponentText(name)));
         }
@@ -159,7 +158,7 @@ public class ItemEnderCard extends ItemRegistered
         if (!worldIn.isRemote && (stack.hashCode() % 120) == (worldIn.getTotalWorldTime() % 120))
         {
             UUID uuid = getBoundPlayerUniqueID(stack);
-            if(uuid != null)
+            if (uuid != null)
             {
                 String name = getBoundPlayerCachedName(stack);
                 String newName = Enderthing.proxy.queryNameFromUUID(uuid);
@@ -179,7 +178,7 @@ public class ItemEnderCard extends ItemRegistered
 
         UUID uuid = getBoundPlayerUniqueID(stack);
 
-        if(uuid == null)
+        if (uuid == null)
         {
             tooltip.add(StatCollector.translateToLocal("tooltip." + Enderthing.MODID + ".enderCard.unbound"));
             return;
@@ -188,10 +187,10 @@ public class ItemEnderCard extends ItemRegistered
         String name = getBoundPlayerCachedName(stack);
         String uuidText = uuid.toString();
 
-        if(!advanced && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+        if (!advanced && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
         {
             String uuidBegin = uuidText.substring(0, 4);
-            String uuidEnd = uuidText.substring(uuidText.length()-4);
+            String uuidEnd = uuidText.substring(uuidText.length() - 4);
             uuidText = uuidBegin + "..." + uuidEnd;
         }
 

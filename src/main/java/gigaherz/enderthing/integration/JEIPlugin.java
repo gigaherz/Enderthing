@@ -2,7 +2,6 @@ package gigaherz.enderthing.integration;
 
 import gigaherz.enderthing.Enderthing;
 import mezz.jei.api.*;
-import mezz.jei.api.INbtIgnoreList;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;

@@ -60,10 +60,10 @@ public class ClientProxy implements IModProxy
         if (svr == null)
             return null;
         ServerConfigurationManager playerList = svr.getConfigurationManager();
-        if(playerList == null)
+        if (playerList == null)
             return null;
         EntityPlayer player = playerList.getPlayerByUUID(uuid);
-        if(player != null)
+        if (player != null)
             return player.getName();
         return null;
     }

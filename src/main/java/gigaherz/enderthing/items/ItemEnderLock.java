@@ -88,12 +88,11 @@ public class ItemEnderLock extends ItemEnderthing
                 oldStack.setTagCompound(oldTag);
 
                 InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
-
             }
 
             boolean newPrivate = stack.getMetadata() != 0;
 
-            if(oldPrivate != newPrivate)
+            if (oldPrivate != newPrivate)
             {
                 worldIn.setBlockState(pos, state.withProperty(BlockEnderKeyChest.PRIVATE, newPrivate));
                 te = worldIn.getTileEntity(pos);

@@ -7,7 +7,6 @@ import gigaherz.enderthing.items.ItemEnderCard;
 import gigaherz.enderthing.items.ItemEnderKey;
 import gigaherz.enderthing.items.ItemEnderLock;
 import gigaherz.enderthing.items.ItemEnderPack;
-import gigaherz.enderthing.items.ItemEnderCard;
 import gigaherz.enderthing.network.UpdatePlayersUsing;
 import gigaherz.enderthing.recipes.KeyRecipe;
 import gigaherz.enderthing.recipes.LockRecipe;
@@ -99,9 +98,9 @@ public class Enderthing
         NetworkRegistry.INSTANCE.registerGuiHandler(this, guiHandler);
 
         Property prop = config.get("Compatibility", "ImportCapabilityPrivateData", true);
-        if(prop.getBoolean())
+        if (prop.getBoolean())
         {
-            PrivateInventoryCapability.register();
+            initCapability();
             prop.set(false);
             config.save();
         }
@@ -113,6 +112,12 @@ public class Enderthing
         logger.debug("Final message number: " + messageNumber);
 
         proxy.preInit();
+    }
+
+    @SuppressWarnings("deprecation")
+    private void initCapability()
+    {
+        PrivateInventoryCapability.register();
     }
 
     @Mod.EventHandler

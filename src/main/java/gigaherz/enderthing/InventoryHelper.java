@@ -32,7 +32,7 @@ public class InventoryHelper
 
             if (stack.hasTagCompound())
             {
-                entityitem.getEntityItem().setTagCompound((NBTTagCompound)stack.getTagCompound().copy());
+                entityitem.getEntityItem().setTagCompound((NBTTagCompound) stack.getTagCompound().copy());
             }
 
             float velocity = 0.05F;
