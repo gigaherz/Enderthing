@@ -2,9 +2,7 @@ package gigaherz.enderthing.storage;
 
 import com.google.common.collect.Maps;
 import gigaherz.enderthing.Enderthing;
-import gigaherz.enderthing.items.ItemEnderCard;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.World;
@@ -67,10 +65,10 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
     public IInventoryManager getPrivate(UUID uuid)
     {
         Container container = perPlayer.get(uuid);
-        if(container == null)
+        if (container == null)
         {
             container = new Container();
-            perPlayer.put(new UUID(uuid.getMostSignificantBits(),uuid.getLeastSignificantBits()), container);
+            perPlayer.put(new UUID(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits()), container);
             markDirty();
         }
 
@@ -109,7 +107,7 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
         nbtTagCompound.setTag("Inventories", temp.getTag("Inventories"));
 
         NBTTagList list = new NBTTagList();
-        for(Map.Entry<UUID, Container> e : perPlayer.entrySet())
+        for (Map.Entry<UUID, Container> e : perPlayer.entrySet())
         {
             NBTTagCompound tag = e.getValue().serializeNBT();
             uuidToNBT(tag, e.getKey());
@@ -121,7 +119,7 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
 
     public void importCapabilityData(EntityPlayer player, NBTTagCompound nbt)
     {
-        ((Container)getPrivate(player)).importNBT(nbt);
+        ((Container) getPrivate(player)).importNBT(nbt);
     }
 
     public static void uuidToNBT(NBTTagCompound tag, UUID uuid)
@@ -132,7 +130,7 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
 
     public static UUID uuidFromNBT(NBTTagCompound tag)
     {
-        if(!tag.hasKey("PlayerUUID0", Constants.NBT.TAG_LONG))
+        if (!tag.hasKey("PlayerUUID0", Constants.NBT.TAG_LONG))
             return null;
 
         long uuid0 = tag.getLong("PlayerUUID0");
@@ -207,7 +205,7 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
                 NBTTagCompound inventoryTag = nbtTagList.getCompoundTagAt(i);
                 int j = inventoryTag.getInteger("InventoryId");
 
-                if(!inventories.containsKey(j))
+                if (!inventories.containsKey(j))
                 {
                     EnderInventory inventory = new EnderInventory(this);
 

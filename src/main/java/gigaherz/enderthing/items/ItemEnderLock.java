@@ -7,6 +7,7 @@ import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEnderChest;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryHelper;
@@ -17,7 +18,6 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public class ItemEnderLock extends ItemEnderthing
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> information, boolean advanced)
     {
-        information.add(ChatFormatting.ITALIC + I18n.translateToLocal("tooltip." + Enderthing.MODID + ".enderLock.rightClick"));
+        information.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".enderLock.rightClick"));
 
         super.addInformation(stack, player, information, advanced);
     }
@@ -90,12 +90,11 @@ public class ItemEnderLock extends ItemEnderthing
                 oldStack.setTagCompound(oldTag);
 
                 InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
-
             }
 
             boolean newPrivate = stack.getMetadata() != 0;
 
-            if(oldPrivate != newPrivate)
+            if (oldPrivate != newPrivate)
             {
                 worldIn.setBlockState(pos, state.withProperty(BlockEnderKeyChest.PRIVATE, newPrivate));
                 te = worldIn.getTileEntity(pos);

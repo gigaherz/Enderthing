@@ -1,8 +1,8 @@
 package gigaherz.enderthing.gui;
 
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
-import gigaherz.enderthing.storage.InventoryManager;
 import gigaherz.enderthing.storage.IInventoryManager;
+import gigaherz.enderthing.storage.InventoryManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -45,7 +45,7 @@ public class ContainerKey extends Container
             {
                 TileEnderKeyChest chest = (TileEnderKeyChest) te;
 
-                if(chest.isBoundToPlayer())
+                if (chest.isBoundToPlayer())
                     bound = chest.getPlayerBound();
             }
 

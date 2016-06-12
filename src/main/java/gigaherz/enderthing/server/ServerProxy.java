@@ -23,10 +23,10 @@ public class ServerProxy implements IModProxy
     public String queryNameFromUUID(UUID uuid)
     {
         PlayerList playerList = FMLServerHandler.instance().getServer().getPlayerList();
-        if(playerList == null)
+        if (playerList == null)
             return null;
         EntityPlayer player = playerList.getPlayerByUUID(uuid);
-        if(player != null)
+        if (player != null)
             return player.getName();
         return null;
     }

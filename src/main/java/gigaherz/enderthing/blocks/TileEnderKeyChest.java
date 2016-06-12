@@ -70,7 +70,7 @@ public class TileEnderKeyChest
         if (inventoryId < 0)
             return null;
 
-        if (inventory == null && (!isPrivate ||isBoundToPlayer()))
+        if (inventory == null && (!isPrivate || isBoundToPlayer()))
         {
             if (isBoundToPlayer())
                 inventory = InventoryManager.get(worldObj).getPrivate(boundToPlayer).getInventory(inventoryId);
