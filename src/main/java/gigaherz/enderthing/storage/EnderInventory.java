@@ -29,29 +29,30 @@ public class EnderInventory extends ItemStackHandler
     {
         super.onContentsChanged(slot);
 
-        synchronized (listeners)
+        for (Reference<? extends TileEnderKeyChest>
+             ref = deadListeners.poll();
+             ref != null;
+             ref = deadListeners.poll())
         {
-            for (Reference<? extends TileEnderKeyChest>
-                 ref = deadListeners.poll();
-                 ref != null;
-                 ref = deadListeners.poll())
-            {
-                listeners.remove(ref);
-            }
+            listeners.remove(ref);
+        }
 
-            for (Iterator<Reference<? extends TileEnderKeyChest>> it = listeners.iterator(); it.hasNext(); )
+        List<TileEnderKeyChest> dirty = Lists.newArrayList();
+        for (Iterator<Reference<? extends TileEnderKeyChest>> it = listeners.iterator(); it.hasNext(); )
+        {
+            TileEnderKeyChest te = it.next().get();
+            if (te == null || te.isInvalid())
             {
-                TileEnderKeyChest rift = it.next().get();
-                if (rift == null || rift.isInvalid())
-                {
-                    it.remove();
-                }
-                else
-                {
-                    rift.markDirty();
-                }
+                it.remove();
+            }
+            else
+            {
+                dirty.add(te);
             }
         }
+
+        for(TileEnderKeyChest te : dirty)
+            te.markDirty();
 
         manager.setDirty();
     }
