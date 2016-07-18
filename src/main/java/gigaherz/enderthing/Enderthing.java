@@ -34,7 +34,8 @@ import javax.annotation.Nonnull;
 
 @Mod(name = Enderthing.NAME,
         modid = Enderthing.MODID,
-        version = Enderthing.VERSION)
+        version = Enderthing.VERSION,
+        acceptedMinecraftVersions = "[1.9.4,1.11.0)")
 public class Enderthing
 {
     public static final String NAME = "Enderthing";

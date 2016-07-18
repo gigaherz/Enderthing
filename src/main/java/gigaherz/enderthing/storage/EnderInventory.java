@@ -24,6 +24,11 @@ public class EnderInventory extends ItemStackHandler
         listeners.add(new WeakReference<TileEnderKeyChest>(e, deadListeners));
     }
 
+    public void removeWeakListener(TileEnderKeyChest e)
+    {
+        listeners.remove(e);
+    }
+
     @Override
     protected void onContentsChanged(int slot)
     {

@@ -21,21 +21,21 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 
 version = "0.6.10"
 group= "gigaherz.enderthing" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "enderthing-1.10"
+archivesBaseName = "enderthing-1.10.2"
 
 minecraft {
-    version = "1.10-12.18.0.1986-1.10.0"
+    version = "1.10.2-12.18.1.2014"
     runDir = "run"
 
-    mappings = "snapshot_20160624"
+    mappings = "snapshot_20160718"
 
     replace "@VERSION@", project.version
     replaceIn "Enderthing.java"
 }
 
 dependencies {
-    deobfCompile "mezz.jei:jei_1.10:3.7.0.218:api"
-    runtime "mezz.jei:jei_1.10:3.7.0.218"
+    deobfCompile "mezz.jei:jei_1.10.2:3.7.8.234:api"
+    runtime "mezz.jei:jei_1.10.2:3.7.8.234"
 }
 
 processResources

@@ -38,13 +38,15 @@ public class TileEnderKeyChest
     protected boolean isPrivate;
     private UUID boundToPlayer;
 
-    public boolean isPrivate()
-    {
-        return this.isPrivate;
-    }
+    private EnderInventory inventory;
 
     public TileEnderKeyChest()
     {
+    }
+
+    public boolean isPrivate()
+    {
+        return this.isPrivate;
     }
 
     public int getInventoryId()
@@ -56,13 +58,47 @@ public class TileEnderKeyChest
     {
         this.inventoryId = inventoryId;
 
+        releasePreviousInventory();
         markDirty();
 
         IBlockState state = worldObj.getBlockState(pos);
         worldObj.notifyBlockUpdate(pos, state, state, 3);
     }
 
-    private EnderInventory inventory;
+    public UUID getPlayerBound()
+    {
+        return boundToPlayer;
+    }
+
+    public void bindToPlayer(UUID boundToPlayer)
+    {
+        this.boundToPlayer = boundToPlayer;
+
+        releasePreviousInventory();
+        markDirty();
+
+        IBlockState state = worldObj.getBlockState(pos);
+        worldObj.notifyBlockUpdate(pos, state, state, 3);
+    }
+
+    public boolean isBoundToPlayer()
+    {
+        return boundToPlayer != null;
+    }
+
+    private void releasePreviousInventory()
+    {
+        if(inventory != null)
+        {
+            inventory.removeWeakListener(this);
+        }
+        inventory = null;
+    }
+
+    public boolean hasInventory()
+    {
+        return (inventoryId >= 0);
+    }
 
     public EnderInventory getInventory()
     {
@@ -93,6 +129,7 @@ public class TileEnderKeyChest
         super.readFromNBT(tag);
         inventoryId = tag.getInteger(BlockEnderKeyChest.INVENTORY_ID_KEY);
         boundToPlayer = InventoryManager.uuidFromNBT(tag);
+        releasePreviousInventory();
     }
 
     public NBTTagCompound writeToNBT(NBTTagCompound tag)
@@ -110,7 +147,7 @@ public class TileEnderKeyChest
     public boolean hasCapability(Capability<?> capability, EnumFacing facing)
     {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-            return getInventory() != null;
+            return hasInventory();
         return super.hasCapability(capability, facing);
     }
 
@@ -222,23 +259,4 @@ public class TileEnderKeyChest
         }
     }
 
-    public UUID getPlayerBound()
-    {
-        return boundToPlayer;
-    }
-
-    public void bindToPlayer(UUID boundToPlayer)
-    {
-        this.boundToPlayer = boundToPlayer;
-
-        markDirty();
-
-        IBlockState state = worldObj.getBlockState(pos);
-        worldObj.notifyBlockUpdate(pos, state, state, 3);
-    }
-
-    public boolean isBoundToPlayer()
-    {
-        return boundToPlayer != null;
-    }
 }
