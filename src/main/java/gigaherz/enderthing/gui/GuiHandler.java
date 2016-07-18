@@ -15,30 +15,12 @@ public class GuiHandler implements IGuiHandler
     @Override
     public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
     {
-        switch (id & 4)
-        {
-            case GUI_KEY:
-            case GUI_KEY_PRIVATE:
-            case GUI_PACK:
-            case GUI_PACK_PRIVATE:
-                return new ContainerKey(player.inventory, id, player, world, new BlockPos(x, y, z));
-        }
-
-        return null;
+        return new ContainerKey(player.inventory, id, player, world, new BlockPos(x, y, z));
     }
 
     @Override
     public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
     {
-        switch (id & 4)
-        {
-            case GUI_KEY:
-            case GUI_KEY_PRIVATE:
-            case GUI_PACK:
-            case GUI_PACK_PRIVATE:
-                return new GuiKey(player.inventory, id, player, world, new BlockPos(x, y, z));
-        }
-
-        return null;
+        return new GuiKey(player.inventory, id, player, world, new BlockPos(x, y, z));
     }
 }
