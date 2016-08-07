@@ -97,7 +97,7 @@ public class TileEnderKeyChest
 
     public boolean hasInventory()
     {
-        return (inventoryId >= 0);
+        return (inventoryId >= 0) && (!isPrivate || isBoundToPlayer());
     }
 
     public EnderInventory getInventory()
