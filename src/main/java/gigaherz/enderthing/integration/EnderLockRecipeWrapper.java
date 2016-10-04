@@ -3,6 +3,7 @@ package gigaherz.enderthing.integration;
 import com.google.common.collect.Lists;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.recipes.LockRecipe;
+import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.BlankRecipeWrapper;
 import mezz.jei.api.recipe.wrapper.IShapedCraftingRecipeWrapper;
 import net.minecraft.init.Blocks;
@@ -20,7 +21,7 @@ public class EnderLockRecipeWrapper extends BlankRecipeWrapper implements IShape
     private final List<ItemStack> inputs;
 
     @Nonnull
-    private final List<ItemStack> outputs;
+    private final ItemStack output;
 
     public EnderLockRecipeWrapper()
     {
@@ -32,21 +33,14 @@ public class EnderLockRecipeWrapper extends BlankRecipeWrapper implements IShape
         inputs.add(new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE));
         inputs.add(new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE));
 
-        this.outputs = Collections.singletonList(new ItemStack(Enderthing.enderLock));
+        this.output = new ItemStack(Enderthing.enderLock);
     }
 
     @Override
-    @Nonnull
-    public List<ItemStack> getInputs()
+    public void getIngredients(IIngredients ingredients)
     {
-        return inputs;
-    }
-
-    @Override
-    @Nonnull
-    public List<ItemStack> getOutputs()
-    {
-        return outputs;
+        ingredients.setInputs(ItemStack.class, inputs);
+        ingredients.setOutput(ItemStack.class, output);
     }
 
     @Override

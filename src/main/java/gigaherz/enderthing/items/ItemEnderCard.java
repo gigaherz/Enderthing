@@ -120,7 +120,7 @@ public class ItemEnderCard extends ItemRegistered
 
         Block b = state.getBlock();
 
-        if (b != Enderthing.blockEnderKeyChest || !state.getValue(BlockEnderKeyChest.PRIVATE))
+        if (b != Enderthing.enderKeyChest || !state.getValue(BlockEnderKeyChest.PRIVATE))
         {
             return EnumActionResult.PASS;
         }

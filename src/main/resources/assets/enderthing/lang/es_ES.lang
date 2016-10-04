@@ -1,0 +1,26 @@
+tile.enderthing.blockEnderKeyChest.name=Cofre con Llave de Ender
+container.enderthing.global.name=Inventario de Ender Público
+container.enderthing.private.name=Inventario de Ender Privado
+item.enderthing.enderKey.name=Llave de Ender
+item.enderthing.enderLock.name=Cerradura de Ender
+item.enderthing.enderPack.name=Mochila de Ender
+item.enderthing.enderCard.name=Tarjeta de Seguridad
+itemGroup.tabEnderthing=Cosas de Enderthing
+
+tooltip.enderthing.colorMissing=El color depende de la lana utilizada.
+tooltip.enderthing.colors=Colores: %s, %s, %s
+tooltip.enderthing.private=Privado
+
+tooltip.enderthing.enderKeyChest.rightClick=Crea una Cerradura de Ender y usala agachándote en un Cofre de Ender regular.
+tooltip.enderthing.enderKey.rightClick=Usala agachándote en un Cofre de Ender regular para abrir el inventario compartido.
+tooltip.enderthing.enderLock.rightClick=Usalo agachándote en un Cofre de Ender para definir o sustituir el código.
+tooltip.enderthing.enderPack.rightClick=Usalo para abrir el inventario compartido.
+tooltip.enderthing.enderCard.rightClick1=Usalo agachándote y mirando al aire para vincularla a ti.
+tooltip.enderthing.enderCard.rightClick2=Usalo agachándote en un Cofre de Ender privado para vincularlo y permitir automatización.
+tooltip.enderthing.enderCard.unbound=Sin vincular
+tooltip.enderthing.enderCard.bound1=Vinculado a: %s
+tooltip.enderthing.enderCard.bound2=Vinculado a: %s (%s)
+
+text.enderthing.enderCard.bound=La tarjeta ahora está vinculada a ti
+text.enderthing.enderChest.bound1=El cofre ahora está vinculado a: %s
+text.enderthing.enderChest.bound2=El cofre ahora está vinculado a: %s (%s)

@@ -19,23 +19,23 @@ repositories {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "0.6.11"
+version = "0.7.0"
 group= "gigaherz.enderthing" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "enderthing-1.10.2"
 
 minecraft {
-    version = "1.10.2-12.18.1.2014"
+    version = "1.10.2-12.18.1.2095"
     runDir = "run"
 
-    mappings = "snapshot_20160718"
+    mappings = "snapshot_20161002"
 
     replace "@VERSION@", project.version
     replaceIn "Enderthing.java"
 }
 
 dependencies {
-    deobfCompile "mezz.jei:jei_1.10.2:3.7.8.234:api"
-    runtime "mezz.jei:jei_1.10.2:3.7.8.234"
+    deobfCompile "mezz.jei:jei_1.10.2:3.12.3.293:api"
+    runtime "mezz.jei:jei_1.10.2:3.12.3.293"
 }
 
 processResources

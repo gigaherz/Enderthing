@@ -2,6 +2,7 @@ package gigaherz.enderthing.integration;
 
 import com.google.common.collect.Lists;
 import gigaherz.enderthing.recipes.MakePrivateRecipe;
+import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.BlankRecipeWrapper;
 import mezz.jei.api.recipe.wrapper.IShapedCraftingRecipeWrapper;
 import net.minecraft.item.ItemStack;
@@ -17,7 +18,7 @@ public class MakePrivateRecipeWrapper extends BlankRecipeWrapper implements ISha
     private final List<ItemStack> inputs;
 
     @Nonnull
-    private final List<ItemStack> outputs;
+    private final ItemStack output;
 
     public MakePrivateRecipeWrapper(ItemStack centerInput, ItemStack output)
     {
@@ -26,21 +27,14 @@ public class MakePrivateRecipeWrapper extends BlankRecipeWrapper implements ISha
 
         inputs.set(4, centerInput);
 
-        this.outputs = Collections.singletonList(output);
+        this.output = output;
     }
 
     @Override
-    @Nonnull
-    public List<ItemStack> getInputs()
+    public void getIngredients(IIngredients ingredients)
     {
-        return inputs;
-    }
-
-    @Override
-    @Nonnull
-    public List<ItemStack> getOutputs()
-    {
-        return outputs;
+        ingredients.setInputs(ItemStack.class, inputs);
+        ingredients.setOutput(ItemStack.class, output);
     }
 
     @Override

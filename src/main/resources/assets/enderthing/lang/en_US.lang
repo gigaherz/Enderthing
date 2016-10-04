@@ -15,12 +15,12 @@ tooltip.enderthing.enderKeyChest.rightClick=Craft an Ender Lock and Shift-rightc
 tooltip.enderthing.enderKey.rightClick=Shift-Rightclick on a vanilla ender chest to open the shared inventory.
 tooltip.enderthing.enderLock.rightClick=Shift-Rightclick on a ender chest to set or replace the color key.
 tooltip.enderthing.enderPack.rightClick=Rightclick to open the shared inventory.
-tooltip.enderthing.enderCard.rightClick1=Shift-Rightclick on air to bind.
-tooltip.enderthing.enderCard.rightClick2=Shift-Rightclick on a private chest to bind it to you and allow automation.
+tooltip.enderthing.enderCard.rightClick1=Shift-Rightclick on air to bind it to you.
+tooltip.enderthing.enderCard.rightClick2=Shift-Rightclick on a private chest to bind the chest and allow automation.
 tooltip.enderthing.enderCard.unbound=Unbound
 tooltip.enderthing.enderCard.bound1=Bound to: %s
 tooltip.enderthing.enderCard.bound2=Bound to: %s (%s)
 
-text.enderthing.enderCard.bound=Card is now bound to you
-text.enderthing.enderChest.bound1=Chest is now bound to: %s
-text.enderthing.enderChest.bound2=Chest is now bound to: %s (%s)
+text.enderthing.enderCard.bound=The card is now bound to you
+text.enderthing.enderChest.bound1=THe chest is now bound to: %s
+text.enderthing.enderChest.bound2=THe chest is now bound to: %s (%s)

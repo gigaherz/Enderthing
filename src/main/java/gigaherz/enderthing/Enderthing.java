@@ -1,5 +1,6 @@
 package gigaherz.enderthing;
 
+import com.google.common.collect.Maps;
 import gigaherz.enderthing.blocks.BlockEnderKeyChest;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import gigaherz.enderthing.gui.GuiHandler;
@@ -12,25 +13,30 @@ import gigaherz.enderthing.recipes.KeyRecipe;
 import gigaherz.enderthing.recipes.LockRecipe;
 import gigaherz.enderthing.recipes.MakePrivateRecipe;
 import gigaherz.enderthing.recipes.PackRecipe;
-import gigaherz.enderthing.storage.PrivateInventoryCapability;
+import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.RecipeSorter;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
+import java.util.Map;
 
 @Mod(name = Enderthing.NAME,
         modid = Enderthing.MODID,
@@ -43,7 +49,7 @@ public class Enderthing
     public static final String VERSION = "@VERSION@";
     public static final String CHANNEL = "Enderthing";
 
-    public static BlockEnderKeyChest blockEnderKeyChest;
+    public static BlockEnderKeyChest enderKeyChest;
     public static ItemEnderKey enderKey;
     public static ItemEnderLock enderLock;
     public static ItemEnderPack enderPack;
@@ -75,40 +81,46 @@ public class Enderthing
     public static SimpleNetworkWrapper channel;
     public static Logger logger;
     public static Configuration config;
+    
+    public static boolean breakChestOnHarvest = true;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
         logger = event.getModLog();
         config = new Configuration(event.getSuggestedConfigurationFile());
+        Property breakChest = config.get("Balance", "BreakChestOnHarvest", true);
+        if (!breakChest.wasRead())
+            config.save();
+        else
+            breakChestOnHarvest = breakChest.getBoolean();
 
-        blockEnderKeyChest = new BlockEnderKeyChest("blockEnderKeyChest");
-        GameRegistry.register(blockEnderKeyChest);
-        GameRegistry.register(blockEnderKeyChest.createItemBlock());
-        GameRegistry.registerTileEntity(TileEnderKeyChest.class, "tileEnderKeyChest");
-        GameRegistry.registerTileEntity(TileEnderKeyChest.Private.class, "tileEnderKeyPrivateChest");
+        enderKeyChest = new BlockEnderKeyChest("ender_key_chest");
+        GameRegistry.register(enderKeyChest);
+        GameRegistry.register(enderKeyChest.createItemBlock());
+        GameRegistry.registerTileEntity(TileEnderKeyChest.class, location("ender_key_chest").toString());
+        GameRegistry.registerTileEntity(TileEnderKeyChest.Private.class, location("ender_key_chest_private").toString());
+        addAlternativeName(enderKeyChest, "blockEnderKeyChest");
+        addAlternativeName(TileEnderKeyChest.class, "tileEnderKeyChest");
+        addAlternativeName(TileEnderKeyChest.Private.class, "tileEnderKeyPrivateChest");
 
-        enderKey = new ItemEnderKey("enderKey");
+        enderKey = new ItemEnderKey("ender_key");
         GameRegistry.register(enderKey);
+        addAlternativeName(enderKey, "enderKey");
 
-        enderLock = new ItemEnderLock("enderLock");
+        enderLock = new ItemEnderLock("ender_lock");
         GameRegistry.register(enderLock);
+        addAlternativeName(enderLock, "enderLock");
 
-        enderPack = new ItemEnderPack("enderPack");
+        enderPack = new ItemEnderPack("ender_pack");
         GameRegistry.register(enderPack);
+        addAlternativeName(enderPack, "enderPack");
 
-        enderCard = new ItemEnderCard("enderCard");
+        enderCard = new ItemEnderCard("ender_card");
         GameRegistry.register(enderCard);
+        addAlternativeName(enderCard, "enderCard");
 
         NetworkRegistry.INSTANCE.registerGuiHandler(this, guiHandler);
-
-        Property prop = config.get("Compatibility", "ImportCapabilityPrivateData", true);
-        if (prop.getBoolean())
-        {
-            initCapability();
-            prop.set(false);
-            config.save();
-        }
 
         channel = NetworkRegistry.INSTANCE.newSimpleChannel(CHANNEL);
 
@@ -117,12 +129,6 @@ public class Enderthing
         logger.debug("Final message number: " + messageNumber);
 
         proxy.preInit();
-    }
-
-    @SuppressWarnings("deprecation")
-    private void initCapability()
-    {
-        PrivateInventoryCapability.register();
     }
 
     @Mod.EventHandler
@@ -145,6 +151,51 @@ public class Enderthing
         RecipeSorter.register(MODID + ":lock_recipe", LockRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
         RecipeSorter.register(MODID + ":pack_recipe", PackRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
         RecipeSorter.register(MODID + ":make_private", MakePrivateRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
+    }
+
+    Map<String, Class<? extends TileEntity >> nameToClassMap = ReflectionHelper.getPrivateValue(TileEntity.class, null, "field_145855_i", "nameToClassMap");
+    private void addAlternativeName(Class<? extends TileEntity> clazz, String altName)
+    {
+        nameToClassMap.put(altName, clazz);
+    }
+
+    private Map<ResourceLocation, Item> upgradeItemNames = Maps.newHashMap();
+    private void addAlternativeName(Item item, String altName)
+    {
+        upgradeItemNames.put(new ResourceLocation(MODID, altName), item);
+    }
+
+    private Map<ResourceLocation, Block> upgradeBlockNames = Maps.newHashMap();
+    private void addAlternativeName(Block block, String altName)
+    {
+        upgradeBlockNames.put(new ResourceLocation(MODID, altName), block);
+        Item item = Item.getItemFromBlock(block);
+        if (item != null)
+            addAlternativeName(item, altName);
+    }
+
+    @Mod.EventHandler
+    public void onMissingMapping(FMLMissingMappingsEvent ev)
+    {
+        for (FMLMissingMappingsEvent.MissingMapping missing : ev.get())
+        {
+            if (missing.type == GameRegistry.Type.ITEM
+                    && upgradeItemNames.containsKey(missing.resourceLocation))
+            {
+                missing.remap(upgradeItemNames.get(missing.resourceLocation));
+            }
+
+            if (missing.type == GameRegistry.Type.BLOCK
+                    && upgradeBlockNames.containsKey(missing.resourceLocation))
+            {
+                missing.remap(upgradeBlockNames.get(missing.resourceLocation));
+            }
+        }
+    }
+
+    public static ResourceLocation location(String path)
+    {
+        return new ResourceLocation(MODID, path);
     }
 }
 

@@ -42,7 +42,7 @@ public class ItemEnderKey extends ItemEnderthing
         IBlockState state = worldIn.getBlockState(pos);
 
         Block b = state.getBlock();
-        if (b != Blocks.ENDER_CHEST && b != Enderthing.blockEnderKeyChest)
+        if (b != Blocks.ENDER_CHEST && b != Enderthing.enderKeyChest)
             return EnumActionResult.PASS;
 
         int id = getId(stack) | (stack.getMetadata() != 0 ? GuiHandler.GUI_KEY_PRIVATE : GuiHandler.GUI_KEY);

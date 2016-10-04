@@ -26,15 +26,15 @@ public class ClientProxy implements IModProxy
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEnderKeyChest.class, new RenderEnderKeyChest());
 
-        registerBlockModelAsItem(Enderthing.blockEnderKeyChest, 0, "facing=north,inventory=true,private=false");
-        registerBlockModelAsItem(Enderthing.blockEnderKeyChest, 8, "facing=north,inventory=true,private=true");
-        registerItemModel(Enderthing.enderKey, 0, "enderKey");
-        registerItemModel(Enderthing.enderKey, 1, "privateEnderKey");
-        registerItemModel(Enderthing.enderLock, 0, "enderLock");
-        registerItemModel(Enderthing.enderLock, 1, "privateEnderLock");
-        registerItemModel(Enderthing.enderPack, 0, "enderPack");
-        registerItemModel(Enderthing.enderPack, 1, "privateEnderPack");
-        registerItemModel(Enderthing.enderCard, 0, "enderCard");
+        registerBlockModelAsItem(Enderthing.enderKeyChest, 0, "facing=north,inventory=true,private=false");
+        registerBlockModelAsItem(Enderthing.enderKeyChest, 8, "facing=north,inventory=true,private=true");
+        registerItemModel(Enderthing.enderKey, 0, "ender_key");
+        registerItemModel(Enderthing.enderKey, 1, "ender_key_private");
+        registerItemModel(Enderthing.enderLock, 0, "ender_lock");
+        registerItemModel(Enderthing.enderLock, 1, "ender_lock_private");
+        registerItemModel(Enderthing.enderPack, 0, "ender_pack");
+        registerItemModel(Enderthing.enderPack, 1, "ender_pack_private");
+        registerItemModel(Enderthing.enderCard, 0, "ender_card");
     }
 
     public void registerBlockModelAsItem(final Block block, int meta, final String itemModelVariant)
@@ -46,7 +46,7 @@ public class ClientProxy implements IModProxy
     public void registerItemModel(final Item item, int meta, final String itemModelName)
     {
         ModelLoader.setCustomModelResourceLocation(item, meta,
-                new ModelResourceLocation(Enderthing.MODID + ":" + itemModelName, "inventory"));
+                new ModelResourceLocation(Enderthing.location(itemModelName), "inventory"));
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ClientProxy implements IModProxy
         Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
                 new ItemColorHandler.ItemTag(), Enderthing.enderKey, Enderthing.enderLock, Enderthing.enderPack);
         Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
-                new ItemColorHandler.BlockTag(), Enderthing.blockEnderKeyChest);
+                new ItemColorHandler.BlockTag(), Enderthing.enderKeyChest);
     }
 
     @Override

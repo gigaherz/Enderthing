@@ -53,7 +53,7 @@ public class ItemEnderLock extends ItemEnderthing
 
         if (b == Blocks.ENDER_CHEST)
         {
-            worldIn.setBlockState(pos, Enderthing.blockEnderKeyChest.getDefaultState()
+            worldIn.setBlockState(pos, Enderthing.enderKeyChest.getDefaultState()
                     .withProperty(BlockEnderKeyChest.FACING, state.getValue(BlockEnderChest.FACING))
                     .withProperty(BlockEnderKeyChest.PRIVATE, (stack.getMetadata() & 1) != 0));
 
@@ -70,7 +70,7 @@ public class ItemEnderLock extends ItemEnderthing
             return EnumActionResult.SUCCESS;
         }
 
-        if (b == Enderthing.blockEnderKeyChest)
+        if (b == Enderthing.enderKeyChest)
         {
             boolean oldPrivate = state.getValue(BlockEnderKeyChest.PRIVATE);
             if (te instanceof TileEnderKeyChest)

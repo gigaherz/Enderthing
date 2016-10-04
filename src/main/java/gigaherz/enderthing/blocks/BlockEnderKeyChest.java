@@ -129,7 +129,8 @@ public class BlockEnderKeyChest
         player.addStat(StatList.getBlockStats(this));
         player.addExhaustion(0.025F);
 
-        if (this.canSilkHarvest(worldIn, pos, state, player) && EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) > 0)
+        if (!Enderthing.breakChestOnHarvest
+                || (this.canSilkHarvest(worldIn, pos, state, player) && EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) > 0))
         {
             List<ItemStack> items = Lists.newArrayList();
             ItemStack itemstack = this.getItem(worldIn, pos);
@@ -400,12 +401,12 @@ public class BlockEnderKeyChest
             return getItem(id, state.getValue(PRIVATE));
         }
 
-        return new ItemStack(Enderthing.blockEnderKeyChest);
+        return new ItemStack(Enderthing.enderKeyChest);
     }
 
     public static ItemStack getItem(int id, boolean priv)
     {
-        ItemStack stack = new ItemStack(Enderthing.blockEnderKeyChest, 1, priv ? 8 : 0);
+        ItemStack stack = new ItemStack(Enderthing.enderKeyChest, 1, priv ? 8 : 0);
 
         NBTTagCompound tag = new NBTTagCompound();
         NBTTagCompound etag = new NBTTagCompound();
