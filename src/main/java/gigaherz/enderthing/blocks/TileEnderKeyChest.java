@@ -90,7 +90,7 @@ public class TileEnderKeyChest
 
     private void releasePreviousInventory()
     {
-        if(inventory != null)
+        if (inventory != null)
         {
             inventory.removeWeakListener(this);
         }
@@ -102,6 +102,7 @@ public class TileEnderKeyChest
         return (inventoryId >= 0) && (!isPrivate || isBoundToPlayer());
     }
 
+    @Nullable
     public EnderInventory getInventory()
     {
         if (inventoryId < 0)
@@ -126,18 +127,20 @@ public class TileEnderKeyChest
                 oldState.getValue(BlockEnderKeyChest.BOUND) != newState.getValue(BlockEnderKeyChest.BOUND);
     }
 
+    @Override
     public void readFromNBT(NBTTagCompound tag)
     {
         super.readFromNBT(tag);
-        inventoryId = tag.getInteger(BlockEnderKeyChest.INVENTORY_ID_KEY);
+        inventoryId = tag.getInteger(Enderthing.INVENTORY_ID_KEY);
         boundToPlayer = InventoryManager.uuidFromNBT(tag);
         releasePreviousInventory();
     }
 
+    @Override
     public NBTTagCompound writeToNBT(NBTTagCompound tag)
     {
         tag = super.writeToNBT(tag);
-        tag.setInteger(BlockEnderKeyChest.INVENTORY_ID_KEY, inventoryId);
+        tag.setInteger(Enderthing.INVENTORY_ID_KEY, inventoryId);
         if (boundToPlayer != null)
         {
             InventoryManager.uuidToNBT(tag, boundToPlayer);
@@ -154,6 +157,7 @@ public class TileEnderKeyChest
     }
 
     @SuppressWarnings("unchecked")
+    @Nullable
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing facing)
     {
@@ -260,5 +264,4 @@ public class TileEnderKeyChest
             this.numPlayersUsing = value;
         }
     }
-
 }

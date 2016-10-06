@@ -9,7 +9,6 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -28,7 +27,7 @@ public class ItemEnderKey extends ItemEnderthing
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> information, boolean advanced)
     {
-        information.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".enderKey.rightClick"));
+        information.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".ender_key.rightClick"));
 
         super.addInformation(stack, player, information, advanced);
     }
@@ -45,11 +44,7 @@ public class ItemEnderKey extends ItemEnderthing
         if (b != Blocks.ENDER_CHEST && b != Enderthing.enderKeyChest)
             return EnumActionResult.PASS;
 
-        int id = getId(stack) | (stack.getMetadata() != 0 ? GuiHandler.GUI_KEY_PRIVATE : GuiHandler.GUI_KEY);
-
-        //noinspection PointlessBitwiseExpression
-        playerIn.openGui(Enderthing.instance, id | GuiHandler.GUI_KEY, worldIn, pos.getX(), pos.getY(), pos.getZ());
-        playerIn.addStat(StatList.ENDERCHEST_OPENED);
+        GuiHandler.openKeyGui(worldIn, pos, playerIn, Enderthing.getIdFromItem(stack), Enderthing.isPrivate(stack));
 
         return EnumActionResult.SUCCESS;
     }

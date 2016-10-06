@@ -25,7 +25,7 @@ public class GuiKey extends GuiContainer
     {
         super(new ContainerKey(playerInventory, id, player, world, pos));
 
-        isPrivate = (id & 1) != 0;
+        isPrivate = (id & GuiHandler.GUI_PRIVATE) != 0;
 
         this.player = playerInventory;
     }

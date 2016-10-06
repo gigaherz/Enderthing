@@ -12,7 +12,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
@@ -32,7 +31,7 @@ public class ItemEnderLock extends ItemEnderthing
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> information, boolean advanced)
     {
-        information.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".enderLock.rightClick"));
+        information.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".ender_lock.rightClick"));
 
         super.addInformation(stack, player, information, advanced);
     }
@@ -45,7 +44,7 @@ public class ItemEnderLock extends ItemEnderthing
 
         IBlockState state = worldIn.getBlockState(pos);
 
-        int id = getId(stack);
+        int id = Enderthing.getIdFromItem(stack);
 
         Block b = state.getBlock();
 
@@ -61,7 +60,7 @@ public class ItemEnderLock extends ItemEnderthing
 
             if (te instanceof TileEnderKeyChest)
             {
-                ((TileEnderKeyChest) te).setInventoryId(id >> 4);
+                ((TileEnderKeyChest) te).setInventoryId(id);
             }
 
             if (!playerIn.capabilities.isCreativeMode)
@@ -76,7 +75,7 @@ public class ItemEnderLock extends ItemEnderthing
             if (te instanceof TileEnderKeyChest)
             {
                 int oldId = ((TileEnderKeyChest) te).getInventoryId();
-                ItemStack oldStack = getLock(oldId, oldPrivate);
+                ItemStack oldStack = Enderthing.getLock(oldId, oldPrivate);
 
                 InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
             }

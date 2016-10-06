@@ -1,6 +1,6 @@
 package gigaherz.enderthing.recipes;
 
-import gigaherz.enderthing.items.ItemEnderthing;
+import gigaherz.enderthing.Enderthing;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.EnumDyeColor;
@@ -13,10 +13,10 @@ public class ChangeColorsRecipe extends ShapedOreRecipe
     private ChangeColorsRecipe(ItemStack out, ItemStack in)
     {
         super(out,
-            "ddd",
-            " k ",
-            'd', "dye",
-            'k', in);
+                "ddd",
+                " k ",
+                'd', "dye",
+                'k', in);
     }
 
     public ChangeColorsRecipe(Item which, boolean priv)
@@ -57,6 +57,6 @@ public class ChangeColorsRecipe extends ShapedOreRecipe
         int c2 = EnumDyeColor.byDyeDamage(dye2.getMetadata()).getMetadata();
         int c3 = EnumDyeColor.byDyeDamage(dye3.getMetadata()).getMetadata();
 
-        return ItemEnderthing.getItem(input.getItem(), c1, c2, c3, ItemEnderthing.isPrivate(input));
+        return Enderthing.getItem(input.getItem(), c1, c2, c3, Enderthing.isPrivate(input));
     }
 }

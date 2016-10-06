@@ -56,12 +56,6 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
         return global.getInventory(id);
     }
 
-    public IInventoryManager getPrivate(EntityPlayer owner)
-    {
-        UUID key = owner.getUniqueID();
-        return getPrivate(key);
-    }
-
     public IInventoryManager getPrivate(UUID uuid)
     {
         Container container = perPlayer.get(uuid);
@@ -119,11 +113,6 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
         return nbtTagCompound;
     }
 
-    public void importCapabilityData(EntityPlayer player, NBTTagCompound nbt)
-    {
-        ((Container) getPrivate(player)).importNBT(nbt);
-    }
-
     public static void uuidToNBT(NBTTagCompound tag, UUID uuid)
     {
         tag.setLong("PlayerUUID0", uuid.getLeastSignificantBits());
@@ -143,7 +132,7 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
 
     private class Container implements INBTSerializable<NBTTagCompound>, IInventoryManager
     {
-        private Map<Integer, EnderInventory> inventories = new HashMap<Integer, EnderInventory>();
+        private Map<Integer, EnderInventory> inventories = Maps.newHashMap();
 
         public EnderInventory getInventory(int id)
         {
@@ -195,27 +184,6 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
                 inventory.deserializeNBT(inventoryTag.getCompoundTag("InventoryContents"));
 
                 inventories.put(j, inventory);
-            }
-        }
-
-        void importNBT(NBTTagCompound nbt)
-        {
-            NBTTagList nbtTagList = nbt.getTagList("Inventories", Constants.NBT.TAG_COMPOUND);
-
-            for (int i = 0; i < nbtTagList.tagCount(); ++i)
-            {
-                NBTTagCompound inventoryTag = nbtTagList.getCompoundTagAt(i);
-                int j = inventoryTag.getInteger("InventoryId");
-
-                if (!inventories.containsKey(j))
-                {
-                    EnderInventory inventory = new EnderInventory(this);
-
-
-                    inventory.deserializeNBT(inventoryTag.getCompoundTag("InventoryContents"));
-
-                    inventories.put(j, inventory);
-                }
             }
         }
 

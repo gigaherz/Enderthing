@@ -16,6 +16,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
+import javax.annotation.Nullable;
 import java.util.UUID;
 
 public class ContainerKey extends Container
@@ -25,13 +26,12 @@ public class ContainerKey extends Container
 
     public ContainerKey(InventoryPlayer playerInventory, int id, EntityPlayer player, World world, BlockPos pos)
     {
-        boolean hasTE = world != null && (id & 2) == 0;
 
         int lockedSlot = -1;
 
         UUID bound = player.getUniqueID();
 
-        if (hasTE)
+        if ((id & 2) == 0)
         {
             TileEntity te = world.getTileEntity(pos);
             if (te instanceof TileEntityEnderChest)
@@ -57,7 +57,7 @@ public class ContainerKey extends Container
             lockedSlot = pos.getX();
         }
 
-        IInventoryManager mgr = (id & 1) != 0 ?
+        IInventoryManager mgr = (id & GuiHandler.GUI_PRIVATE) != 0 ?
                 InventoryManager.get(world).getPrivate(bound) :
                 InventoryManager.get(world);
 
@@ -106,7 +106,7 @@ public class ContainerKey extends Container
         }
 
         @Override
-        public boolean isItemValid(ItemStack stack)
+        public boolean isItemValid(@Nullable ItemStack stack)
         {
             return false;
         }
@@ -143,7 +143,7 @@ public class ContainerKey extends Container
             return null;
 
         ItemStack stack = slot.getStack();
-        ItemStack stackCopy = stack.copy();
+        ItemStack stackCopy = stack != null ? stack.copy() : null;
 
         if (index < 3 * 9)
         {

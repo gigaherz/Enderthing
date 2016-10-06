@@ -103,7 +103,7 @@ public class ItemEnderCard extends ItemRegistered
         {
             bindToPlayer(itemStackIn, playerIn);
 
-            playerIn.addChatMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".enderCard.bound"));
+            playerIn.addChatMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".ender_card.bound"));
 
             return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
         }
@@ -148,10 +148,10 @@ public class ItemEnderCard extends ItemRegistered
             String name = getBoundPlayerCachedName(stack);
 
             if (name == null || name.length() == 0)
-                playerIn.addChatMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".enderChest.bound1",
+                playerIn.addChatMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".ender_chest.bound1",
                         new TextComponentString(uuid.toString())));
             else
-                playerIn.addChatMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".enderChest.bound2",
+                playerIn.addChatMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".ender_chest.bound2",
                         new TextComponentString(uuid.toString()),
                         new TextComponentString(name)));
         }
@@ -180,14 +180,14 @@ public class ItemEnderCard extends ItemRegistered
     @Override
     public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
     {
-        tooltip.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".enderCard.rightClick1"));
-        tooltip.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".enderCard.rightClick2"));
+        tooltip.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".ender_card.rightClick1"));
+        tooltip.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".ender_card.rightClick2"));
 
         UUID uuid = getBoundPlayerUniqueID(stack);
 
         if (uuid == null)
         {
-            tooltip.add(I18n.format("tooltip." + Enderthing.MODID + ".enderCard.unbound"));
+            tooltip.add(I18n.format("tooltip." + Enderthing.MODID + ".ender_card.unbound"));
             return;
         }
 
@@ -202,8 +202,8 @@ public class ItemEnderCard extends ItemRegistered
         }
 
         if (name == null || name.length() == 0)
-            tooltip.add(I18n.format("tooltip." + Enderthing.MODID + ".enderCard.bound1", uuidText));
+            tooltip.add(I18n.format("tooltip." + Enderthing.MODID + ".ender_card.bound1", uuidText));
         else
-            tooltip.add(I18n.format("tooltip." + Enderthing.MODID + ".enderCard.bound2", uuidText, name));
+            tooltip.add(I18n.format("tooltip." + Enderthing.MODID + ".ender_card.bound2", uuidText, name));
     }
 }

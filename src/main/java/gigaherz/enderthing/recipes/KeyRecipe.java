@@ -1,15 +1,10 @@
 package gigaherz.enderthing.recipes;
 
 import gigaherz.enderthing.Enderthing;
-import gigaherz.enderthing.items.ItemEnderthing;
-import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
@@ -21,7 +16,7 @@ public class KeyRecipe extends ShapedOreRecipe
                 "o  ",
                 "eoe",
                 "www",
-                'w', "wool",
+                'w', new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
                 'o', Blocks.OBSIDIAN,
                 'e', Items.ENDER_EYE);
     }
@@ -41,24 +36,6 @@ public class KeyRecipe extends ShapedOreRecipe
         int c2 = wool2.getMetadata();
         int c3 = wool3.getMetadata();
 
-        return ItemEnderthing.getItem(Enderthing.enderKey, c1, c2, c3, false);
-    }
-
-    @Override
-    public int getRecipeSize()
-    {
-        return 9;
-    }
-
-    @Override
-    public ItemStack getRecipeOutput()
-    {
-        return new ItemStack(Enderthing.enderKey);
-    }
-
-    @Override
-    public ItemStack[] getRemainingItems(InventoryCrafting inv)
-    {
-        return new ItemStack[inv.getSizeInventory()];
+        return Enderthing.getItem(Enderthing.enderKey, c1, c2, c3, false);
     }
 }

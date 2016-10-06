@@ -56,8 +56,8 @@ public class EnderInventory extends ItemStackHandler
             }
         }
 
-        for(TileEnderKeyChest te : dirty)
-            te.markDirty();
+        for (TileEnderKeyChest te : dirty)
+        { te.markDirty(); }
 
         manager.setDirty();
     }

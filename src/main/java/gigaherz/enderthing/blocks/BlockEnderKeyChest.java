@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.gui.GuiHandler;
-import gigaherz.enderthing.items.ItemEnderthing;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.SoundType;
@@ -25,7 +24,6 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
@@ -49,8 +47,6 @@ public class BlockEnderKeyChest
     public static final PropertyBool PRIVATE = PropertyBool.create("private");
     public static final PropertyBool BOUND = PropertyBool.create("bound");
     protected static final AxisAlignedBB ENDER_CHEST_AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0625D, 0.9375D, 0.875D, 0.9375D);
-
-    public static final String INVENTORY_ID_KEY = "InventoryId";
 
     public BlockEnderKeyChest(String name)
     {
@@ -120,7 +116,7 @@ public class BlockEnderKeyChest
         ArrayList<ItemStack> ret = Lists.newArrayList();
 
         ret.add(new ItemStack(Blocks.OBSIDIAN, 8));
-        ret.add(ItemEnderthing.getLock(getId(world, pos), state.getValue(PRIVATE)));
+        ret.add(Enderthing.getLock(Enderthing.getIdFromBlock(world, pos), state.getValue(PRIVATE)));
 
         return ret;
     }
@@ -243,15 +239,11 @@ public class BlockEnderKeyChest
             }
         }
 
-
-        //noinspection PointlessBitwiseExpression
-        int id = chest.getInventoryId() << 4 | (state.getValue(PRIVATE) ? GuiHandler.GUI_KEY_PRIVATE : GuiHandler.GUI_KEY);
-
-        playerIn.openGui(Enderthing.instance, id, worldIn, pos.getX(), pos.getY(), pos.getZ());
-        playerIn.addStat(StatList.ENDERCHEST_OPENED);
+        GuiHandler.openKeyGui(worldIn, pos, playerIn, chest.getInventoryId(), state.getValue(PRIVATE));
 
         return true;
     }
+
 
     @Deprecated
     @Override
@@ -270,7 +262,7 @@ public class BlockEnderKeyChest
     public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite())
-                .withProperty(PRIVATE, (meta & 8) != 0);
+                .withProperty(PRIVATE, (meta & Enderthing.BLOCK_PRIVATE_BIT) != 0);
     }
 
     @Override
@@ -338,98 +330,16 @@ public class BlockEnderKeyChest
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
     {
-        tooltip.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".enderKeyChest.rightClick"));
+        tooltip.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".ender_key_chest.rightClick"));
 
-        if ((stack.getMetadata() & 8) != 0)
-        {
-            tooltip.add(ChatFormatting.BOLD + I18n.format("tooltip." + Enderthing.MODID + ".private"));
-        }
-
-        int id = 0;
-        boolean idFound = false;
-
-        NBTTagCompound tag = stack.getTagCompound();
-        if (tag != null)
-        {
-            NBTTagCompound etag = tag.getCompoundTag("BlockEntityTag");
-            if (etag != null)
-            {
-                idFound = true;
-                id = etag.getInteger("InventoryId");
-            }
-        }
-
-        if (!idFound)
-        {
-            tooltip.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".colorMissing"));
-            return;
-        }
-
-        int color1 = id & 15;
-        int color2 = (id >> 4) & 15;
-        int color3 = (id >> 8) & 15;
-
-        EnumDyeColor c1 = EnumDyeColor.byMetadata(color1);
-        EnumDyeColor c2 = EnumDyeColor.byMetadata(color2);
-        EnumDyeColor c3 = EnumDyeColor.byMetadata(color3);
-
-        tooltip.add(I18n.format("tooltip." + Enderthing.MODID + ".colors", c1.getName(), c2.getName(), c3.getName()));
+        Enderthing.addStandardInformation(stack, player, tooltip, advanced);
     }
 
-    int getId(IBlockAccess world, BlockPos pos)
+    @Override
+    public void getSubBlocks(Item itemIn, CreativeTabs tab, List<ItemStack> list)
     {
-        TileEntity te = world.getTileEntity(pos);
-
-        if (te instanceof TileEnderKeyChest)
-        {
-            return ((TileEnderKeyChest) te).getInventoryId();
-        }
-
-        return 0;
-    }
-
-    private ItemStack getItem(IBlockAccess world, BlockPos pos)
-    {
-        IBlockState state = world.getBlockState(pos);
-        TileEntity te = world.getTileEntity(pos);
-
-        if (te instanceof TileEnderKeyChest)
-        {
-            int id = ((TileEnderKeyChest) te).getInventoryId();
-
-            return getItem(id, state.getValue(PRIVATE));
-        }
-
-        return new ItemStack(Enderthing.enderKeyChest);
-    }
-
-    public static ItemStack getItem(int id, boolean priv)
-    {
-        ItemStack stack = new ItemStack(Enderthing.enderKeyChest, 1, ItemEnderthing.getBlockPrivateBit(priv));
-
-        NBTTagCompound tag = new NBTTagCompound();
-        NBTTagCompound etag = new NBTTagCompound();
-        etag.setInteger(INVENTORY_ID_KEY, id);
-        tag.setTag("BlockEntityTag", etag);
-
-        stack.setTagCompound(tag);
-
-        return stack;
-    }
-
-    public static int getId(ItemStack stack)
-    {
-        NBTTagCompound tag = stack.getTagCompound();
-        if (tag != null)
-        {
-            NBTTagCompound etag = tag.getCompoundTag("BlockEntityTag");
-            if (etag != null)
-            {
-                return etag.getInteger("InventoryId");
-            }
-        }
-
-        return 0;
+        list.add(new ItemStack(this));
+        list.add(new ItemStack(this, 1, Enderthing.BLOCK_PRIVATE_BIT));
     }
 
     @Override
@@ -438,11 +348,19 @@ public class BlockEnderKeyChest
         return new AsItem(this);
     }
 
-    @Override
-    public void getSubBlocks(Item itemIn, CreativeTabs tab, List<ItemStack> list)
+    private static ItemStack getItem(IBlockAccess world, BlockPos pos)
     {
-        list.add(new ItemStack(this, 1, ItemEnderthing.getBlockPrivateBit(false)));
-        list.add(new ItemStack(this, 1, ItemEnderthing.getBlockPrivateBit(true)));
+        IBlockState state = world.getBlockState(pos);
+        TileEntity te = world.getTileEntity(pos);
+
+        if (te instanceof TileEnderKeyChest)
+        {
+            int id = ((TileEnderKeyChest) te).getInventoryId();
+
+            return Enderthing.getItem(id, state.getValue(PRIVATE));
+        }
+
+        return new ItemStack(Enderthing.enderKeyChest);
     }
 
     public static class AsItem extends ItemBlock
@@ -465,9 +383,9 @@ public class BlockEnderKeyChest
         {
             if (playerIn.isSneaking())
             {
-                int oldId = BlockEnderKeyChest.getId(itemStackIn);
+                int oldId = Enderthing.getIdFromBlock(itemStackIn);
 
-                ItemStack oldStack = ItemEnderthing.getLock(oldId, itemStackIn.getMetadata() != 0);
+                ItemStack oldStack = Enderthing.getLock(oldId, itemStackIn.getMetadata() != 0);
 
                 if (!playerIn.inventory.addItemStackToInventory(oldStack))
                 {

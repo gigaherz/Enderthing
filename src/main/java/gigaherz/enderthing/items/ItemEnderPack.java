@@ -6,7 +6,6 @@ import gigaherz.enderthing.gui.GuiHandler;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.stats.StatList;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
@@ -27,7 +26,7 @@ public class ItemEnderPack extends ItemEnderthing
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> information, boolean advanced)
     {
-        information.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".enderPack.rightClick"));
+        information.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".ender_pack.rightClick"));
 
         super.addInformation(stack, player, information, advanced);
     }
@@ -38,11 +37,7 @@ public class ItemEnderPack extends ItemEnderthing
         if (worldIn.isRemote)
             return EnumActionResult.SUCCESS;
 
-        int id = getId(stack) | (stack.getMetadata() != 0 ? GuiHandler.GUI_PACK_PRIVATE : GuiHandler.GUI_PACK);
-
-        //noinspection PointlessBitwiseExpression
-        playerIn.openGui(Enderthing.instance, id | GuiHandler.GUI_KEY, worldIn, playerIn.inventory.currentItem, 0, 0);
-        playerIn.addStat(StatList.ENDERCHEST_OPENED);
+        openPackGui(worldIn, playerIn, stack);
 
         return EnumActionResult.SUCCESS;
     }
@@ -53,12 +48,16 @@ public class ItemEnderPack extends ItemEnderthing
         if (worldIn.isRemote)
             return ActionResult.newResult(EnumActionResult.SUCCESS, stack);
 
-        int id = getId(stack) | (stack.getMetadata() != 0 ? GuiHandler.GUI_PACK_PRIVATE : GuiHandler.GUI_PACK);
-
-        //noinspection PointlessBitwiseExpression
-        playerIn.openGui(Enderthing.instance, id | GuiHandler.GUI_KEY, worldIn, playerIn.inventory.currentItem, 0, 0);
-        playerIn.addStat(StatList.ENDERCHEST_OPENED);
+        openPackGui(worldIn, playerIn, stack);
 
         return ActionResult.newResult(EnumActionResult.SUCCESS, stack);
+    }
+
+    public static void openPackGui(World worldIn, EntityPlayer playerIn, ItemStack stack)
+    {
+        GuiHandler.openEnderGui(Enderthing.getIdFromItem(stack),
+                playerIn, worldIn, GuiHandler.GUI_PACK,
+                Enderthing.isPrivate(stack),
+                playerIn.inventory.currentItem, 0, 0);
     }
 }

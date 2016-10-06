@@ -1,6 +1,6 @@
 package gigaherz.enderthing.recipes;
 
-import gigaherz.enderthing.items.ItemEnderthing;
+import gigaherz.enderthing.Enderthing;
 import net.minecraft.block.Block;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
@@ -23,12 +23,12 @@ public class MakePrivateRecipe extends ShapedOreRecipe
 
     public MakePrivateRecipe(Item which)
     {
-        this(new ItemStack(which, 1, ItemEnderthing.getItemPrivateBit(which, true)), new ItemStack(which));
+        this(new ItemStack(which, 1, Enderthing.ITEM_PRIVATE_BIT), new ItemStack(which));
     }
 
     public MakePrivateRecipe(Block which)
     {
-        this(new ItemStack(which, 1, ItemEnderthing.getBlockPrivateBit(true)), new ItemStack(which));
+        this(new ItemStack(which, 1, Enderthing.BLOCK_PRIVATE_BIT), new ItemStack(which));
     }
 
     @Override

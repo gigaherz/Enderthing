@@ -1,13 +1,10 @@
 package gigaherz.enderthing.recipes;
 
 import gigaherz.enderthing.Enderthing;
-import gigaherz.enderthing.items.ItemEnderthing;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
@@ -19,7 +16,7 @@ public class LockRecipe extends ShapedOreRecipe
                 " g ",
                 "geg",
                 "www",
-                'w', "wool",
+                'w', new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
                 'g', Items.GOLD_INGOT,
                 'e', Items.ENDER_EYE);
     }
@@ -39,6 +36,6 @@ public class LockRecipe extends ShapedOreRecipe
         int c2 = wool2.getMetadata();
         int c3 = wool3.getMetadata();
 
-        return ItemEnderthing.getItem(Enderthing.enderLock, c1, c2, c3, false);
+        return Enderthing.getItem(Enderthing.enderLock, c1, c2, c3, false);
     }
 }
