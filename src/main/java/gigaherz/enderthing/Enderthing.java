@@ -4,15 +4,9 @@ import com.google.common.collect.Maps;
 import gigaherz.enderthing.blocks.BlockEnderKeyChest;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import gigaherz.enderthing.gui.GuiHandler;
-import gigaherz.enderthing.items.ItemEnderCard;
-import gigaherz.enderthing.items.ItemEnderKey;
-import gigaherz.enderthing.items.ItemEnderLock;
-import gigaherz.enderthing.items.ItemEnderPack;
+import gigaherz.enderthing.items.*;
 import gigaherz.enderthing.network.UpdatePlayersUsing;
-import gigaherz.enderthing.recipes.KeyRecipe;
-import gigaherz.enderthing.recipes.LockRecipe;
-import gigaherz.enderthing.recipes.MakePrivateRecipe;
-import gigaherz.enderthing.recipes.PackRecipe;
+import gigaherz.enderthing.recipes.*;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
@@ -72,11 +66,6 @@ public class Enderthing
             return enderKey;
         }
     };
-
-    public static KeyRecipe keyRecipe;
-    public static LockRecipe lockRecipe;
-    public static PackRecipe packRecipe;
-    public static MakePrivateRecipe makePrivate;
 
     public static SimpleNetworkWrapper channel;
     public static Logger logger;
@@ -143,14 +132,27 @@ public class Enderthing
                 'n', Items.GOLD_NUGGET,
                 'p', Items.PAPER);
 
-        GameRegistry.addRecipe(keyRecipe = new KeyRecipe());
-        GameRegistry.addRecipe(lockRecipe = new LockRecipe());
-        GameRegistry.addRecipe(packRecipe = new PackRecipe());
-        GameRegistry.addRecipe(makePrivate = new MakePrivateRecipe());
-        RecipeSorter.register(MODID + ":key_recipe", KeyRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
-        RecipeSorter.register(MODID + ":lock_recipe", LockRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
-        RecipeSorter.register(MODID + ":pack_recipe", PackRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
+        GameRegistry.addRecipe(new KeyRecipe());
+        GameRegistry.addRecipe(new LockRecipe());
+        GameRegistry.addRecipe(new PackRecipe());
+        GameRegistry.addRecipe(new MakePrivateRecipe(enderKey));
+        GameRegistry.addRecipe(new MakePrivateRecipe(enderLock));
+        GameRegistry.addRecipe(new MakePrivateRecipe(enderPack));
+        GameRegistry.addRecipe(new MakePrivateRecipe(enderKeyChest));
+        GameRegistry.addRecipe(new ChangeColorsRecipe(enderKey, false));
+        GameRegistry.addRecipe(new ChangeColorsRecipe(enderLock, false));
+        GameRegistry.addRecipe(new ChangeColorsRecipe(enderPack, false));
+        GameRegistry.addRecipe(new ChangeColorsRecipe(enderKeyChest, false));
+        GameRegistry.addRecipe(new ChangeColorsRecipe(enderKey, true));
+        GameRegistry.addRecipe(new ChangeColorsRecipe(enderLock, true));
+        GameRegistry.addRecipe(new ChangeColorsRecipe(enderPack, true));
+        GameRegistry.addRecipe(new ChangeColorsRecipe(enderKeyChest, true));
+
+        RecipeSorter.register(MODID + ":ender_key", KeyRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
+        RecipeSorter.register(MODID + ":ender_lock", LockRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
+        RecipeSorter.register(MODID + ":ender_pack", PackRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
         RecipeSorter.register(MODID + ":make_private", MakePrivateRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
+        RecipeSorter.register(MODID + ":change_color", ChangeColorsRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
     }
 
     Map<String, Class<? extends TileEntity >> nameToClassMap = ReflectionHelper.getPrivateValue(TileEntity.class, null, "field_145855_i", "nameToClassMap");

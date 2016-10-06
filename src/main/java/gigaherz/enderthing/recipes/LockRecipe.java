@@ -9,45 +9,19 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.ShapedOreRecipe;
 
-public class LockRecipe implements IRecipe
+public class LockRecipe extends ShapedOreRecipe
 {
-    public static final ItemStack[] PATTERN = {
-            null, new ItemStack(Items.GOLD_INGOT), null,
-            new ItemStack(Items.GOLD_INGOT), new ItemStack(Items.ENDER_EYE), new ItemStack(Items.GOLD_INGOT),
-            new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
-            new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
-            new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE)
-    };
-
-    @Override
-    public boolean matches(InventoryCrafting inv, World worldIn)
+    public LockRecipe()
     {
-        if (inv.getSizeInventory() < 9)
-            return false;
-
-        for (int i = 0; i < 9; i++)
-        {
-            ItemStack pat = PATTERN[i];
-            ItemStack stack = inv.getStackInSlot(i);
-
-            if (pat == null)
-            {
-                if (stack != null)
-                    return false;
-            }
-            else
-            {
-                if (stack == null ||
-                        !(pat.getMetadata() == OreDictionary.WILDCARD_VALUE ?
-                                pat.getItem() == stack.getItem() :
-                                pat.isItemEqual(stack)) ||
-                        !ItemStack.areItemStackTagsEqual(pat, stack))
-                    return false;
-            }
-        }
-
-        return true;
+        super(new ItemStack(Enderthing.enderLock),
+                " g ",
+                "geg",
+                "www",
+                'w', "wool",
+                'g', Items.GOLD_INGOT,
+                'e', Items.ENDER_EYE);
     }
 
     @Override
@@ -57,28 +31,14 @@ public class LockRecipe implements IRecipe
         ItemStack wool2 = inv.getStackInSlot(7);
         ItemStack wool3 = inv.getStackInSlot(8);
 
+        assert wool1 != null;
+        assert wool2 != null;
+        assert wool3 != null;
+
         int c1 = wool1.getMetadata();
         int c2 = wool2.getMetadata();
         int c3 = wool3.getMetadata();
 
         return ItemEnderthing.getItem(Enderthing.enderLock, c1, c2, c3, false);
-    }
-
-    @Override
-    public int getRecipeSize()
-    {
-        return 9;
-    }
-
-    @Override
-    public ItemStack getRecipeOutput()
-    {
-        return new ItemStack(Enderthing.enderLock);
-    }
-
-    @Override
-    public ItemStack[] getRemainingItems(InventoryCrafting inv)
-    {
-        return new ItemStack[inv.getSizeInventory()];
     }
 }

@@ -7,7 +7,7 @@ item.enderthing.enderPack.name=Ender Pack
 item.enderthing.enderCard.name=Ender Security Card
 itemGroup.tabEnderthing=Enderthing... Things
 
-tooltip.enderthing.colorMissing=The color depends on the wools used.
+tooltip.enderthing.colorMissing=The color depends on the wools used, but can be changed later.
 tooltip.enderthing.colors=Colors: %s, %s, %s
 tooltip.enderthing.private=Private
 
@@ -22,5 +22,5 @@ tooltip.enderthing.enderCard.bound1=Bound to: %s
 tooltip.enderthing.enderCard.bound2=Bound to: %s (%s)
 
 text.enderthing.enderCard.bound=The card is now bound to you
-text.enderthing.enderChest.bound1=THe chest is now bound to: %s
-text.enderthing.enderChest.bound2=THe chest is now bound to: %s (%s)
+text.enderthing.enderChest.bound1=The chest is now bound to: %s
+text.enderthing.enderChest.bound2=The chest is now bound to: %s (%s)

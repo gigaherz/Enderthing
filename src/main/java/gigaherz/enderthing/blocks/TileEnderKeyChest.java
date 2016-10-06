@@ -18,6 +18,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.items.CapabilityItemHandler;
 
+import javax.annotation.Nullable;
 import java.util.UUID;
 
 public class TileEnderKeyChest
@@ -65,6 +66,7 @@ public class TileEnderKeyChest
         worldObj.notifyBlockUpdate(pos, state, state, 3);
     }
 
+    @Nullable
     public UUID getPlayerBound()
     {
         return boundToPlayer;

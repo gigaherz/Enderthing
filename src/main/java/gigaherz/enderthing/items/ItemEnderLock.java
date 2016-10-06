@@ -76,18 +76,7 @@ public class ItemEnderLock extends ItemEnderthing
             if (te instanceof TileEnderKeyChest)
             {
                 int oldId = ((TileEnderKeyChest) te).getInventoryId();
-                int oldColor1 = oldId & 15;
-                int oldColor2 = (oldId >> 4) & 15;
-                int oldColor3 = (oldId >> 8) & 15;
-
-                ItemStack oldStack = new ItemStack(Enderthing.enderLock, 1, oldPrivate ? 1 : 0);
-
-                NBTTagCompound oldTag = new NBTTagCompound();
-                oldTag.setByte("Color1", (byte) oldColor1);
-                oldTag.setByte("Color2", (byte) oldColor2);
-                oldTag.setByte("Color3", (byte) oldColor3);
-
-                oldStack.setTagCompound(oldTag);
+                ItemStack oldStack = getLock(oldId, oldPrivate);
 
                 InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
             }

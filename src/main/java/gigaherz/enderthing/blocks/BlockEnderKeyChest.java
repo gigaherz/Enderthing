@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.gui.GuiHandler;
+import gigaherz.enderthing.items.ItemEnderthing;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.SoundType;
@@ -36,6 +37,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -118,13 +120,13 @@ public class BlockEnderKeyChest
         ArrayList<ItemStack> ret = Lists.newArrayList();
 
         ret.add(new ItemStack(Blocks.OBSIDIAN, 8));
-        ret.add(getLock(getId(world, pos), state.getValue(PRIVATE)));
+        ret.add(ItemEnderthing.getLock(getId(world, pos), state.getValue(PRIVATE)));
 
         return ret;
     }
 
     @Override
-    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack)
+    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, @Nullable TileEntity te, @Nullable ItemStack stack)
     {
         player.addStat(StatList.getBlockStats(this));
         player.addExhaustion(0.025F);
@@ -135,10 +137,7 @@ public class BlockEnderKeyChest
             List<ItemStack> items = Lists.newArrayList();
             ItemStack itemstack = this.getItem(worldIn, pos);
 
-            if (itemstack != null)
-            {
-                items.add(itemstack);
-            }
+            items.add(itemstack);
 
             net.minecraftforge.event.ForgeEventFactory.fireBlockHarvesting(items, worldIn, pos, state, 0, 1.0f, true, player);
             for (ItemStack item : items)
@@ -158,7 +157,7 @@ public class BlockEnderKeyChest
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         TileEntity te = worldIn.getTileEntity(pos);
 
@@ -406,7 +405,7 @@ public class BlockEnderKeyChest
 
     public static ItemStack getItem(int id, boolean priv)
     {
-        ItemStack stack = new ItemStack(Enderthing.enderKeyChest, 1, priv ? 8 : 0);
+        ItemStack stack = new ItemStack(Enderthing.enderKeyChest, 1, ItemEnderthing.getBlockPrivateBit(priv));
 
         NBTTagCompound tag = new NBTTagCompound();
         NBTTagCompound etag = new NBTTagCompound();
@@ -433,23 +432,6 @@ public class BlockEnderKeyChest
         return 0;
     }
 
-    private static ItemStack getLock(int oldId, boolean value)
-    {
-        int oldColor1 = oldId & 15;
-        int oldColor2 = (oldId >> 4) & 15;
-        int oldColor3 = (oldId >> 8) & 15;
-
-        ItemStack oldStack = new ItemStack(Enderthing.enderLock, 1, value ? 1 : 0);
-
-        NBTTagCompound oldTag = new NBTTagCompound();
-        oldTag.setByte("Color1", (byte) oldColor1);
-        oldTag.setByte("Color2", (byte) oldColor2);
-        oldTag.setByte("Color3", (byte) oldColor3);
-
-        oldStack.setTagCompound(oldTag);
-        return oldStack;
-    }
-
     @Override
     public ItemBlock createItemBlock()
     {
@@ -459,8 +441,8 @@ public class BlockEnderKeyChest
     @Override
     public void getSubBlocks(Item itemIn, CreativeTabs tab, List<ItemStack> list)
     {
-        list.add(new ItemStack(Item.getItemFromBlock(this), 1, 0));
-        list.add(new ItemStack(Item.getItemFromBlock(this), 1, 8));
+        list.add(new ItemStack(this, 1, ItemEnderthing.getBlockPrivateBit(false)));
+        list.add(new ItemStack(this, 1, ItemEnderthing.getBlockPrivateBit(true)));
     }
 
     public static class AsItem extends ItemBlock
@@ -485,7 +467,7 @@ public class BlockEnderKeyChest
             {
                 int oldId = BlockEnderKeyChest.getId(itemStackIn);
 
-                ItemStack oldStack = getLock(oldId, itemStackIn.getMetadata() != 0);
+                ItemStack oldStack = ItemEnderthing.getLock(oldId, itemStackIn.getMetadata() != 0);
 
                 if (!playerIn.inventory.addItemStackToInventory(oldStack))
                 {

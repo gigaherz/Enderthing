@@ -1,5 +1,4 @@
-# Enderthing*
-(* Name subject to change)
+# Enderthing
 
 Enderthing provides the ability to have globally-shared color-coded inventories.
 

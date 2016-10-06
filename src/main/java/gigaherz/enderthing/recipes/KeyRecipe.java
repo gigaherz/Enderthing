@@ -2,52 +2,28 @@ package gigaherz.enderthing.recipes;
 
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.items.ItemEnderthing;
+import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.ShapedOreRecipe;
 
-public class KeyRecipe implements IRecipe
+public class KeyRecipe extends ShapedOreRecipe
 {
-    public static final ItemStack[] PATTERN = {
-            new ItemStack(Blocks.OBSIDIAN), null, null,
-            new ItemStack(Items.ENDER_EYE), new ItemStack(Blocks.OBSIDIAN), new ItemStack(Blocks.OBSIDIAN),
-            new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
-            new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE),
-            new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE)
-    };
-
-    @Override
-    public boolean matches(InventoryCrafting inv, World worldIn)
+    public KeyRecipe()
     {
-        if (inv.getSizeInventory() < 9)
-            return false;
-
-        for (int i = 0; i < 9; i++)
-        {
-            ItemStack pat = PATTERN[i];
-            ItemStack stack = inv.getStackInSlot(i);
-
-            if (pat == null)
-            {
-                if (stack != null)
-                    return false;
-            }
-            else
-            {
-                if (stack == null ||
-                        !(pat.getMetadata() == OreDictionary.WILDCARD_VALUE ?
-                                pat.getItem() == stack.getItem() :
-                                pat.isItemEqual(stack)) ||
-                        !ItemStack.areItemStackTagsEqual(pat, stack))
-                    return false;
-            }
-        }
-
-        return true;
+        super(new ItemStack(Enderthing.enderKey),
+                "o  ",
+                "eoe",
+                "www",
+                'w', "wool",
+                'o', Blocks.OBSIDIAN,
+                'e', Items.ENDER_EYE);
     }
 
     @Override
@@ -56,6 +32,10 @@ public class KeyRecipe implements IRecipe
         ItemStack wool1 = inv.getStackInSlot(6);
         ItemStack wool2 = inv.getStackInSlot(7);
         ItemStack wool3 = inv.getStackInSlot(8);
+
+        assert wool1 != null;
+        assert wool2 != null;
+        assert wool3 != null;
 
         int c1 = wool1.getMetadata();
         int c2 = wool2.getMetadata();

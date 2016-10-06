@@ -2,11 +2,13 @@ package gigaherz.enderthing.items;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import gigaherz.enderthing.Enderthing;
+import gigaherz.enderthing.blocks.BlockEnderKeyChest;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -20,15 +22,6 @@ public class ItemEnderthing extends ItemRegistered
         setMaxStackSize(16);
         setHasSubtypes(true);
         setCreativeTab(Enderthing.tabEnderthing);
-    }
-
-    public void getCreativeItems(List<ItemStack> subItems)
-    {
-        for (int i = 0; i < 16; i++)
-        {
-            subItems.add(getItem(this, i, i, i, false));
-            subItems.add(getItem(this, i, i, i, true));
-        }
     }
 
     @Override
@@ -52,12 +45,34 @@ public class ItemEnderthing extends ItemRegistered
             color3 = tag.getByte("Color3");
         }
 
-        return (color1 << 4) | (color2 << 8) | (color3 << 12);
+        return getId(color1, color2, color3)<<4;
+    }
+
+    private static int getId(int c1, int c2, int c3)
+    {
+        return c1 | (c2 << 4) | (c3 << 8);
+    }
+
+    public static int getBlockPrivateBit(boolean priv)
+    {
+        return priv ? 8 : 0;
+    }
+
+    public static int getItemPrivateBit(Item item, boolean priv)
+    {
+        if (item instanceof ItemBlock)
+            return getBlockPrivateBit(priv);
+        return priv ? 1 : 0;
     }
 
     public static ItemStack getItem(Item item, int c1, int c2, int c3, boolean priv)
     {
-        ItemStack key = new ItemStack(item, 1, priv ? 1 : 0);
+        if (item instanceof ItemBlock)
+        {
+            return BlockEnderKeyChest.getItem(getId(c1,c2,c3) >> 4, priv);
+        }
+
+        ItemStack key = new ItemStack(item, 1, getItemPrivateBit(item, priv));
 
         NBTTagCompound tag = new NBTTagCompound();
         tag.setByte("Color1", (byte) c1);
@@ -67,6 +82,15 @@ public class ItemEnderthing extends ItemRegistered
         key.setTagCompound(tag);
 
         return key;
+    }
+
+    public static ItemStack getLock(int id, boolean priv)
+    {
+        int c1 = id & 15;
+        int c2 = (id >> 4) & 15;
+        int c3 = (id >> 8) & 15;
+
+        return ItemEnderthing.getItem(Enderthing.enderLock, c1, c2, c3, priv);
     }
 
     @Override
@@ -93,5 +117,10 @@ public class ItemEnderthing extends ItemRegistered
         EnumDyeColor c3 = EnumDyeColor.byMetadata(color3);
 
         information.add(I18n.format("tooltip." + Enderthing.MODID + ".colors", c1.getName(), c2.getName(), c3.getName()));
+    }
+
+    public static boolean isPrivate(ItemStack input)
+    {
+        return input.getMetadata() != 0;
     }
 }

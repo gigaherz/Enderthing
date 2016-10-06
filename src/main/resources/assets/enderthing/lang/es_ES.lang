@@ -7,7 +7,7 @@ item.enderthing.enderPack.name=Mochila de Ender
 item.enderthing.enderCard.name=Tarjeta de Seguridad
 itemGroup.tabEnderthing=Cosas de Enderthing
 
-tooltip.enderthing.colorMissing=El color depende de la lana utilizada.
+tooltip.enderthing.colorMissing=El color depende de la lana utilizada, aunque se puede cambiar mas tarde.
 tooltip.enderthing.colors=Colores: %s, %s, %s
 tooltip.enderthing.private=Privado
 
