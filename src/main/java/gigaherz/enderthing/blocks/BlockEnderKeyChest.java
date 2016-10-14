@@ -2,6 +2,7 @@ package gigaherz.enderthing.blocks;
 
 import com.google.common.collect.Lists;
 import com.mojang.realmsclient.gui.ChatFormatting;
+import gigaherz.common.BlockRegistered;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.gui.GuiHandler;
 import net.minecraft.block.Block;

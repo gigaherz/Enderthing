@@ -1,5 +1,6 @@
 package gigaherz.enderthing.items;
 
+import gigaherz.common.ItemRegistered;
 import gigaherz.enderthing.Enderthing;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;

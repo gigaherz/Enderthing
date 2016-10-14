@@ -1,6 +1,7 @@
 package gigaherz.enderthing.items;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
+import gigaherz.common.ItemRegistered;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.blocks.BlockEnderKeyChest;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;

@@ -11,9 +11,16 @@ buildscript {
     }
 }
 
+plugins {
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
+}
+
 repositories {
     maven {
         url "http://dvs1.progwml6.com/files/maven"
+    }
+    maven {
+        url 'http://dogforce-games.com/maven'
     }
 }
 
@@ -24,22 +31,54 @@ group= "gigaherz.enderthing" // http://maven.apache.org/guides/mini/guide-naming
 archivesBaseName = "enderthing-1.10.2"
 
 minecraft {
-    version = "1.10.2-12.18.1.2095"
+    version = "1.10.2-12.18.2.2102"
     runDir = "run"
 
-    mappings = "snapshot_20161002"
+    mappings = "snapshot_20161010"
 
     replace "@VERSION@", project.version
     replaceIn "Enderthing.java"
 }
 
-dependencies {
-    deobfCompile "mezz.jei:jei_1.10.2:3.12.3.293:api"
-    runtime "mezz.jei:jei_1.10.2:3.12.3.293"
+jar {
+    classifier = 'slim'
 }
 
-processResources
-{
+shadowJar {
+    classifier = ''
+    dependencies {
+        include(dependency(':Commons:'))
+    }
+    relocate 'gigaherz.common', 'gigaherz.enderthing.shadow.common'
+}
+
+reobf {
+    shadowJar { mappingType = 'SEARGE' }
+}
+
+tasks.build.dependsOn reobfShadowJar
+
+artifacts {
+    archives shadowJar
+    archives sourceJar
+}
+
+dependencies {
+    deobfCompile "gigaherz.commons:Commons:1.10.2-0.2"
+
+    deobfCompile "mezz.jei:jei_1.10.2:3.12.6.304:api"
+    runtime "mezz.jei:jei_1.10.2:3.12.6.304"
+
+    compile fileTree(dir: 'libs', include: '*.jar')
+}
+
+compileJava {
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+    options.encoding = 'UTF-8'
+}
+
+processResources {
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
 
@@ -47,6 +86,7 @@ processResources
         include 'mcmod.info'
         expand 'version':project.version, 'mcversion':project.minecraft.version
     }
+
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
