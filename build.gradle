@@ -1,10 +1,7 @@
 buildscript {
     repositories {
         jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
+        maven { url = "http://files.minecraftforge.net/maven" }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
@@ -25,16 +22,17 @@ repositories {
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'maven-publish'
 
-version = "0.7.1"
+version = "1.11.0-0.6.0"
 group= "gigaherz.enderthing" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "enderthing-1.10.2"
 
 minecraft {
-    version = "1.10.2-12.18.2.2102"
+    version = "1.11-13.19.0.2130"
     runDir = "run"
 
-    mappings = "snapshot_20161010"
+    mappings = "snapshot_20161116"
 
     replace "@VERSION@", project.version
     replaceIn "Enderthing.java"
@@ -64,10 +62,10 @@ artifacts {
 }
 
 dependencies {
-    deobfCompile "gigaherz.commons:Commons:1.10.2-0.2"
+    deobfCompile "gigaherz.commons:Commons:1.10.2-0.4.2"
 
-    deobfCompile "mezz.jei:jei_1.10.2:3.12.6.304:api"
-    runtime "mezz.jei:jei_1.10.2:3.12.6.304"
+    deobfCompile "mezz.jei:jei_1.11:4.0.0.188:api"
+    runtime "mezz.jei:jei_1.11:4.0.0.188"
 
     compile fileTree(dir: 'libs', include: '*.jar')
 }
@@ -91,3 +89,20 @@ processResources {
         exclude 'mcmod.info'
     }
 }
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifact sourceJar
+        }
+    }
+
+    repositories {
+        maven {
+            url "$buildDir/repo"
+        }
+    }
+}
+

@@ -95,8 +95,9 @@ public class ItemEnderCard extends ItemRegistered
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand)
     {
+        ItemStack itemStackIn = playerIn.getHeldItem(hand);
         if (worldIn.isRemote)
             return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
 
@@ -108,11 +109,11 @@ public class ItemEnderCard extends ItemRegistered
 
             return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
         }
-        return super.onItemRightClick(itemStackIn, worldIn, playerIn, hand);
+        return super.onItemRightClick(worldIn, playerIn, hand);
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (worldIn.isRemote)
             return EnumActionResult.SUCCESS;
@@ -140,6 +141,7 @@ public class ItemEnderCard extends ItemRegistered
         te = worldIn.getTileEntity(pos);
         if (te instanceof TileEnderKeyChest)
         {
+            ItemStack stack = playerIn.getHeldItem(hand);
             UUID uuid = getBoundPlayerUniqueID(stack);
 
             TileEnderKeyChest chest = (TileEnderKeyChest) te;

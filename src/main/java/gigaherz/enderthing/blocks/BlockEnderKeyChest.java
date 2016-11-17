@@ -154,7 +154,7 @@ public class BlockEnderKeyChest
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         TileEntity te = worldIn.getTileEntity(pos);
 
@@ -169,6 +169,7 @@ public class BlockEnderKeyChest
 
         TileEnderKeyChest chest = (TileEnderKeyChest) te;
 
+        ItemStack heldItem = playerIn.getHeldItem(hand);
         if (side == EnumFacing.UP && heldItem != null && heldItem.getItem() == Items.DYE
                 && (chest.getPlayerBound() == null || chest.getPlayerBound().equals(playerIn.getUniqueID())))
         {
@@ -230,7 +231,7 @@ public class BlockEnderKeyChest
             if (oldId != id)
             {
                 if (!playerIn.capabilities.isCreativeMode)
-                    heldItem.stackSize--;
+                    heldItem.func_190917_f(-1);
                 chest.setInventoryId(id);
             }
 
@@ -260,7 +261,7 @@ public class BlockEnderKeyChest
     }
 
     @Override
-    public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite())
                 .withProperty(PRIVATE, (meta & Enderthing.BLOCK_PRIVATE_BIT) != 0);
@@ -337,7 +338,7 @@ public class BlockEnderKeyChest
     }
 
     @Override
-    public void getSubBlocks(Item itemIn, CreativeTabs tab, List<ItemStack> list)
+    public void getSubBlocks(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> list)
     {
         list.add(new ItemStack(this));
         list.add(new ItemStack(this, 1, Enderthing.BLOCK_PRIVATE_BIT));
@@ -380,8 +381,9 @@ public class BlockEnderKeyChest
         }
 
         @Override
-        public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand)
+        public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand)
         {
+            ItemStack itemStackIn = playerIn.getHeldItem(hand);
             if (playerIn.isSneaking())
             {
                 int oldId = Enderthing.getIdFromBlock(itemStackIn);
@@ -393,7 +395,7 @@ public class BlockEnderKeyChest
                     playerIn.dropItem(oldStack, false);
                 }
 
-                if (itemStackIn.stackSize > 1)
+                if (itemStackIn.func_190916_E() > 1)
                 {
                     ItemStack stack = new ItemStack(Blocks.ENDER_CHEST);
                     if (!playerIn.inventory.addItemStackToInventory(stack))
@@ -401,14 +403,14 @@ public class BlockEnderKeyChest
                         playerIn.dropItem(stack, false);
                     }
 
-                    itemStackIn.stackSize--;
+                    itemStackIn.func_190917_f(-1);
                     return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
                 }
 
                 return ActionResult.newResult(EnumActionResult.SUCCESS, new ItemStack(Blocks.ENDER_CHEST));
             }
 
-            return super.onItemRightClick(itemStackIn, worldIn, playerIn, hand);
+            return super.onItemRightClick(worldIn, playerIn, hand);
         }
     }
 }

@@ -157,9 +157,9 @@ public class ContainerKey extends Container
             return null;
         }
 
-        if (stack.stackSize == 0)
+        if (stack.func_190916_E() == 0)
         {
-            slot.putStack(null);
+            slot.putStack(ItemStack.field_190927_a);
         }
         else
         {

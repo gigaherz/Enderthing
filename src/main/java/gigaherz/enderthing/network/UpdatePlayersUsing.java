@@ -63,7 +63,7 @@ public class UpdatePlayersUsing
                 @Override
                 public void run()
                 {
-                    TileEntity te = Minecraft.getMinecraft().theWorld.getTileEntity(pos);
+                    TileEntity te = Minecraft.getMinecraft().world.getTileEntity(pos);
                     if (te instanceof TileEnderKeyChest)
                     {
                         TileEnderKeyChest chest = (TileEnderKeyChest) te;

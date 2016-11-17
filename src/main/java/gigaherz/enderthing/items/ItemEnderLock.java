@@ -37,13 +37,14 @@ public class ItemEnderLock extends ItemEnderthing
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (worldIn.isRemote)
             return EnumActionResult.SUCCESS;
 
         IBlockState state = worldIn.getBlockState(pos);
 
+        ItemStack stack = playerIn.getHeldItem(hand);
         int id = Enderthing.getIdFromItem(stack);
 
         Block b = state.getBlock();
@@ -64,7 +65,7 @@ public class ItemEnderLock extends ItemEnderthing
             }
 
             if (!playerIn.capabilities.isCreativeMode)
-                stack.stackSize--;
+                stack.func_190917_f(-1);
 
             return EnumActionResult.SUCCESS;
         }
@@ -94,7 +95,7 @@ public class ItemEnderLock extends ItemEnderthing
             }
 
             if (!playerIn.capabilities.isCreativeMode)
-                stack.stackSize--;
+                stack.func_190917_f(-1);
 
             return EnumActionResult.SUCCESS;
         }
