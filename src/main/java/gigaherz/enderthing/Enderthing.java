@@ -50,7 +50,6 @@ import java.util.List;
         acceptedMinecraftVersions = "[1.11.0,1.12.0)")
 public class Enderthing
 {
-    public static final String NAME = "Enderthing";
     public static final String MODID = "enderthing";
     public static final String VERSION = "@VERSION@";
     public static final String CHANNEL = "Enderthing";
@@ -109,18 +108,10 @@ public class Enderthing
         );
     }
 
-    @Deprecated
-    private static RegistryNamespaced<ResourceLocation, Class <? extends TileEntity >> field_190562_f = ReflectionHelper.getPrivateValue(TileEntity.class, null, "field_190562_f");
-
-    private static void tempRegisterTileEntity(ResourceLocation name, Class<? extends TileEntity> clazz)
-    {
-        field_190562_f.putObject(name, clazz);
-    }
-
     private void registerTileEntities()
     {
-        tempRegisterTileEntity(location("ender_key_chest"), TileEnderKeyChest.class);
-        tempRegisterTileEntity(location("ender_key_chest_private"), TileEnderKeyChest.Private.class);
+        GameRegistry.registerTileEntityWithAlternatives(TileEnderKeyChest.class, location("ender_key_chest").toString(), "tileEnderKeyChest");
+        GameRegistry.registerTileEntityWithAlternatives(TileEnderKeyChest.Private.class, location("ender_key_chest_private").toString(), "tileEnderKeyPrivateChest");
     }
 
     @Mod.EventHandler
