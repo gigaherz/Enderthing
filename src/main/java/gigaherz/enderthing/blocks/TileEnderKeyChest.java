@@ -62,8 +62,8 @@ public class TileEnderKeyChest
         releasePreviousInventory();
         markDirty();
 
-        IBlockState state = worldObj.getBlockState(pos);
-        worldObj.notifyBlockUpdate(pos, state, state, 3);
+        IBlockState state = world.getBlockState(pos);
+        world.notifyBlockUpdate(pos, state, state, 3);
     }
 
     @Nullable
@@ -79,8 +79,8 @@ public class TileEnderKeyChest
         releasePreviousInventory();
         markDirty();
 
-        IBlockState state = worldObj.getBlockState(pos);
-        worldObj.notifyBlockUpdate(pos, state, state, 3);
+        IBlockState state = world.getBlockState(pos);
+        world.notifyBlockUpdate(pos, state, state, 3);
     }
 
     public boolean isBoundToPlayer()
@@ -111,9 +111,9 @@ public class TileEnderKeyChest
         if (inventory == null && (!isPrivate || isBoundToPlayer()))
         {
             if (isBoundToPlayer())
-                inventory = InventoryManager.get(worldObj).getPrivate(boundToPlayer).getInventory(inventoryId);
+                inventory = InventoryManager.get(world).getPrivate(boundToPlayer).getInventory(inventoryId);
             else
-                inventory = InventoryManager.get(worldObj).getInventory(inventoryId);
+                inventory = InventoryManager.get(world).getInventory(inventoryId);
             inventory.addWeakListener(this);
         }
         return inventory;
@@ -149,7 +149,7 @@ public class TileEnderKeyChest
     }
 
     @Override
-    public boolean hasCapability(Capability<?> capability, EnumFacing facing)
+    public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing)
     {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
             return hasInventory();
@@ -159,7 +159,7 @@ public class TileEnderKeyChest
     @SuppressWarnings("unchecked")
     @Nullable
     @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing)
+    public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing)
     {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
             return (T) getInventory();
@@ -190,8 +190,8 @@ public class TileEnderKeyChest
         super.onDataPacket(net, packet);
         handleUpdateTag(packet.getNbtCompound());
 
-        IBlockState state = worldObj.getBlockState(pos);
-        worldObj.notifyBlockUpdate(pos, state, state, 3);
+        IBlockState state = world.getBlockState(pos);
+        world.notifyBlockUpdate(pos, state, state, 3);
     }
 
     @Override
@@ -205,10 +205,10 @@ public class TileEnderKeyChest
     {
         if (++this.ticksSinceSync % (20 * 4) == 0)
         {
-            if (!worldObj.isRemote)
+            if (!world.isRemote)
             {
                 Enderthing.channel.sendToAllAround(new UpdatePlayersUsing(pos, 1, numPlayersUsing),
-                        new NetworkRegistry.TargetPoint(worldObj.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 64));
+                        new NetworkRegistry.TargetPoint(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 64));
             }
         }
 
@@ -220,8 +220,8 @@ public class TileEnderKeyChest
 
         if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F)
         {
-            this.worldObj.playSound(null, x + 0.5D, y + 0.5D, z + 0.5D,
-                    SoundEvents.BLOCK_ENDERCHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
+            this.world.playSound(null, x + 0.5D, y + 0.5D, z + 0.5D,
+                    SoundEvents.BLOCK_ENDERCHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
         }
 
         if (this.numPlayersUsing == 0 && this.lidAngle > 0.0F || this.numPlayersUsing > 0 && this.lidAngle < 1.0F)
@@ -246,8 +246,8 @@ public class TileEnderKeyChest
 
             if (this.lidAngle < closedThreshold && prevAngle >= closedThreshold)
             {
-                this.worldObj.playSound(null, x + 0.5D, y + 0.5D, z + 0.5D,
-                        SoundEvents.BLOCK_ENDERCHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
+                this.world.playSound(null, x + 0.5D, y + 0.5D, z + 0.5D,
+                        SoundEvents.BLOCK_ENDERCHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
             }
 
             if (this.lidAngle < 0.0F)

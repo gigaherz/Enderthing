@@ -2,6 +2,7 @@ package gigaherz.enderthing.blocks;
 
 import com.google.common.collect.Lists;
 import com.mojang.realmsclient.gui.ChatFormatting;
+import gigaherz.common.BlockRegistered;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.gui.GuiHandler;
 import net.minecraft.block.Block;
@@ -131,7 +132,7 @@ public class BlockEnderKeyChest
                 || (this.canSilkHarvest(worldIn, pos, state, player) && EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) > 0))
         {
             List<ItemStack> items = Lists.newArrayList();
-            ItemStack itemstack = this.getItem(worldIn, pos);
+            ItemStack itemstack = getItem(worldIn, pos);
 
             items.add(itemstack);
 
@@ -259,7 +260,7 @@ public class BlockEnderKeyChest
     }
 
     @Override
-    public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, ItemStack stack)
     {
         return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite())
                 .withProperty(PRIVATE, (meta & Enderthing.BLOCK_PRIVATE_BIT) != 0);

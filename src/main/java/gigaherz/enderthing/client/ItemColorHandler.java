@@ -25,7 +25,7 @@ public abstract class ItemColorHandler implements IItemColor
     @Override
     public int getColorFromItemstack(ItemStack stack, int tintIndex)
     {
-        long t = Minecraft.getMinecraft().theWorld.getTotalWorldTime();
+        long t = Minecraft.getMinecraft().world.getTotalWorldTime();
         if ((t - lastT) > 20)
         {
             lastT = t;

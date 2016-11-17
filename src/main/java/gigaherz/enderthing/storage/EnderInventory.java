@@ -2,6 +2,7 @@ package gigaherz.enderthing.storage;
 
 import com.google.common.collect.Lists;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.items.ItemStackHandler;
 
 import java.lang.ref.Reference;
@@ -16,12 +17,12 @@ public class EnderInventory extends ItemStackHandler
 
     private final IInventoryManager manager;
 
-    final List<Reference<? extends TileEnderKeyChest>> listeners = Lists.newArrayList();
-    final ReferenceQueue<TileEnderKeyChest> deadListeners = new ReferenceQueue<TileEnderKeyChest>();
+    private final List<Reference<? extends TileEnderKeyChest>> listeners = Lists.newArrayList();
+    private final ReferenceQueue<TileEnderKeyChest> deadListeners = new ReferenceQueue<>();
 
     public void addWeakListener(TileEnderKeyChest e)
     {
-        listeners.add(new WeakReference<TileEnderKeyChest>(e, deadListeners));
+        listeners.add(new WeakReference<>(e, deadListeners));
     }
 
     public void removeWeakListener(TileEnderKeyChest e)
@@ -56,8 +57,7 @@ public class EnderInventory extends ItemStackHandler
             }
         }
 
-        for (TileEnderKeyChest te : dirty)
-        { te.markDirty(); }
+        dirty.forEach(TileEntity::markDirty);
 
         manager.setDirty();
     }
@@ -65,6 +65,7 @@ public class EnderInventory extends ItemStackHandler
     EnderInventory(IInventoryManager manager)
     {
         super(SLOT_COUNT);
+        setSize(SLOT_COUNT); // FIXME: HACK -- Remove me
         this.manager = manager;
     }
 }
