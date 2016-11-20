@@ -15,6 +15,7 @@ import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 
+import javax.annotation.Nullable;
 import java.util.UUID;
 
 public class ClientProxy implements IModProxy
@@ -58,6 +59,7 @@ public class ClientProxy implements IModProxy
                 new ItemColorHandler.BlockTag(), Enderthing.enderKeyChest);
     }
 
+    @Nullable
     @Override
     public String queryNameFromUUID(UUID uuid)
     {

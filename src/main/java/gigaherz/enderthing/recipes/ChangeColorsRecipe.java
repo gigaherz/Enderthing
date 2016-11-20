@@ -35,13 +35,12 @@ public class ChangeColorsRecipe extends ShapedOreRecipe
         ItemStack dye1 = inv.getStackInSlot(0);
         ItemStack dye2, dye3, input;
 
-        if (dye1 == null)
+        if (dye1.getCount() == 0)
         {
             dye1 = inv.getStackInSlot(3);
             dye2 = inv.getStackInSlot(4);
             dye3 = inv.getStackInSlot(5);
             input = inv.getStackInSlot(7);
-            assert dye1 != null;
         }
         else
         {
@@ -49,9 +48,6 @@ public class ChangeColorsRecipe extends ShapedOreRecipe
             dye3 = inv.getStackInSlot(2);
             input = inv.getStackInSlot(4);
         }
-        assert dye2 != null;
-        assert dye3 != null;
-        assert input != null;
 
         int c1 = EnumDyeColor.byDyeDamage(dye1.getMetadata()).getMetadata();
         int c2 = EnumDyeColor.byDyeDamage(dye2.getMetadata()).getMetadata();

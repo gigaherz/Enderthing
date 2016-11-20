@@ -25,6 +25,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import org.lwjgl.input.Keyboard;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
@@ -51,6 +52,7 @@ public class ItemEnderCard extends ItemRegistered
         InventoryManager.uuidToNBT(tag, player.getUniqueID());
     }
 
+    @Nullable
     public UUID getBoundPlayerUniqueID(ItemStack stack)
     {
         NBTTagCompound tag = stack.getTagCompound();
@@ -60,6 +62,7 @@ public class ItemEnderCard extends ItemRegistered
         return InventoryManager.uuidFromNBT(tag);
     }
 
+    @Nullable
     public String getBoundPlayerCachedName(ItemStack stack)
     {
         NBTTagCompound tag = stack.getTagCompound();
@@ -105,7 +108,7 @@ public class ItemEnderCard extends ItemRegistered
         {
             bindToPlayer(itemStackIn, playerIn);
 
-            playerIn.addChatMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".ender_card.bound"));
+            playerIn.sendMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".ender_card.bound"));
 
             return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
         }
@@ -151,10 +154,10 @@ public class ItemEnderCard extends ItemRegistered
             String name = getBoundPlayerCachedName(stack);
 
             if (name == null || name.length() == 0)
-                playerIn.addChatMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".ender_chest.bound1",
+                playerIn.sendMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".ender_chest.bound1",
                         new TextComponentString(uuid.toString())));
             else
-                playerIn.addChatMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".ender_chest.bound2",
+                playerIn.sendMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".ender_chest.bound2",
                         new TextComponentString(uuid.toString()),
                         new TextComponentString(name)));
         }

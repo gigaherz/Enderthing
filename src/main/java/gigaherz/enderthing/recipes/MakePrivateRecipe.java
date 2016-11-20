@@ -40,8 +40,6 @@ public class MakePrivateRecipe extends ShapedOreRecipe
 
         ItemStack itemStack = inv.getStackInSlot(4);
 
-        assert itemStack != null;
-
         NBTTagCompound tag = itemStack.getTagCompound();
         if (tag != null)
             tag = tag.copy();

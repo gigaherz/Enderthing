@@ -24,15 +24,15 @@ repositories {
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'maven-publish'
 
-version = "1.11.0-0.6.0"
+version = "1.11.0-0.7.2"
 group= "gigaherz.enderthing" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "enderthing-1.10.2"
+archivesBaseName = "enderthing"
 
 minecraft {
-    version = "1.11-13.19.0.2141"
+    version = "1.11-13.19.0.2153"
     runDir = "run"
 
-    mappings = "snapshot_20161116"
+    mappings = "snapshot_20161119"
 
     replace "@VERSION@", project.version
     replaceIn "Enderthing.java"
@@ -62,7 +62,7 @@ artifacts {
 }
 
 dependencies {
-    deobfCompile "gigaherz.commons:Commons:1.10.2-0.4.2"
+    deobfCompile "gigaherz.commons:Commons:1.11.0-0.4.5"
 
     deobfCompile "mezz.jei:jei_1.11:4.0.1.190:api"
     runtime "mezz.jei:jei_1.11:4.0.1.190"
@@ -101,8 +101,7 @@ publishing {
 
     repositories {
         maven {
-            url "$buildDir/repo"
+            url "$projectDir/../CommonMaven"
         }
     }
 }
-

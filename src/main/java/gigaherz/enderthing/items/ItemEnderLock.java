@@ -65,7 +65,7 @@ public class ItemEnderLock extends ItemEnderthing
             }
 
             if (!playerIn.capabilities.isCreativeMode)
-                stack.func_190917_f(-1);
+                stack.grow(-1);
 
             return EnumActionResult.SUCCESS;
         }
@@ -95,7 +95,7 @@ public class ItemEnderLock extends ItemEnderthing
             }
 
             if (!playerIn.capabilities.isCreativeMode)
-                stack.func_190917_f(-1);
+                stack.grow(-1);
 
             return EnumActionResult.SUCCESS;
         }

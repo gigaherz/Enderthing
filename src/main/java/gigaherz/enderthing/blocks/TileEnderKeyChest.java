@@ -149,7 +149,7 @@ public class TileEnderKeyChest
     }
 
     @Override
-    public boolean hasCapability(Capability<?> capability, EnumFacing facing)
+    public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing)
     {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
             return hasInventory();
@@ -159,7 +159,7 @@ public class TileEnderKeyChest
     @SuppressWarnings("unchecked")
     @Nullable
     @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing)
+    public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing)
     {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
             return (T) getInventory();

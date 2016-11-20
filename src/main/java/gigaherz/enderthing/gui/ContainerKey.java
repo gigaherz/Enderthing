@@ -140,26 +140,26 @@ public class ContainerKey extends Container
         Slot slot = this.inventorySlots.get(index);
 
         if (slot == null || !slot.getHasStack())
-            return null;
+            return ItemStack.EMPTY;
 
         ItemStack stack = slot.getStack();
-        ItemStack stackCopy = stack != null ? stack.copy() : null;
+        ItemStack stackCopy = stack.copy();
 
         if (index < 3 * 9)
         {
             if (!this.mergeItemStack(stack, 3 * 9, this.inventorySlots.size(), true))
             {
-                return null;
+                return ItemStack.EMPTY;
             }
         }
         else if (!this.mergeItemStack(stack, 0, 3 * 9, false))
         {
-            return null;
+            return ItemStack.EMPTY;
         }
 
-        if (stack.func_190916_E() == 0)
+        if (stack.getCount() == 0)
         {
-            slot.putStack(ItemStack.field_190927_a);
+            slot.putStack(ItemStack.EMPTY);
         }
         else
         {

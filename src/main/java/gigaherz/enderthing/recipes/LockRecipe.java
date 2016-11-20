@@ -28,10 +28,6 @@ public class LockRecipe extends ShapedOreRecipe
         ItemStack wool2 = inv.getStackInSlot(7);
         ItemStack wool3 = inv.getStackInSlot(8);
 
-        assert wool1 != null;
-        assert wool2 != null;
-        assert wool3 != null;
-
         int c1 = wool1.getMetadata();
         int c2 = wool2.getMetadata();
         int c3 = wool3.getMetadata();

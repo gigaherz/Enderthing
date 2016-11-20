@@ -135,7 +135,7 @@ public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyC
         GlStateManager.translate(0.5F, 0.5F, 0.5F);
 
         int j = 0;
-        if (te.hasWorldObj())
+        if (te.hasWorld())
         {
             switch (te.getBlockMetadata() & 3)
             {

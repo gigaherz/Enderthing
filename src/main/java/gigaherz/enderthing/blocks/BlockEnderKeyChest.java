@@ -123,7 +123,7 @@ public class BlockEnderKeyChest
     }
 
     @Override
-    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, @Nullable TileEntity te, @Nullable ItemStack stack)
+    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, @Nullable TileEntity te, ItemStack stack)
     {
         player.addStat(StatList.getBlockStats(this));
         player.addExhaustion(0.025F);
@@ -132,7 +132,7 @@ public class BlockEnderKeyChest
                 || (this.canSilkHarvest(worldIn, pos, state, player) && EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) > 0))
         {
             List<ItemStack> items = Lists.newArrayList();
-            ItemStack itemstack = this.getItem(worldIn, pos);
+            ItemStack itemstack = getItem(worldIn, pos);
 
             items.add(itemstack);
 
@@ -170,7 +170,7 @@ public class BlockEnderKeyChest
         TileEnderKeyChest chest = (TileEnderKeyChest) te;
 
         ItemStack heldItem = playerIn.getHeldItem(hand);
-        if (side == EnumFacing.UP && heldItem != null && heldItem.getItem() == Items.DYE
+        if (side == EnumFacing.UP && heldItem.getItem() == Items.DYE
                 && (chest.getPlayerBound() == null || chest.getPlayerBound().equals(playerIn.getUniqueID())))
         {
             int meta = EnumDyeColor.byDyeDamage(heldItem.getMetadata()).getMetadata();
@@ -231,7 +231,7 @@ public class BlockEnderKeyChest
             if (oldId != id)
             {
                 if (!playerIn.capabilities.isCreativeMode)
-                    heldItem.func_190917_f(-1);
+                    heldItem.grow(-1);
                 chest.setInventoryId(id);
             }
 
@@ -261,7 +261,7 @@ public class BlockEnderKeyChest
     }
 
     @Override
-    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand)
     {
         return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite())
                 .withProperty(PRIVATE, (meta & Enderthing.BLOCK_PRIVATE_BIT) != 0);
@@ -395,7 +395,7 @@ public class BlockEnderKeyChest
                     playerIn.dropItem(oldStack, false);
                 }
 
-                if (itemStackIn.func_190916_E() > 1)
+                if (itemStackIn.getCount() > 1)
                 {
                     ItemStack stack = new ItemStack(Blocks.ENDER_CHEST);
                     if (!playerIn.inventory.addItemStackToInventory(stack))
@@ -403,7 +403,7 @@ public class BlockEnderKeyChest
                         playerIn.dropItem(stack, false);
                     }
 
-                    itemStackIn.func_190917_f(-1);
+                    itemStackIn.grow(-1);
                     return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
                 }
 
