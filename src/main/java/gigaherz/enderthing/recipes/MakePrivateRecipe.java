@@ -34,9 +34,10 @@ public class MakePrivateRecipe extends ShapedOreRecipe
     @Override
     public ItemStack getCraftingResult(InventoryCrafting inv)
     {
-        ItemStack out = getRecipeOutput();
+        ItemStack out = super.getCraftingResult(inv);
 
-        assert out != null;
+        if (out == null || out.stackSize <= 0)
+            return null;
 
         ItemStack itemStack = inv.getStackInSlot(4);
 
@@ -45,8 +46,6 @@ public class MakePrivateRecipe extends ShapedOreRecipe
         NBTTagCompound tag = itemStack.getTagCompound();
         if (tag != null)
             tag = tag.copy();
-        else
-            tag = new NBTTagCompound();
 
         out.setTagCompound(tag);
 
