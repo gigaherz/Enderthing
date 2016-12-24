@@ -36,8 +36,8 @@ public class MakePrivateRecipe extends ShapedOreRecipe
     {
         ItemStack out = super.getCraftingResult(inv);
 
-        if (out == null || out.stackSize <= 0)
-            return null;
+        if (out.isEmpty())
+            return out;
 
         ItemStack itemStack = inv.getStackInSlot(4);
 
