@@ -23,9 +23,9 @@ public abstract class ItemColorHandler implements IItemColor
     protected abstract int getColor3(ItemStack stack);
 
     @Override
-    public int getColorFromItemstack(ItemStack stack, int tintIndex)
+    public int getColor(ItemStack stack, int tintIndex)
     {
-        long t = Minecraft.getMinecraft().world.getTotalWorldTime();
+        long t = Minecraft.getInstance().world.getGameTime();
         if ((t - lastT) > 20)
         {
             lastT = t;
@@ -37,13 +37,13 @@ public abstract class ItemColorHandler implements IItemColor
         switch (tintIndex)
         {
             case 1:
-                EnumDyeColor c1 = EnumDyeColor.byMetadata(getColor1(stack));
+                EnumDyeColor c1 = EnumDyeColor.byId(getColor1(stack));
                 return c1.getMapColor().colorValue;
             case 2:
-                EnumDyeColor c2 = EnumDyeColor.byMetadata(getColor2(stack));
+                EnumDyeColor c2 = EnumDyeColor.byId(getColor2(stack));
                 return c2.getMapColor().colorValue;
             case 3:
-                EnumDyeColor c3 = EnumDyeColor.byMetadata(getColor3(stack));
+                EnumDyeColor c3 = EnumDyeColor.byId(getColor3(stack));
                 return c3.getMapColor().colorValue;
         }
 
@@ -56,21 +56,21 @@ public abstract class ItemColorHandler implements IItemColor
         @Override
         protected int getColor1(ItemStack stack)
         {
-            NBTTagCompound tag = stack.getTagCompound();
+            NBTTagCompound tag = stack.getTag();
             return tag != null ? tag.getByte("Color1") : last1;
         }
 
         @Override
         protected int getColor2(ItemStack stack)
         {
-            NBTTagCompound tag = stack.getTagCompound();
+            NBTTagCompound tag = stack.getTag();
             return tag != null ? tag.getByte("Color2") : last2;
         }
 
         @Override
         protected int getColor3(ItemStack stack)
         {
-            NBTTagCompound tag = stack.getTagCompound();
+            NBTTagCompound tag = stack.getTag();
             return tag != null ? tag.getByte("Color3") : last3;
         }
     }
@@ -80,34 +80,34 @@ public abstract class ItemColorHandler implements IItemColor
         @Override
         protected int getColor1(ItemStack stack)
         {
-            NBTTagCompound tag = stack.getTagCompound();
+            NBTTagCompound tag = stack.getTag();
             NBTTagCompound etag = null;
             if (tag != null)
-                etag = tag.getCompoundTag("BlockEntityTag");
+                etag = tag.getCompound("BlockEntityTag");
 
-            return etag != null ? etag.getInteger("InventoryId") & 15 : last1;
+            return etag != null ? etag.getInt("InventoryId") & 15 : last1;
         }
 
         @Override
         protected int getColor2(ItemStack stack)
         {
-            NBTTagCompound tag = stack.getTagCompound();
+            NBTTagCompound tag = stack.getTag();
             NBTTagCompound etag = null;
             if (tag != null)
-                etag = tag.getCompoundTag("BlockEntityTag");
+                etag = tag.getCompound("BlockEntityTag");
 
-            return etag != null ? (etag.getInteger("InventoryId") >> 4) & 15 : last2;
+            return etag != null ? (etag.getInt("InventoryId") >> 4) & 15 : last2;
         }
 
         @Override
         protected int getColor3(ItemStack stack)
         {
-            NBTTagCompound tag = stack.getTagCompound();
+            NBTTagCompound tag = stack.getTag();
             NBTTagCompound etag = null;
             if (tag != null)
-                etag = tag.getCompoundTag("BlockEntityTag");
+                etag = tag.getCompound("BlockEntityTag");
 
-            return etag != null ? (etag.getInteger("InventoryId") >> 8) & 15 : last3;
+            return etag != null ? (etag.getInt("InventoryId") >> 8) & 15 : last3;
         }
     }
 }

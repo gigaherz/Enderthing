@@ -6,8 +6,8 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.ShapedOreRecipe;
 
+/*
 public class ChangeColorsRecipe extends ShapedOreRecipe
 {
     private ChangeColorsRecipe(ItemStack out, ItemStack in)
@@ -49,10 +49,11 @@ public class ChangeColorsRecipe extends ShapedOreRecipe
             input = inv.getStackInSlot(4);
         }
 
-        int c1 = EnumDyeColor.byDyeDamage(dye1.getMetadata()).getMetadata();
-        int c2 = EnumDyeColor.byDyeDamage(dye2.getMetadata()).getMetadata();
-        int c3 = EnumDyeColor.byDyeDamage(dye3.getMetadata()).getMetadata();
+        int c1 = EnumDyeColor.getColor(dye1).getId();
+        int c2 = EnumDyeColor.getColor(dye2).getId();
+        int c3 = EnumDyeColor.getColor(dye3).getId();
 
         return Enderthing.getItem(input.getItem(), c1, c2, c3, Enderthing.isPrivate(input));
     }
 }
+*/

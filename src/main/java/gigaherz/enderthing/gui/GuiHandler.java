@@ -1,40 +1,116 @@
 package gigaherz.enderthing.gui;
 
 import gigaherz.enderthing.Enderthing;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.stats.StatList;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.IGuiHandler;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.IInteractionObject;
+import net.minecraftforge.fml.network.FMLPlayMessages;
+import net.minecraftforge.fml.network.NetworkHooks;
 
-public class GuiHandler implements IGuiHandler
+import javax.annotation.Nullable;
+
+public class GuiHandler
 {
-    public static final int GUI_KEY = 0;
-    public static final int GUI_PRIVATE = 1;
-    public static final int GUI_PACK = 2;
+    public static final ResourceLocation GUI_KEY_RL = Enderthing.location("gui_key");
+    public static final ResourceLocation GUI_PACK_RL = Enderthing.location("gui_pack");
 
-    public static void openEnderGui(int id, EntityPlayer playerIn, World worldIn, int which, boolean priv, int x, int y, int z)
+    private static void openEnderGui(int id, EntityPlayerMP playerIn, boolean isPack, boolean priv, int x, int y, int z)
     {
-        id = id << 4 | which | (priv ? GUI_PRIVATE : 0);
-
-        playerIn.openGui(Enderthing.instance, id, worldIn, x, y, z);
-        playerIn.addStat(StatList.ENDERCHEST_OPENED);
+        Server svr = new Server(id, isPack, priv, new BlockPos(x,y,z));
+        NetworkHooks.openGui(playerIn, svr, svr::encode);
+        //playerIn.addStat(StatList.ENDERCHEST_OPENED);
     }
 
-    public static void openKeyGui(World worldIn, BlockPos pos, EntityPlayer playerIn, int id, boolean priv)
+    public static void openKeyGui(BlockPos pos, EntityPlayerMP playerIn, int id, boolean priv)
     {
-        openEnderGui(id, playerIn, worldIn, GUI_KEY, priv, pos.getX(), pos.getY(), pos.getZ());
+        openEnderGui(id, playerIn, false, priv, pos.getX(), pos.getY(), pos.getZ());
     }
 
-    @Override
-    public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
+    public static void openPackGui(int id, EntityPlayerMP player, boolean isPrivate, int slot)
     {
-        return new ContainerKey(player.inventory, id, player, world, new BlockPos(x, y, z));
+        openEnderGui(id, player, true, isPrivate, slot, 0, 0);
     }
 
-    @Override
-    public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
+    public static class Server implements IInteractionObject
     {
-        return new GuiKey(player.inventory, id, player, world, new BlockPos(x, y, z));
+        private final int id;
+        private final boolean priv;
+        private final BlockPos pos;
+        private final boolean isPack;
+
+        public Server(int id, boolean isPack, boolean priv, BlockPos pos)
+        {
+            this.id = id;
+            this.isPack = isPack;
+            this.priv = priv;
+            this.pos = pos;
+        }
+
+        @Override
+        public Container createContainer(InventoryPlayer playerInventory, EntityPlayer playerIn)
+        {
+            return new ContainerKey(playerInventory, this.id, isPack, priv, playerIn, playerIn.world, this.pos);
+        }
+
+        @Override
+        public String getGuiID()
+        {
+            return GUI_KEY_RL.toString();
+        }
+
+        @Override
+        public ITextComponent getName()
+        {
+            return new TextComponentString(GUI_KEY_RL.toString());
+        }
+
+        @Override
+        public boolean hasCustomName()
+        {
+            return false;
+        }
+
+        @Nullable
+        @Override
+        public ITextComponent getCustomName()
+        {
+            return null;
+        }
+
+        public void encode(PacketBuffer packetBuffer)
+        {
+            packetBuffer.writeVarInt(id);
+            packetBuffer.writeBoolean(priv);
+            packetBuffer.writeBlockPos(pos);
+        }
+    }
+
+    public static class Client
+    {
+        public static GuiScreen getClientGuiElement(FMLPlayMessages.OpenContainer message)
+        {
+            ResourceLocation invId = message.getId();
+            if (GUI_KEY_RL.equals(invId) || GUI_PACK_RL.equals(invId))
+            {
+                Minecraft mc = Minecraft.getInstance();
+
+                PacketBuffer data = message.getAdditionalData();
+                int id = data.readVarInt();
+                boolean priv = data.readBoolean();
+                BlockPos pos = data.readBlockPos();
+
+                return new GuiKey(mc.player.inventory, id, GUI_PACK_RL.equals(invId), priv, mc.player, mc.world, pos);
+            }
+            return null;
+        }
     }
 }

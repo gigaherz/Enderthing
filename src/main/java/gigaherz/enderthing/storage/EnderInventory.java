@@ -47,7 +47,7 @@ public class EnderInventory extends ItemStackHandler
         for (Iterator<Reference<? extends TileEnderKeyChest>> it = listeners.iterator(); it.hasNext(); )
         {
             TileEnderKeyChest te = it.next().get();
-            if (te == null || te.isInvalid())
+            if (te == null || te.isRemoved())
             {
                 it.remove();
             }

@@ -3,5 +3,7 @@
 /build
 /eclipse
 /run
+/out
 
 /*.iml
+

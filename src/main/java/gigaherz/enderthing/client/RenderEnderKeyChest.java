@@ -1,15 +1,16 @@
 package gigaherz.enderthing.client;
 
+import gigaherz.enderthing.blocks.BlockEnderKeyChest;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
-import net.minecraft.client.model.ModelChest;
-import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.client.renderer.entity.model.ModelChest;
+import net.minecraft.client.renderer.entity.model.ModelRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
-public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyChest>
+public class RenderEnderKeyChest extends TileEntityRenderer<TileEnderKeyChest>
 {
     private static final ResourceLocation ENDER_CHEST_TEXTURE = new ResourceLocation("textures/entity/chest/ender.png");
     private static final ResourceLocation WOOL_TEXTURE = new ResourceLocation("textures/blocks/wool_colored_white.png");
@@ -97,7 +98,7 @@ public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyC
             chestKey2.render(1 / 16.0F);
             color(color3);
             chestKey3.render(1 / 16.0F);
-            GlStateManager.color(1, 1, 1);
+            GlStateManager.color3f(1, 1, 1);
         }
 
         public void color(int color)
@@ -106,20 +107,20 @@ public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyC
             float g = ((color >> 8) & 0xFF) / 255.0F;
             float r = ((color >> 16) & 0xFF) / 255.0F;
 
-            GlStateManager.color(r, g, b);
+            GlStateManager.color3f(r, g, b);
         }
     }
 
     @Override
-    public void renderTileEntityAt(TileEnderKeyChest te, double x, double y, double z, float partialTicks, int destroyStage)
+    public void render(TileEnderKeyChest te, double x, double y, double z, float partialTicks, int destroyStage)
     {
         if (destroyStage >= 0)
         {
             this.bindTexture(DESTROY_STAGES[destroyStage]);
             GlStateManager.matrixMode(GL11.GL_TEXTURE);
             GlStateManager.pushMatrix();
-            GlStateManager.scale(4, 4, 1);
-            GlStateManager.translate(0.0625F, 0.0625F, 0.0625F);
+            GlStateManager.scalef(4, 4, 1);
+            GlStateManager.translatef(0.0625F, 0.0625F, 0.0625F);
             GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         }
         else
@@ -129,26 +130,26 @@ public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyC
 
         GlStateManager.pushMatrix();
         GlStateManager.enableRescaleNormal();
-        GlStateManager.color(1, 1, 1, 1);
-        GlStateManager.translate((float) x, (float) y + 1.0F, (float) z + 1.0F);
-        GlStateManager.scale(1, -1, -1);
-        GlStateManager.translate(0.5F, 0.5F, 0.5F);
+        GlStateManager.color4f(1, 1, 1, 1);
+        GlStateManager.translated(x, y + 1.0F, z + 1.0F);
+        GlStateManager.scalef(1, -1, -1);
+        GlStateManager.translatef(0.5F, 0.5F, 0.5F);
 
         int j = 0;
         if (te.hasWorld())
         {
-            switch (te.getBlockMetadata() & 3)
+            switch (te.getBlockState().get(BlockEnderKeyChest.FACING))
             {
-                case 2:
+                case NORTH:
                     j = 180;
                     break;
-                case 0:
+                case SOUTH:
                     j = 0;
                     break;
-                case 1:
+                case WEST:
                     j = 90;
                     break;
-                case 3:
+                case EAST:
                     j = -90;
                     break;
             }
@@ -159,16 +160,16 @@ public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyC
         int color2 = (id >> 4) & 15;
         int color3 = (id >> 8) & 15;
 
-        EnumDyeColor c1 = EnumDyeColor.byMetadata(color1);
-        EnumDyeColor c2 = EnumDyeColor.byMetadata(color2);
-        EnumDyeColor c3 = EnumDyeColor.byMetadata(color3);
+        EnumDyeColor c1 = EnumDyeColor.byId(color1);
+        EnumDyeColor c2 = EnumDyeColor.byId(color2);
+        EnumDyeColor c3 = EnumDyeColor.byId(color3);
 
-        GlStateManager.rotate((float) j, 0.0F, 1.0F, 0.0F);
-        GlStateManager.translate(-0.5F, -0.5F, -0.5F);
+        GlStateManager.rotatef((float) j, 0.0F, 1.0F, 0.0F);
+        GlStateManager.translatef(-0.5F, -0.5F, -0.5F);
         float f = te.prevLidAngle + (te.lidAngle - te.prevLidAngle) * partialTicks;
         f = 1.0F - f;
         f = 1.0F - f * f * f;
-        this.modelChest.chestLid.rotateAngleX = -(f * ((float) Math.PI / 2F));
+        this.modelChest.getLid().rotateAngleX = -(f * ((float) Math.PI / 2F));
 
         this.modelChest.renderAll();
 
@@ -186,7 +187,7 @@ public class RenderEnderKeyChest extends TileEntitySpecialRenderer<TileEnderKeyC
 
         GlStateManager.disableRescaleNormal();
         GlStateManager.popMatrix();
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         if (destroyStage >= 0)
         {

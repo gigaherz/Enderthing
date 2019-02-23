@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "enderthing:block/builtin_entity"
+    }
+  }
+}

@@ -1,35 +1,36 @@
 package gigaherz.enderthing.items;
 
-import gigaherz.common.ItemRegistered;
 import gigaherz.enderthing.Enderthing;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
-public class ItemEnderthing extends ItemRegistered
+public class ItemEnderthing extends Item
 {
-    public ItemEnderthing(String name)
+    private final boolean isPrivate;
+
+    public boolean isPrivate()
     {
-        super(name);
-        setMaxStackSize(16);
-        setHasSubtypes(true);
-        setCreativeTab(Enderthing.tabEnderthing);
+        return isPrivate;
+    }
+
+    public ItemEnderthing(boolean isPrivate, Properties properties)
+    {
+        super(properties);
+        this.isPrivate = isPrivate;
+        //setMaxStackSize(16);
+        //setHasSubtypes(true);
+        //setCreativeTab(Enderthing.tabEnderthing);
     }
 
     @Override
-    public void getSubItems(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> subItems)
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
-        subItems.add(new ItemStack(this, 1, 0));
-        subItems.add(new ItemStack(this, 1, 1));
-    }
-
-    @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
-    {
-        Enderthing.addStandardInformation(stack, player, tooltip, advanced);
+        Enderthing.addStandardInformation(stack, tooltip, flagIn, isPrivate);
     }
 }

@@ -24,50 +24,51 @@ public class ContainerKey extends Container
     private World world;
     private BlockPos pos;
 
-    public ContainerKey(InventoryPlayer playerInventory, int id, EntityPlayer player, World world, BlockPos pos)
+    public ContainerKey(InventoryPlayer playerInventory, int id, boolean isPack, boolean isPriv, EntityPlayer player, World world, BlockPos pos)
     {
 
         int lockedSlot = -1;
 
         UUID bound = player.getUniqueID();
 
-        if ((id & 2) == 0)
+        if (isPack)
+        {
+            lockedSlot = pos.getX();
+        }
+        else
         {
             TileEntity te = world.getTileEntity(pos);
-            if (te instanceof TileEntityEnderChest)
-            {
-                TileEntityEnderChest chest = (TileEntityEnderChest) te;
-
-                chest.openChest();
-            }
-
             if (te instanceof TileEnderKeyChest)
             {
                 TileEnderKeyChest chest = (TileEnderKeyChest) te;
 
                 if (chest.isBoundToPlayer())
                     bound = chest.getPlayerBound();
+
+                chest.openChest();
+            }
+            else if (te instanceof TileEntityEnderChest)
+            {
+                TileEntityEnderChest chest = (TileEntityEnderChest) te;
+
+                chest.openChest();
             }
 
             this.world = world;
             this.pos = pos;
         }
-        else
-        {
-            lockedSlot = pos.getX();
-        }
 
-        IInventoryManager mgr = (id & GuiHandler.GUI_PRIVATE) != 0 ?
+        IInventoryManager mgr = isPriv ?
                 InventoryManager.get(world).getPrivate(bound) :
                 InventoryManager.get(world);
 
-        IItemHandler inventory = mgr.getInventory(id >> 4);
+        IItemHandler inventory = mgr.getInventory(id);
 
         for (int j = 0; j < 3; ++j)
         {
             for (int k = 0; k < 9; ++k)
             {
-                this.addSlotToContainer(new SlotItemHandler(inventory, k + j * 9, 8 + k * 18, 18 + j * 18));
+                this.addSlot(new SlotItemHandler(inventory, k + j * 9, 8 + k * 18, 18 + j * 18));
             }
         }
 
@@ -77,18 +78,18 @@ public class ContainerKey extends Container
             {
                 int slot = px + py * 9 + 9;
                 if (slot == lockedSlot)
-                    this.addSlotToContainer(new SlotNoAccess(playerInventory, slot, 8 + px * 18, 103 + py * 18 - 18));
+                    this.addSlot(new SlotNoAccess(playerInventory, slot, 8 + px * 18, 103 + py * 18 - 18));
                 else
-                    this.addSlotToContainer(new Slot(playerInventory, slot, 8 + px * 18, 103 + py * 18 - 18));
+                    this.addSlot(new Slot(playerInventory, slot, 8 + px * 18, 103 + py * 18 - 18));
             }
         }
 
         for (int slot = 0; slot < 9; ++slot)
         {
             if (slot == lockedSlot)
-                this.addSlotToContainer(new SlotNoAccess(playerInventory, slot, 8 + slot * 18, 143));
+                this.addSlot(new SlotNoAccess(playerInventory, slot, 8 + slot * 18, 143));
             else
-                this.addSlotToContainer(new Slot(playerInventory, slot, 8 + slot * 18, 143));
+                this.addSlot(new Slot(playerInventory, slot, 8 + slot * 18, 143));
         }
     }
 
@@ -120,7 +121,12 @@ public class ContainerKey extends Container
         if (world != null)
         {
             TileEntity te = world.getTileEntity(pos);
-            if (te instanceof TileEntityEnderChest)
+            if (te instanceof TileEnderKeyChest)
+            {
+                TileEnderKeyChest chest = (TileEnderKeyChest) te;
+                chest.closeChest();
+            }
+            else if (te instanceof TileEntityEnderChest)
             {
                 TileEntityEnderChest chest = (TileEntityEnderChest) te;
                 chest.closeChest();

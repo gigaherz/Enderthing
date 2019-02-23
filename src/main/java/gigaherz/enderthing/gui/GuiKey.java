@@ -21,19 +21,26 @@ public class GuiKey extends GuiContainer
 
     final boolean isPrivate;
 
-    public GuiKey(InventoryPlayer playerInventory, int id, EntityPlayer player, World world, BlockPos pos)
+    public GuiKey(InventoryPlayer playerInventory, int id, boolean isPack, boolean priv, EntityPlayer player, World world, BlockPos pos)
     {
-        super(new ContainerKey(playerInventory, id, player, world, pos));
+        super(new ContainerKey(playerInventory, id, isPack, priv, player, world, pos));
 
-        isPrivate = (id & GuiHandler.GUI_PRIVATE) != 0;
+        isPrivate = priv;
 
         this.player = playerInventory;
     }
 
     @Override
+    public void render(int mouseX, int mouseY, float partialTicks) {
+        this.drawDefaultBackground();
+        super.render(mouseX, mouseY, partialTicks);
+        this.renderHoveredToolTip(mouseX, mouseY);
+    }
+
+    @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
     {
-        GlStateManager.color(1, 1, 1, 1);
+        GlStateManager.color4f(1, 1, 1, 1);
         this.mc.getTextureManager().bindTexture(CHEST_GUI_TEXTURE);
 
         this.drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, 3 * 18 + 17);
@@ -43,8 +50,8 @@ public class GuiKey extends GuiContainer
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format(isPrivate ? textPrivate : textGlobal), 8, 6, 4210752);
+        this.fontRenderer.drawString(I18n.format(isPrivate ? textPrivate : textGlobal), 8, 6, 4210752);
 
-        mc.fontRendererObj.drawString(I18n.format(player.getName()), 8, ySize - 96 + 2, 0x404040);
+        mc.fontRenderer.drawString(I18n.format(player.getName().getString()), 8, ySize - 96 + 2, 0x404040);
     }
 }

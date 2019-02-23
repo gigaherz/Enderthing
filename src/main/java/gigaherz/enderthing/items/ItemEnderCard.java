@@ -1,17 +1,20 @@
 package gigaherz.enderthing.items;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
-import gigaherz.common.ItemRegistered;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.blocks.BlockEnderKeyChest;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import gigaherz.enderthing.storage.InventoryManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
@@ -19,35 +22,37 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.Constants;
-import org.lwjgl.input.Keyboard;
+import net.minecraftforge.fml.ForgeI18n;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public class ItemEnderCard extends ItemRegistered
+public class ItemEnderCard extends Item
 {
-    public ItemEnderCard(String name)
+    public ItemEnderCard(Properties properties)
     {
-        super(name);
-        setMaxStackSize(1);
-        setCreativeTab(Enderthing.tabEnderthing);
+        super(properties);
     }
 
     public void bindToPlayer(ItemStack stack, EntityPlayer player)
     {
-        NBTTagCompound tag = stack.getTagCompound();
+        NBTTagCompound tag = stack.getTag();
         if (tag == null)
         {
             tag = new NBTTagCompound();
-            stack.setTagCompound(tag);
+            stack.setTag(tag);
         }
 
-        tag.setString("PlayerName", player.getName());
+        tag.setString("PlayerName", player.getName().getString());
 
         InventoryManager.uuidToNBT(tag, player.getUniqueID());
     }
@@ -55,7 +60,7 @@ public class ItemEnderCard extends ItemRegistered
     @Nullable
     public UUID getBoundPlayerUniqueID(ItemStack stack)
     {
-        NBTTagCompound tag = stack.getTagCompound();
+        NBTTagCompound tag = stack.getTag();
         if (tag == null)
             return null;
 
@@ -65,22 +70,22 @@ public class ItemEnderCard extends ItemRegistered
     @Nullable
     public String getBoundPlayerCachedName(ItemStack stack)
     {
-        NBTTagCompound tag = stack.getTagCompound();
+        NBTTagCompound tag = stack.getTag();
         if (tag == null)
             return null;
 
-        if (!tag.hasKey("PlayerName", Constants.NBT.TAG_STRING))
+        if (!tag.contains("PlayerName", Constants.NBT.TAG_STRING))
             return null;
         return tag.getString("PlayerName");
     }
 
     public void setBoundPlayerCachedName(ItemStack stack, String newName)
     {
-        NBTTagCompound tag = stack.getTagCompound();
+        NBTTagCompound tag = stack.getTag();
         if (tag == null)
         {
             tag = new NBTTagCompound();
-            stack.setTagCompound(tag);
+            stack.setTag(tag);
         }
 
         tag.setString("PlayerName", newName);
@@ -89,12 +94,12 @@ public class ItemEnderCard extends ItemRegistered
     @Override
     public boolean hasEffect(ItemStack stack)
     {
-        NBTTagCompound tag = stack.getTagCompound();
+        NBTTagCompound tag = stack.getTag();
         if (tag == null)
             return super.hasEffect(stack);
 
-        return tag.hasKey("PlayerUUID0", Constants.NBT.TAG_LONG)
-                && tag.hasKey("PlayerUUID1", Constants.NBT.TAG_LONG);
+        return tag.contains("PlayerUUID0", Constants.NBT.TAG_LONG)
+                && tag.contains("PlayerUUID1", Constants.NBT.TAG_LONG);
     }
 
     @Override
@@ -116,35 +121,37 @@ public class ItemEnderCard extends ItemRegistered
     }
 
     @Override
-    public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemUseContext context)
     {
-        if (worldIn.isRemote)
+        World world = context.getWorld();
+        BlockPos pos = context.getPos();
+        EntityPlayer player = context.getPlayer();
+        ItemStack stack = context.getItem();
+
+        if (world.isRemote)
             return EnumActionResult.SUCCESS;
 
-        IBlockState state = worldIn.getBlockState(pos);
+        IBlockState state = world.getBlockState(pos);
 
-        Block b = state.getBlock();
-
-        if (b != Enderthing.enderKeyChest || !state.getValue(BlockEnderKeyChest.PRIVATE))
+        if (state.getBlock() != Enderthing.enderKeyChestPrivate)
         {
             return EnumActionResult.PASS;
         }
 
         int id = 0;
 
-        TileEntity te = worldIn.getTileEntity(pos);
+        TileEntity te = world.getTileEntity(pos);
         if (te instanceof TileEnderKeyChest)
         {
             id = ((TileEnderKeyChest) te).getInventoryId();
         }
 
-        state = state.withProperty(BlockEnderKeyChest.BOUND, true);
-        worldIn.setBlockState(pos, state);
+        state = state.with(BlockEnderKeyChest.Private.BOUND, true);
+        world.setBlockState(pos, state);
 
-        te = worldIn.getTileEntity(pos);
+        te = world.getTileEntity(pos);
         if (te instanceof TileEnderKeyChest)
         {
-            ItemStack stack = playerIn.getHeldItem(hand);
             UUID uuid = getBoundPlayerUniqueID(stack);
 
             TileEnderKeyChest chest = (TileEnderKeyChest) te;
@@ -154,10 +161,10 @@ public class ItemEnderCard extends ItemRegistered
             String name = getBoundPlayerCachedName(stack);
 
             if (name == null || name.length() == 0)
-                playerIn.sendMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".ender_chest.bound1",
+                player.sendMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".ender_chest.bound1",
                         new TextComponentString(uuid.toString())));
             else
-                playerIn.sendMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".ender_chest.bound2",
+                player.sendMessage(new TextComponentTranslation("text." + Enderthing.MODID + ".ender_chest.bound2",
                         new TextComponentString(uuid.toString()),
                         new TextComponentString(name)));
         }
@@ -166,15 +173,15 @@ public class ItemEnderCard extends ItemRegistered
     }
 
     @Override
-    public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected)
+    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected)
     {
-        if (!worldIn.isRemote && (stack.hashCode() % 120) == (worldIn.getTotalWorldTime() % 120))
+        if (!worldIn.isRemote && (stack.hashCode() % 120) == (worldIn.getGameTime() % 120))
         {
             UUID uuid = getBoundPlayerUniqueID(stack);
             if (uuid != null)
             {
                 String name = getBoundPlayerCachedName(stack);
-                String newName = Enderthing.proxy.queryNameFromUUID(uuid);
+                String newName = Enderthing.queryNameFromUUID(uuid);
                 if (newName != null && !newName.equals(name))
                 {
                     setBoundPlayerCachedName(stack, newName);
@@ -183,24 +190,25 @@ public class ItemEnderCard extends ItemRegistered
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
-        tooltip.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".ender_card.rightClick1"));
-        tooltip.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".ender_card.rightClick2"));
+        tooltip.add(new TextComponentTranslation("tooltip." + Enderthing.MODID + ".ender_card.rightClick1").applyTextStyle(TextFormatting.ITALIC));
+        tooltip.add(new TextComponentTranslation("tooltip." + Enderthing.MODID + ".ender_card.rightClick2").applyTextStyle(TextFormatting.ITALIC));
 
         UUID uuid = getBoundPlayerUniqueID(stack);
 
         if (uuid == null)
         {
-            tooltip.add(I18n.format("tooltip." + Enderthing.MODID + ".ender_card.unbound"));
+            tooltip.add(new TextComponentTranslation("tooltip." + Enderthing.MODID + ".ender_card.unbound"));
             return;
         }
 
         String name = getBoundPlayerCachedName(stack);
         String uuidText = uuid.toString();
 
-        if (!advanced && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+        if (flagIn == ITooltipFlag.TooltipFlags.NORMAL && !GuiScreen.isShiftKeyDown())
         {
             String uuidBegin = uuidText.substring(0, 4);
             String uuidEnd = uuidText.substring(uuidText.length() - 4);
@@ -208,8 +216,8 @@ public class ItemEnderCard extends ItemRegistered
         }
 
         if (name == null || name.length() == 0)
-            tooltip.add(I18n.format("tooltip." + Enderthing.MODID + ".ender_card.bound1", uuidText));
+            tooltip.add(new TextComponentTranslation("tooltip." + Enderthing.MODID + ".ender_card.bound1", uuidText));
         else
-            tooltip.add(I18n.format("tooltip." + Enderthing.MODID + ".ender_card.bound2", uuidText, name));
+            tooltip.add(new TextComponentTranslation("tooltip." + Enderthing.MODID + ".ender_card.bound2", uuidText, name));
     }
 }

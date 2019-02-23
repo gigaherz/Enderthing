@@ -3,22 +3,18 @@ package gigaherz.enderthing.network;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.network.NetworkEvent;
+
+import java.util.function.Supplier;
 
 public class UpdatePlayersUsing
-        implements IMessage
 {
     public BlockPos tilePosition;
     public int field;
     public int value;
-
-    public UpdatePlayersUsing()
-    {
-    }
 
     public UpdatePlayersUsing(BlockPos tilePosition, int field, int value)
     {
@@ -27,52 +23,33 @@ public class UpdatePlayersUsing
         this.value = value;
     }
 
-    @Override
-    public void fromBytes(ByteBuf buf)
+    public UpdatePlayersUsing(PacketBuffer buf)
     {
-        tilePosition = new BlockPos(
-                buf.readInt(),
-                buf.readInt(),
-                buf.readInt()
-        );
+        tilePosition = buf.readBlockPos();
         field = buf.readByte();
         value = buf.readInt();
     }
 
-    @Override
-    public void toBytes(ByteBuf buf)
+    public void encode(PacketBuffer buf)
     {
-        buf.writeInt(tilePosition.getX());
-        buf.writeInt(tilePosition.getY());
-        buf.writeInt(tilePosition.getZ());
+        buf.writeBlockPos(tilePosition);
         buf.writeByte(field);
         buf.writeInt(value);
     }
 
-    public static class Handler implements IMessageHandler<UpdatePlayersUsing, IMessage>
+    public void handle(Supplier<NetworkEvent.Context> context)
     {
-        @Override
-        public IMessage onMessage(UpdatePlayersUsing message, MessageContext ctx)
-        {
-            final BlockPos pos = message.tilePosition;
-            final int field = message.field;
-            final int value = message.value;
+        final BlockPos pos = this.tilePosition;
+        final int field = this.field;
+        final int value = this.value;
 
-            Minecraft.getMinecraft().addScheduledTask(new Runnable()
+        Minecraft.getInstance().addScheduledTask(() -> {
+            TileEntity te = Minecraft.getInstance().world.getTileEntity(pos);
+            if (te instanceof TileEnderKeyChest)
             {
-                @Override
-                public void run()
-                {
-                    TileEntity te = Minecraft.getMinecraft().world.getTileEntity(pos);
-                    if (te instanceof TileEnderKeyChest)
-                    {
-                        TileEnderKeyChest chest = (TileEnderKeyChest) te;
-                        chest.receiveUpdate(field, value);
-                    }
-                }
-            });
-
-            return null; // no response in this case
-        }
+                TileEnderKeyChest chest = (TileEnderKeyChest) te;
+                chest.receiveUpdate(field, value);
+            }
+        });
     }
 }

@@ -1,51 +1,59 @@
 package gigaherz.enderthing.items;
 
-import com.mojang.realmsclient.gui.ChatFormatting;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.gui.GuiHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUseContext;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class ItemEnderKey extends ItemEnderthing
 {
-    public ItemEnderKey(String name)
+    public ItemEnderKey(boolean isprivate, Properties properties)
     {
-        super(name);
+        super(isprivate, properties);
     }
 
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List<String> information, boolean advanced)
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
-        information.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".ender_key.rightClick"));
+        tooltip.add(new TextComponentTranslation("tooltip." + Enderthing.MODID + ".ender_key.rightClick").applyTextStyle(TextFormatting.ITALIC));
 
-        super.addInformation(stack, player, information, advanced);
+        super.addInformation(stack, worldIn, tooltip, flagIn);
     }
 
     @Override
-    public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemUseContext context)
     {
-        if (worldIn.isRemote)
+        World world = context.getWorld();
+        BlockPos pos = context.getPos();
+        EntityPlayer player = context.getPlayer();
+        ItemStack stack = context.getItem();
+
+        if (world.isRemote)
             return EnumActionResult.SUCCESS;
 
-        IBlockState state = worldIn.getBlockState(pos);
+        IBlockState state = world.getBlockState(pos);
 
         Block b = state.getBlock();
         if (b != Blocks.ENDER_CHEST && b != Enderthing.enderKeyChest)
             return EnumActionResult.PASS;
 
-        ItemStack stack = playerIn.getHeldItem(hand);
-        GuiHandler.openKeyGui(worldIn, pos, playerIn, Enderthing.getIdFromItem(stack), Enderthing.isPrivate(stack));
+        if (player instanceof EntityPlayerMP)
+            GuiHandler.openKeyGui(pos, (EntityPlayerMP) player, Enderthing.getIdFromItem(stack), isPrivate());
 
         return EnumActionResult.SUCCESS;
     }

@@ -1,5 +1,6 @@
 package gigaherz.enderthing.recipes;
 
+/*
 import gigaherz.enderthing.Enderthing;
 import net.minecraft.block.Block;
 import net.minecraft.init.Items;
@@ -50,3 +51,4 @@ public class MakePrivateRecipe extends ShapedOreRecipe
         return out;
     }
 }
+*/

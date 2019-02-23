@@ -1,73 +1,105 @@
 package gigaherz.enderthing.blocks;
 
-import com.google.common.collect.Lists;
-import com.mojang.realmsclient.gui.ChatFormatting;
-import gigaherz.common.BlockRegistered;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.gui.GuiHandler;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockHorizontal;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.properties.PropertyDirection;
-import net.minecraft.block.state.BlockStateContainer;
+import net.minecraft.block.BlockEnderChest;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Enchantments;
-import net.minecraft.init.Items;
-import net.minecraft.item.EnumDyeColor;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
+import net.minecraft.init.Particles;
+import net.minecraft.item.*;
+import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.DirectionProperty;
+import net.minecraft.state.StateContainer;
 import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.event.ForgeEventFactory;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class BlockEnderKeyChest
-        extends BlockRegistered
+public class BlockEnderKeyChest extends Block
 {
-    public static final PropertyDirection FACING = BlockHorizontal.FACING;
-    public static final PropertyBool PRIVATE = PropertyBool.create("private");
-    public static final PropertyBool BOUND = PropertyBool.create("bound");
-    protected static final AxisAlignedBB ENDER_CHEST_AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0625D, 0.9375D, 0.875D, 0.9375D);
+    public static final DirectionProperty FACING = BlockEnderChest.FACING;
+    protected static final VoxelShape SHAPE = Block.makeCuboidShape(1.0D, 0.0D, 1.0D, 15.0D, 14.0D, 15.0D);
 
-    public BlockEnderKeyChest(String name)
+    public boolean isPrivate()
     {
-        super(name, Material.ROCK);
-        setDefaultState(this.blockState.getBaseState()
-                .withProperty(FACING, EnumFacing.NORTH)
-                .withProperty(PRIVATE, false)
-                .withProperty(BOUND, false));
-        setCreativeTab(Enderthing.tabEnderthing);
-        setHardness(22.5F);
-        setResistance(1000.0F);
-        setSoundType(SoundType.STONE);
-        setLightLevel(0.5F);
+        return false;
+    }
+
+    public static class Private extends BlockEnderKeyChest
+    {
+        public static final BooleanProperty BOUND = BooleanProperty.create("bound");
+
+        @Override
+        public boolean isPrivate()
+        {
+            return true;
+        }
+
+        public Private(Properties properties)
+        {
+            super(properties);
+            setDefaultState(this.getDefaultState()
+                    .with(FACING, EnumFacing.NORTH));
+        }
+
+        @Override
+        public ItemStack getPickBlock(IBlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, EntityPlayer player)
+        {
+            return new ItemStack(Enderthing.enderKeyChestPrivate);
+        }
+
+        @Override
+        public IItemProvider getItemDropped(IBlockState state, World worldIn, BlockPos pos, int fortune)
+        {
+            return Enderthing.enderKeyChestPrivate;
+        }
+
+        @Override
+        protected void fillStateContainer(StateContainer.Builder<Block, IBlockState> builder)
+        {
+            builder.add(FACING, BOUND);
+        }
+
+        @Nullable
+        @Override
+        public TileEntity createTileEntity(IBlockState state, IBlockReader world)
+        {
+            return new TileEnderKeyChest.Private();
+        }
+    }
+
+    public BlockEnderKeyChest(Properties properties)
+    {
+        super(properties); // Material.ROCK
+        setDefaultState(this.getStateContainer().getBaseState()
+                .with(FACING, EnumFacing.NORTH));
     }
 
     @Deprecated
     @Override
-    public boolean isOpaqueCube(IBlockState state)
-    {
-        return false;
+    public VoxelShape getShape(IBlockState state, IBlockReader worldIn, BlockPos pos) {
+        return SHAPE;
     }
 
     @Deprecated
@@ -83,11 +115,10 @@ public class BlockEnderKeyChest
         return true;
     }
 
+    @Nullable
     @Override
-    public TileEntity createTileEntity(World world, IBlockState state)
+    public TileEntity createTileEntity(IBlockState state, IBlockReader world)
     {
-        if (state.getValue(PRIVATE))
-            return new TileEnderKeyChest.Private();
         return new TileEnderKeyChest();
     }
 
@@ -99,66 +130,54 @@ public class BlockEnderKeyChest
     }
 
     @Override
-    public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
-    {
-        //If it will harvest, delay deletion of the block until after getDrops
-        return willHarvest || super.removedByPlayer(state, world, pos, player, false);
-    }
-
-    @Override
-    public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player)
+    public ItemStack getPickBlock(IBlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, EntityPlayer player)
     {
         return getItem(world, pos);
     }
 
-    @Override
-    public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune)
+    private void getDrops(NonNullList<ItemStack> drops, @Nullable TileEntity te)
     {
-        ArrayList<ItemStack> ret = Lists.newArrayList();
-
-        ret.add(new ItemStack(Blocks.OBSIDIAN, 8));
-        ret.add(Enderthing.getLock(Enderthing.getIdFromBlock(world, pos), state.getValue(PRIVATE)));
-
-        return ret;
+        drops.add(new ItemStack(Blocks.OBSIDIAN, 8));
+        drops.add(Enderthing.getLock(Enderthing.getIdFromTE(te), isPrivate()));
     }
 
+    // Copy of super except it calls a custom getDrops with the TE param, and it supports not breaking itself based on config
     @Override
-    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, @Nullable TileEntity te, ItemStack stack)
-    {
-        player.addStat(StatList.getBlockStats(this));
-        player.addExhaustion(0.025F);
-
+    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, @Nullable TileEntity te, ItemStack stack) {
+        player.addStat(StatList.BLOCK_MINED.get(this));
+        player.addExhaustion(0.005F);
         if (!Enderthing.breakChestOnHarvest
-                || (this.canSilkHarvest(worldIn, pos, state, player) && EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) > 0))
-        {
-            List<ItemStack> items = Lists.newArrayList();
-            ItemStack itemstack = getItem(worldIn, pos);
-
-            items.add(itemstack);
-
+                || this.canSilkHarvest(state, worldIn, pos, player) && EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) > 0) {
+            NonNullList<ItemStack> items = NonNullList.create();
+            ItemStack itemstack = this.getSilkTouchDrop(state);
+            if (!itemstack.isEmpty()) items.add(itemstack);
             net.minecraftforge.event.ForgeEventFactory.fireBlockHarvesting(items, worldIn, pos, state, 0, 1.0f, true, player);
-            for (ItemStack item : items)
-            {
-                spawnAsEntity(worldIn, pos, item);
-            }
-        }
-        else
-        {
+            items.forEach(e -> spawnAsEntity(worldIn, pos, e));
+        } else {
             harvesters.set(player);
-            int i = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, stack);
-            this.dropBlockAsItem(worldIn, pos, state, i);
+            int fortune = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, stack);
+            //state.dropBlockAsItem(worldIn, pos, fortune);
+            if (!worldIn.isRemote && !worldIn.restoringBlockSnapshots) { // do not drop items while restoring blockstates, prevents item dupe
+                NonNullList<ItemStack> drops = NonNullList.create();
+                getDrops(drops, te);
+                float chancePerItem = ForgeEventFactory.fireBlockHarvesting(drops, worldIn, pos, state, fortune, 1.0f, false, harvesters.get());
+                for (ItemStack _stack : drops) {
+                    if (worldIn.rand.nextFloat() <= chancePerItem)
+                        spawnAsEntity(worldIn, pos, _stack);
+                }
+            }
+
             harvesters.set(null);
         }
 
-        worldIn.setBlockToAir(pos);
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public boolean onBlockActivated(IBlockState state, World worldIn, BlockPos pos, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         TileEntity te = worldIn.getTileEntity(pos);
 
-        if (te == null || !(te instanceof TileEnderKeyChest))
+        if (!(te instanceof TileEnderKeyChest))
             return true;
 
         if (worldIn.getBlockState(pos.up()).isNormalCube())
@@ -169,11 +188,12 @@ public class BlockEnderKeyChest
 
         TileEnderKeyChest chest = (TileEnderKeyChest) te;
 
-        ItemStack heldItem = playerIn.getHeldItem(hand);
-        if (side == EnumFacing.UP && heldItem.getItem() == Items.DYE
-                && (chest.getPlayerBound() == null || chest.getPlayerBound().equals(playerIn.getUniqueID())))
+        ItemStack heldItem = player.getHeldItem(hand);
+        EnumDyeColor color = EnumDyeColor.getColor(heldItem);
+        if (side == EnumFacing.UP && color != null
+                && (chest.getPlayerBound() == null || chest.getPlayerBound().equals(player.getUniqueID())))
         {
-            int meta = EnumDyeColor.byDyeDamage(heldItem.getMetadata()).getMetadata();
+            int meta = color.getId();
 
             //  5, 8, 11; +-1.5
             // 3.5..6.5, 6.5..9.5,9.5..12.5
@@ -181,7 +201,7 @@ public class BlockEnderKeyChest
             float z = hitZ;
             float x = hitX;
 
-            switch (state.getValue(FACING))
+            switch (state.get(FACING))
             {
                 case EAST:
                     x = hitZ;
@@ -230,7 +250,7 @@ public class BlockEnderKeyChest
 
             if (oldId != id)
             {
-                if (!playerIn.capabilities.isCreativeMode)
+                if (!player.isCreative())
                     heldItem.grow(-1);
                 chest.setInventoryId(id);
             }
@@ -241,42 +261,35 @@ public class BlockEnderKeyChest
             }
         }
 
-        GuiHandler.openKeyGui(worldIn, pos, playerIn, chest.getInventoryId(), state.getValue(PRIVATE));
+        if (player instanceof EntityPlayerMP)
+            GuiHandler.openKeyGui(pos, (EntityPlayerMP) player, chest.getInventoryId(), isPrivate());
 
         return true;
     }
-
 
     @Deprecated
     @Override
-    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
-    {
-        return ENDER_CHEST_AABB;
-    }
-
-    @Override
-    public boolean canSilkHarvest(World world, BlockPos pos, IBlockState state, EntityPlayer player)
+    public boolean canSilkHarvest()
     {
         return true;
     }
 
+    @Nullable
     @Override
-    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand)
+    public IBlockState getStateForPlacement(BlockItemUseContext context)
     {
-        return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite())
-                .withProperty(PRIVATE, (meta & Enderthing.BLOCK_PRIVATE_BIT) != 0);
+        return this.getDefaultState().with(FACING, context.getPlayer().getHorizontalFacing().getOpposite());
     }
 
     @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
-        worldIn.setBlockState(pos, state.withProperty(FACING, placer.getHorizontalFacing().getOpposite())
-                .withProperty(PRIVATE, (stack.getMetadata() & 8) != 0), 2);
+        worldIn.setBlockState(pos, state.with(FACING, placer.getHorizontalFacing().getOpposite()));
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
+    @OnlyIn(Dist.CLIENT)
+    public void animateTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
         for (int i = 0; i < 3; ++i)
         {
@@ -288,69 +301,17 @@ public class BlockEnderKeyChest
             double xSpeed = rand.nextFloat() * xOffset;
             double ySpeed = rand.nextFloat() * 0.125 - 0.0625;
             double zSpeed = rand.nextFloat() * zOffset;
-            worldIn.spawnParticle(EnumParticleTypes.PORTAL, xPos, yPos, zPos, xSpeed, ySpeed, zSpeed);
+            worldIn.spawnParticle(Particles.PORTAL, xPos, yPos, zPos, xSpeed, ySpeed, zSpeed);
         }
     }
 
-    @Deprecated
     @Override
-    public IBlockState getStateFromMeta(int meta)
+    protected void fillStateContainer(StateContainer.Builder<Block, IBlockState> builder)
     {
-        return this.getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta & 3))
-                .withProperty(PRIVATE, (meta & 8) != 0)
-                .withProperty(BOUND, (meta & 12) == 12);
+        builder.add(FACING);
     }
 
-    @Override
-    public int getMetaFromState(IBlockState state)
-    {
-        return state.getValue(FACING).getHorizontalIndex()
-                | (state.getValue(PRIVATE) ? 8 : 0)
-                | (state.getValue(BOUND) ? 4 : 0);
-    }
-
-    @Deprecated
-    @Override
-    public IBlockState withRotation(IBlockState state, Rotation rot)
-    {
-        return state.withProperty(FACING, rot.rotate(state.getValue(FACING)));
-    }
-
-    @Deprecated
-    @Override
-    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
-    {
-        return state.withRotation(mirrorIn.toRotation(state.getValue(FACING)));
-    }
-
-    @Override
-    protected BlockStateContainer createBlockState()
-    {
-        return new BlockStateContainer(this, FACING, PRIVATE, BOUND);
-    }
-
-    @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
-    {
-        tooltip.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".ender_key_chest.rightClick"));
-
-        Enderthing.addStandardInformation(stack, player, tooltip, advanced);
-    }
-
-    @Override
-    public void getSubBlocks(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> list)
-    {
-        list.add(new ItemStack(this));
-        list.add(new ItemStack(this, 1, Enderthing.BLOCK_PRIVATE_BIT));
-    }
-
-    @Override
-    public ItemBlock createItemBlock()
-    {
-        return new AsItem(this);
-    }
-
-    private static ItemStack getItem(IBlockAccess world, BlockPos pos)
+    private static ItemStack getItem(IBlockReader world, BlockPos pos)
     {
         IBlockState state = world.getBlockState(pos);
         TileEntity te = world.getTileEntity(pos);
@@ -359,7 +320,7 @@ public class BlockEnderKeyChest
         {
             int id = ((TileEnderKeyChest) te).getInventoryId();
 
-            return Enderthing.getItem(id, state.getValue(PRIVATE));
+            return Enderthing.getItem(id, (state.getBlock() instanceof BlockEnderKeyChest) && ((BlockEnderKeyChest)state.getBlock()).isPrivate());
         }
 
         return new ItemStack(Enderthing.enderKeyChest);
@@ -367,17 +328,23 @@ public class BlockEnderKeyChest
 
     public static class AsItem extends ItemBlock
     {
-        public AsItem(Block block)
+        private final boolean isPrivate;
+        private final boolean isBound;
+
+        public AsItem(Block block, boolean isPrivate, boolean isBound, Item.Properties properties)
         {
-            super(block);
-            setHasSubtypes(true);
-            setRegistryName(block.getRegistryName());
+            super(block, properties);
+            this.isPrivate = isPrivate;
+            this.isBound = isBound;
         }
 
+        @OnlyIn(Dist.CLIENT)
         @Override
-        public int getMetadata(int damage)
+        public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
         {
-            return damage;
+            tooltip.add(new TextComponentTranslation("tooltip." + Enderthing.MODID + ".ender_key_chest.rightClick").applyTextStyle(TextFormatting.ITALIC));
+
+            Enderthing.addStandardInformation(stack, tooltip, flagIn, isPrivate);
         }
 
         @Override
@@ -388,7 +355,7 @@ public class BlockEnderKeyChest
             {
                 int oldId = Enderthing.getIdFromBlock(itemStackIn);
 
-                ItemStack oldStack = Enderthing.getLock(oldId, itemStackIn.getMetadata() != 0);
+                ItemStack oldStack = Enderthing.getLock(oldId, isPrivate());
 
                 if (!playerIn.inventory.addItemStackToInventory(oldStack))
                 {
@@ -411,6 +378,16 @@ public class BlockEnderKeyChest
             }
 
             return super.onItemRightClick(worldIn, playerIn, hand);
+        }
+
+        public boolean isPrivate()
+        {
+            return isPrivate;
+        }
+
+        public boolean isBound()
+        {
+            return isPrivate;
         }
     }
 }

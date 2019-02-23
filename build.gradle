@@ -1,108 +1,88 @@
 buildscript {
     repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
-        maven { url = "http://files.minecraftforge.net/maven" }
+        mavenCentral()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
+apply plugin: 'net.minecraftforge.gradle'
+// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+apply plugin: 'eclipse'
 
-plugins {
-    id 'com.github.johnrengelman.shadow' version '1.2.3'
-}
+version = '1.0'
+group = 'com.yourname.modid' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = 'modid'
 
-repositories {
-    maven {
-        url "http://dvs1.progwml6.com/files/maven"
-    }
-    maven {
-        url 'http://dogforce-games.com/maven'
-    }
-}
-
-apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'maven-publish'
-
-version = "0.7.3"
-group= "gigaherz.enderthing" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "enderthing-1.11.0"
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 minecraft {
-    version = "1.11-13.19.1.2189"
-    runDir = "run"
+    mappings channel: 'snapshot', version: '20180921-1.13'
 
-    mappings = "snapshot_20161210"
+    runs {
+        client {
+            workingDirectory project.file('run')
 
-    replace "@VERSION@", project.version
-    replaceIn "Enderthing.java"
-}
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
 
-jar {
-    classifier = 'slim'
-}
+            ideaModule "${project.name}_main"
 
-shadowJar {
-    classifier = ''
-    dependencies {
-        include(dependency(':Commons:'))
+            environment 'MOD_CLASSES', "${project.file("out/production/resources").canonicalPath};${project.file("out/production/classes").canonicalPath}"
+        }
+
+        server {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+
+            ideaModule "${project.name}_main"
+
+            environment 'MOD_CLASSES', "${project.file("out/production/resources").canonicalPath};${project.file("out/production/classes").canonicalPath}"
+        }
     }
-    relocate 'gigaherz.common', 'gigaherz.enderthing.shadow.common'
-}
-
-reobf {
-    shadowJar { mappingType = 'SEARGE' }
-}
-
-tasks.build.dependsOn reobfShadowJar
-
-artifacts {
-    archives shadowJar
-    archives sourceJar
 }
 
 dependencies {
-    deobfCompile "gigaherz.commons:Commons:1.11.0-0.4.5"
+    // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
+    // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
+    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
+    minecraft 'net.minecraftforge:forge:1.13.2-25.0.48'
 
-    deobfCompile "mezz.jei:jei_1.11:4.0.5.203:api"
-    runtime "mezz.jei:jei_1.11:4.0.5.203"
+    // You may put jars on which you depend on in ./libs or you may define them like so..
+    // compile "some.group:artifact:version:classifier"
+    // compile "some.group:artifact:version"
 
-    compile fileTree(dir: 'libs', include: '*.jar')
+    // Real examples
+    // compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
+    // compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
+
+    // The 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
+    // provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // These dependencies get remapped to your current MCP mappings
+    // deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // For more info...
+    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
 }
 
-compileJava {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-    options.encoding = 'UTF-8'
-}
-
-processResources {
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-}
-
-tasks.publish.dependsOn build
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-
-            artifact sourceJar
-        }
-    }
-
-    repositories {
-        maven {
-            url "$projectDir/../CommonMaven"
-        }
+// Example for how to get properties into the manifest for reading by the runtime..
+jar {
+    manifest {
+        attributes([
+            "Specification-Title": "examplemod",
+            "Specification-Vendor": "examplemodsareus",
+            "Specification-Version": "1", // We are version 1 of ourselves
+            "Implementation-Title": project.name,
+            "Implementation-Version": "${version}",
+            "Implementation-Vendor" :"examplemodsareus",
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
     }
 }

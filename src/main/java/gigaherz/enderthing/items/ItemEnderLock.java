@@ -1,50 +1,56 @@
 package gigaherz.enderthing.items;
 
-import com.mojang.realmsclient.gui.ChatFormatting;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.blocks.BlockEnderKeyChest;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEnderChest;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUseContext;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class ItemEnderLock extends ItemEnderthing
 {
-    public ItemEnderLock(String name)
+    public ItemEnderLock(boolean isprivate, Properties properties)
     {
-        super(name);
+        super(isprivate, properties);
     }
 
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List<String> information, boolean advanced)
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
-        information.add(ChatFormatting.ITALIC + I18n.format("tooltip." + Enderthing.MODID + ".ender_lock.rightClick"));
+        tooltip.add(new TextComponentTranslation("tooltip." + Enderthing.MODID + ".ender_lock.rightClick").applyTextStyle(TextFormatting.ITALIC));
 
-        super.addInformation(stack, player, information, advanced);
+        super.addInformation(stack, worldIn, tooltip, flagIn);
     }
 
     @Override
-    public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemUseContext context)
     {
+        World worldIn = context.getWorld();
+        BlockPos pos = context.getPos();
+        EntityPlayer playerIn = context.getPlayer();
+        ItemStack stack = context.getItem();
+
         if (worldIn.isRemote)
             return EnumActionResult.SUCCESS;
 
         IBlockState state = worldIn.getBlockState(pos);
 
-        ItemStack stack = playerIn.getHeldItem(hand);
         int id = Enderthing.getIdFromItem(stack);
 
         Block b = state.getBlock();
@@ -53,9 +59,7 @@ public class ItemEnderLock extends ItemEnderthing
 
         if (b == Blocks.ENDER_CHEST)
         {
-            worldIn.setBlockState(pos, Enderthing.enderKeyChest.getDefaultState()
-                    .withProperty(BlockEnderKeyChest.FACING, state.getValue(BlockEnderChest.FACING))
-                    .withProperty(BlockEnderKeyChest.PRIVATE, (stack.getMetadata() & 1) != 0));
+            setKeyChest(worldIn, pos, state);
 
             te = worldIn.getTileEntity(pos);
 
@@ -64,15 +68,15 @@ public class ItemEnderLock extends ItemEnderthing
                 ((TileEnderKeyChest) te).setInventoryId(id);
             }
 
-            if (!playerIn.capabilities.isCreativeMode)
+            if (!playerIn.isCreative())
                 stack.grow(-1);
 
             return EnumActionResult.SUCCESS;
         }
 
-        if (b == Enderthing.enderKeyChest)
+        if (b instanceof BlockEnderKeyChest)
         {
-            boolean oldPrivate = state.getValue(BlockEnderKeyChest.PRIVATE);
+            boolean oldPrivate = ((BlockEnderKeyChest)b).isPrivate();
             if (te instanceof TileEnderKeyChest)
             {
                 int oldId = ((TileEnderKeyChest) te).getInventoryId();
@@ -81,11 +85,11 @@ public class ItemEnderLock extends ItemEnderthing
                 InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
             }
 
-            boolean newPrivate = stack.getMetadata() != 0;
-
+            boolean newPrivate = isPrivate();
             if (oldPrivate != newPrivate)
             {
-                worldIn.setBlockState(pos, state.withProperty(BlockEnderKeyChest.PRIVATE, newPrivate));
+                setKeyChest(worldIn, pos, state);
+
                 te = worldIn.getTileEntity(pos);
             }
 
@@ -94,12 +98,19 @@ public class ItemEnderLock extends ItemEnderthing
                 ((TileEnderKeyChest) te).setInventoryId(id >> 4);
             }
 
-            if (!playerIn.capabilities.isCreativeMode)
+            if (!playerIn.isCreative())
                 stack.grow(-1);
 
             return EnumActionResult.SUCCESS;
         }
-
         return EnumActionResult.PASS;
+    }
+
+    private void setKeyChest(World worldIn, BlockPos pos, IBlockState state)
+    {
+        worldIn.setBlockState(pos, (isPrivate()
+                ? Enderthing.enderKeyChest.getDefaultState()
+                : Enderthing.enderKeyChestPrivate.getDefaultState())
+                    .with(BlockEnderKeyChest.FACING, state.get(BlockEnderChest.FACING)));
     }
 }

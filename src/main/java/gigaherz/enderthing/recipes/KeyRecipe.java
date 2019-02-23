@@ -1,5 +1,6 @@
 package gigaherz.enderthing.recipes;
 
+/*
 import gigaherz.enderthing.Enderthing;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -35,3 +36,4 @@ public class KeyRecipe extends ShapedOreRecipe
         return Enderthing.getItem(Enderthing.enderKey, c1, c2, c3, false);
     }
 }
+*/

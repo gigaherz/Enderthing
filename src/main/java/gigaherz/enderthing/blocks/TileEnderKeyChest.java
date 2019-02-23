@@ -5,29 +5,51 @@ import gigaherz.enderthing.network.UpdatePlayersUsing;
 import gigaherz.enderthing.storage.EnderInventory;
 import gigaherz.enderthing.storage.InventoryManager;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.tileentity.IChestLid;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class TileEnderKeyChest
-        extends TileEntityEnderChest
+public class TileEnderKeyChest extends TileEntity implements IChestLid, ITickable
 {
+    protected TileEnderKeyChest(TileEntityType<?> tileEntityTypeIn)
+    {
+        super(tileEntityTypeIn);
+    }
+    public TileEnderKeyChest()
+    {
+        super(Enderthing.tileKeyChest);
+    }
+
     public static class Private extends TileEnderKeyChest
     {
         public Private()
         {
+            super(Enderthing.tileKeyChestPrivate);
             isPrivate = true;
         }
     }
@@ -40,10 +62,6 @@ public class TileEnderKeyChest
     private UUID boundToPlayer;
 
     private EnderInventory inventory;
-
-    public TileEnderKeyChest()
-    {
-    }
 
     public boolean isPrivate()
     {
@@ -103,10 +121,10 @@ public class TileEnderKeyChest
     }
 
     @Nullable
-    public EnderInventory getInventory()
+    public IItemHandlerModifiable getInventory()
     {
         if (inventoryId < 0)
-            return null;
+            return new ItemStackHandler(0);
 
         if (inventory == null && (!isPrivate || isBoundToPlayer()))
         {
@@ -120,27 +138,19 @@ public class TileEnderKeyChest
     }
 
     @Override
-    public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState)
+    public void read(NBTTagCompound tag)
     {
-        return oldState.getBlock() != newState.getBlock() ||
-                oldState.getValue(BlockEnderKeyChest.PRIVATE) != newState.getValue(BlockEnderKeyChest.PRIVATE) ||
-                oldState.getValue(BlockEnderKeyChest.BOUND) != newState.getValue(BlockEnderKeyChest.BOUND);
-    }
-
-    @Override
-    public void readFromNBT(NBTTagCompound tag)
-    {
-        super.readFromNBT(tag);
-        inventoryId = tag.getInteger(Enderthing.INVENTORY_ID_KEY);
+        super.read(tag);
+        inventoryId = tag.getInt(Enderthing.INVENTORY_ID_KEY);
         boundToPlayer = InventoryManager.uuidFromNBT(tag);
         releasePreviousInventory();
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tag)
+    public NBTTagCompound write(NBTTagCompound tag)
     {
-        tag = super.writeToNBT(tag);
-        tag.setInteger(Enderthing.INVENTORY_ID_KEY, inventoryId);
+        tag = super.write(tag);
+        tag.setInt(Enderthing.INVENTORY_ID_KEY, inventoryId);
         if (boundToPlayer != null)
         {
             InventoryManager.uuidToNBT(tag, boundToPlayer);
@@ -148,34 +158,26 @@ public class TileEnderKeyChest
         return tag;
     }
 
-    @Override
-    public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing)
-    {
-        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-            return hasInventory();
-        return super.hasCapability(capability, facing);
-    }
+    private LazyOptional<IItemHandler> inventoryLazy = LazyOptional.of(this::getInventory);
 
-    @SuppressWarnings("unchecked")
-    @Nullable
     @Override
-    public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing)
+    public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable EnumFacing facing)
     {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-            return (T) getInventory();
+            return inventoryLazy.cast();
         return super.getCapability(capability, facing);
     }
 
     @Override
     public NBTTagCompound getUpdateTag()
     {
-        return writeToNBT(new NBTTagCompound());
+        return write(new NBTTagCompound());
     }
 
     @Override
     public void handleUpdateTag(NBTTagCompound tag)
     {
-        readFromNBT(tag);
+        read(tag);
     }
 
     @Override
@@ -201,14 +203,15 @@ public class TileEnderKeyChest
     }
 
     @Override
-    public void update()
+    public void tick()
     {
         if (++this.ticksSinceSync % (20 * 4) == 0)
         {
             if (!world.isRemote)
             {
-                Enderthing.channel.sendToAllAround(new UpdatePlayersUsing(pos, 1, numPlayersUsing),
-                        new NetworkRegistry.TargetPoint(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 64));
+
+                //new NetworkRegistry.TargetPoint(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 64)
+                //Enderthing.channel.sendTo(new UpdatePlayersUsing(pos, 1, numPlayersUsing), nethandler, NetworkDirection.PLAY_TO_CLIENT);
             }
         }
 
@@ -221,7 +224,7 @@ public class TileEnderKeyChest
         if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F)
         {
             this.world.playSound(null, x + 0.5D, y + 0.5D, z + 0.5D,
-                    SoundEvents.BLOCK_ENDERCHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+                    SoundEvents.BLOCK_ENDER_CHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
         }
 
         if (this.numPlayersUsing == 0 && this.lidAngle > 0.0F || this.numPlayersUsing > 0 && this.lidAngle < 1.0F)
@@ -247,7 +250,7 @@ public class TileEnderKeyChest
             if (this.lidAngle < closedThreshold && prevAngle >= closedThreshold)
             {
                 this.world.playSound(null, x + 0.5D, y + 0.5D, z + 0.5D,
-                        SoundEvents.BLOCK_ENDERCHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+                        SoundEvents.BLOCK_ENDER_CHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
             }
 
             if (this.lidAngle < 0.0F)
@@ -263,5 +266,50 @@ public class TileEnderKeyChest
         {
             this.numPlayersUsing = value;
         }
+    }
+
+    public float lidAngle;
+    /** The angle of the ender chest lid last tick */
+    public float prevLidAngle;
+    public int numPlayersUsing;
+
+    @Override
+    public boolean receiveClientEvent(int id, int type) {
+        if (id == 1) {
+            this.numPlayersUsing = type;
+            return true;
+        } else {
+            return super.receiveClientEvent(id, type);
+        }
+    }
+
+    @Override
+    public void remove() {
+        this.updateContainingBlockInfo();
+        super.remove();
+    }
+
+    public void openChest() {
+        ++this.numPlayersUsing;
+        this.world.addBlockEvent(this.pos, Blocks.ENDER_CHEST, 1, this.numPlayersUsing);
+    }
+
+    public void closeChest() {
+        --this.numPlayersUsing;
+        this.world.addBlockEvent(this.pos, Blocks.ENDER_CHEST, 1, this.numPlayersUsing);
+    }
+
+    public boolean canBeUsed(EntityPlayer player) {
+        if (this.world.getTileEntity(this.pos) != this) {
+            return false;
+        } else {
+            return !(player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) > 64.0D);
+        }
+    }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public float getLidAngle(float partialTicks) {
+        return this.prevLidAngle + (this.lidAngle - this.prevLidAngle) * partialTicks;
     }
 }
