@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.stats.StatList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
@@ -27,7 +28,7 @@ public class GuiHandler
     {
         Server svr = new Server(id, isPack, priv, new BlockPos(x,y,z));
         NetworkHooks.openGui(playerIn, svr, svr::encode);
-        //playerIn.addStat(StatList.ENDERCHEST_OPENED);
+        playerIn.addStat(StatList.OPEN_ENDERCHEST);
     }
 
     public static void openKeyGui(BlockPos pos, EntityPlayerMP playerIn, int id, boolean priv)

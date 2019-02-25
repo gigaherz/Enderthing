@@ -35,12 +35,12 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
 
     public static InventoryManager get(World world)
     {
-        WorldSavedDataStorage storage = world.getMapStorage();
-        InventoryManager instance = storage.func_212426_a(DimensionType.OVERWORLD, InventoryManager::new, StorageKey);
+        WorldSavedDataStorage storage = world.getSavedDataStorage();
+        InventoryManager instance = storage.get(DimensionType.OVERWORLD, InventoryManager::new, StorageKey);
         if (instance == null)
         {
             instance = new InventoryManager();
-            storage.func_212424_a(DimensionType.OVERWORLD, StorageKey, instance);
+            storage.set(DimensionType.OVERWORLD, StorageKey, instance);
         }
 
         return instance;
@@ -99,7 +99,7 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
     {
         NBTTagCompound temp = global.serializeNBT();
 
-        compound.setTag("Inventories", temp.getTag("Inventories"));
+        compound.put("Inventories", temp.get("Inventories"));
 
         NBTTagList list = new NBTTagList();
         for (Map.Entry<UUID, Container> e : perPlayer.entrySet())
@@ -109,15 +109,15 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
             list.add(tag);
         }
 
-        compound.setTag("Private", list);
+        compound.put("Private", list);
 
         return compound;
     }
 
     public static void uuidToNBT(NBTTagCompound tag, UUID uuid)
     {
-        tag.setLong("PlayerUUID0", uuid.getLeastSignificantBits());
-        tag.setLong("PlayerUUID1", uuid.getMostSignificantBits());
+        tag.putLong("PlayerUUID0", uuid.getLeastSignificantBits());
+        tag.putLong("PlayerUUID1", uuid.getMostSignificantBits());
     }
 
     public static UUID uuidFromNBT(NBTTagCompound tag)
@@ -159,12 +159,12 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
                 EnderInventory inventory = entry.getValue();
 
                 NBTTagCompound inventoryTag = new NBTTagCompound();
-                inventoryTag.setInt("InventoryId", entry.getKey());
-                inventoryTag.setTag("InventoryContents", inventory.serializeNBT());
+                inventoryTag.putInt("InventoryId", entry.getKey());
+                inventoryTag.put("InventoryContents", inventory.serializeNBT());
                 inventories.add(inventoryTag);
             }
 
-            tag.setTag("Inventories", inventories);
+            tag.put("Inventories", inventories);
             return tag;
         }
 

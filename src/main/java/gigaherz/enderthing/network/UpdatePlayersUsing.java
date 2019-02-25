@@ -6,6 +6,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.ExtensionPoint;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -43,7 +45,7 @@ public class UpdatePlayersUsing
         final int field = this.field;
         final int value = this.value;
 
-        Minecraft.getInstance().addScheduledTask(() -> {
+        context.get().enqueueWork(() -> {
             TileEntity te = Minecraft.getInstance().world.getTileEntity(pos);
             if (te instanceof TileEnderKeyChest)
             {
@@ -51,5 +53,6 @@ public class UpdatePlayersUsing
                 chest.receiveUpdate(field, value);
             }
         });
+        context.get().setPacketHandled(true);
     }
 }

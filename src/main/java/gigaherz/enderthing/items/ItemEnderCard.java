@@ -52,7 +52,7 @@ public class ItemEnderCard extends Item
             stack.setTag(tag);
         }
 
-        tag.setString("PlayerName", player.getName().getString());
+        tag.putString("PlayerName", player.getName().getString());
 
         InventoryManager.uuidToNBT(tag, player.getUniqueID());
     }
@@ -88,7 +88,7 @@ public class ItemEnderCard extends Item
             stack.setTag(tag);
         }
 
-        tag.setString("PlayerName", newName);
+        tag.putString("PlayerName", newName);
     }
 
     @Override

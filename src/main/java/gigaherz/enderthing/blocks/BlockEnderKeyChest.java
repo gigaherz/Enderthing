@@ -301,7 +301,7 @@ public class BlockEnderKeyChest extends Block
             double xSpeed = rand.nextFloat() * xOffset;
             double ySpeed = rand.nextFloat() * 0.125 - 0.0625;
             double zSpeed = rand.nextFloat() * zOffset;
-            worldIn.spawnParticle(Particles.PORTAL, xPos, yPos, zPos, xSpeed, ySpeed, zSpeed);
+            worldIn.addParticle(Particles.PORTAL, xPos, yPos, zPos, xSpeed, ySpeed, zSpeed);
         }
     }
 

@@ -150,7 +150,7 @@ public class TileEnderKeyChest extends TileEntity implements IChestLid, ITickabl
     public NBTTagCompound write(NBTTagCompound tag)
     {
         tag = super.write(tag);
-        tag.setInt(Enderthing.INVENTORY_ID_KEY, inventoryId);
+        tag.putInt(Enderthing.INVENTORY_ID_KEY, inventoryId);
         if (boundToPlayer != null)
         {
             InventoryManager.uuidToNBT(tag, boundToPlayer);

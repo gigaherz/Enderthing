@@ -279,10 +279,10 @@ public class Enderthing
         ItemStack key = new ItemStack(item, 1);
 
         NBTTagCompound tag = new NBTTagCompound();
-        tag.setBoolean("Private", priv);
-        tag.setByte("Color1", (byte) c1);
-        tag.setByte("Color2", (byte) c2);
-        tag.setByte("Color3", (byte) c3);
+        tag.putBoolean("Private", priv);
+        tag.putByte("Color1", (byte) c1);
+        tag.putByte("Color2", (byte) c2);
+        tag.putByte("Color3", (byte) c3);
 
         key.setTag(tag);
 
@@ -304,9 +304,9 @@ public class Enderthing
 
         NBTTagCompound tag = new NBTTagCompound();
         NBTTagCompound etag = new NBTTagCompound();
-        etag.setInt(INVENTORY_ID_KEY, id);
-        etag.setBoolean("Private", priv);
-        tag.setTag("BlockEntityTag", etag);
+        etag.putInt(INVENTORY_ID_KEY, id);
+        etag.putBoolean("Private", priv);
+        tag.put("BlockEntityTag", etag);
 
         stack.setTag(tag);
 
