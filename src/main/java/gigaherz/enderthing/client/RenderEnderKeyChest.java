@@ -155,15 +155,6 @@ public class RenderEnderKeyChest extends TileEntityRenderer<TileEnderKeyChest>
             }
         }
 
-        int id = te.getInventoryId();
-        int color1 = id & 15;
-        int color2 = (id >> 4) & 15;
-        int color3 = (id >> 8) & 15;
-
-        EnumDyeColor c1 = EnumDyeColor.byId(color1);
-        EnumDyeColor c2 = EnumDyeColor.byId(color2);
-        EnumDyeColor c3 = EnumDyeColor.byId(color3);
-
         GlStateManager.rotatef((float) j, 0.0F, 1.0F, 0.0F);
         GlStateManager.translatef(-0.5F, -0.5F, -0.5F);
         float f = te.prevLidAngle + (te.lidAngle - te.prevLidAngle) * partialTicks;
@@ -182,7 +173,7 @@ public class RenderEnderKeyChest extends TileEntityRenderer<TileEnderKeyChest>
         if (destroyStage < 0)
         {
             this.bindTexture(WOOL_TEXTURE);
-            this.modelChest.renderKeys(c1.getMapColor().colorValue, c2.getMapColor().colorValue, c3.getMapColor().colorValue);
+            this.modelChest.renderKeys(0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF);
         }
 
         GlStateManager.disableRescaleNormal();

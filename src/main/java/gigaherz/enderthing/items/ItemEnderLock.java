@@ -19,6 +19,8 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -30,6 +32,7 @@ public class ItemEnderLock extends ItemEnderthing
         super(isprivate, properties);
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
@@ -51,7 +54,7 @@ public class ItemEnderLock extends ItemEnderthing
 
         IBlockState state = worldIn.getBlockState(pos);
 
-        int id = Enderthing.getIdFromItem(stack);
+        long id = Enderthing.getKey(stack);
 
         Block b = state.getBlock();
 
@@ -65,7 +68,7 @@ public class ItemEnderLock extends ItemEnderthing
 
             if (te instanceof TileEnderKeyChest)
             {
-                ((TileEnderKeyChest) te).setInventoryId(id);
+                ((TileEnderKeyChest) te).setKey(id);
             }
 
             if (!playerIn.isCreative())
@@ -79,7 +82,7 @@ public class ItemEnderLock extends ItemEnderthing
             boolean oldPrivate = ((BlockEnderKeyChest)b).isPrivate();
             if (te instanceof TileEnderKeyChest)
             {
-                int oldId = ((TileEnderKeyChest) te).getInventoryId();
+                long oldId = ((TileEnderKeyChest) te).getKey();
                 ItemStack oldStack = Enderthing.getLock(oldId, oldPrivate);
 
                 InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
@@ -95,7 +98,7 @@ public class ItemEnderLock extends ItemEnderthing
 
             if (te instanceof TileEnderKeyChest)
             {
-                ((TileEnderKeyChest) te).setInventoryId(id >> 4);
+                ((TileEnderKeyChest) te).setKey(id >> 4);
             }
 
             if (!playerIn.isCreative())

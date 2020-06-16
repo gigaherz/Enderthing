@@ -4,5 +4,5 @@ public interface IInventoryManager
 {
     void setDirty();
 
-    EnderInventory getInventory(int id);
+    EnderInventory getInventory(long id);
 }

@@ -2,13 +2,19 @@ package gigaherz.enderthing.client;
 
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.obj.OBJLoader;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid=Enderthing.MODID, bus= Mod.EventBusSubscriber.Bus.FORGE)
 public class ClientEvents
@@ -31,15 +37,5 @@ public class ClientEvents
         registerItemModel(Enderthing.enderPack, 1, "ender_pack_private");
         registerItemModel(Enderthing.enderCard, 0, "ender_card");
         */
-    }
-
-    @SubscribeEvent
-    public static void itemColors(ColorHandlerEvent.Item event)
-    {
-        event.getItemColors().register(new ItemColorHandler.ItemTag(),
-                Enderthing.enderKey, Enderthing.enderLock, Enderthing.enderPack,
-                Enderthing.enderKeyPrivate, Enderthing.enderLockPrivate, Enderthing.enderPackPrivate);
-        event.getItemColors().register(new ItemColorHandler.BlockTag(),
-                Enderthing.enderKeyChest.asItem(), Enderthing.enderKeyChestPrivate.asItem(), Enderthing.enderKeyChestBound.asItem());
     }
 }

@@ -21,9 +21,9 @@ public class GuiKey extends GuiContainer
 
     final boolean isPrivate;
 
-    public GuiKey(InventoryPlayer playerInventory, int id, boolean isPack, boolean priv, EntityPlayer player, World world, BlockPos pos)
+    public GuiKey(InventoryPlayer playerInventory, long key, boolean isPack, boolean priv, EntityPlayer player, World world, BlockPos pos)
     {
-        super(new ContainerKey(playerInventory, id, isPack, priv, player, world, pos));
+        super(new ContainerKey(playerInventory, key, isPack, priv, player, world, pos));
 
         isPrivate = priv;
 

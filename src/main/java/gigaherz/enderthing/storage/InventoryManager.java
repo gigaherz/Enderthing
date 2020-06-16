@@ -52,7 +52,7 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
         markDirty();
     }
 
-    public EnderInventory getInventory(int id)
+    public EnderInventory getInventory(long id)
     {
         return global.getInventory(id);
     }
@@ -133,9 +133,10 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
 
     private class Container implements INBTSerializable<NBTTagCompound>, IInventoryManager
     {
-        private Map<Integer, EnderInventory> inventories = Maps.newHashMap();
+        private Map<Long, EnderInventory> inventories = Maps.newHashMap();
 
-        public EnderInventory getInventory(int id)
+        @Override
+        public EnderInventory getInventory(long id)
         {
             EnderInventory inventory = inventories.get(id);
 
@@ -154,13 +155,13 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
             NBTTagCompound tag = new NBTTagCompound();
             NBTTagList inventories = new NBTTagList();
 
-            for (Map.Entry<Integer, EnderInventory> entry : this.inventories.entrySet())
+            for (Map.Entry<Long, EnderInventory> entry : this.inventories.entrySet())
             {
                 EnderInventory inventory = entry.getValue();
 
                 NBTTagCompound inventoryTag = new NBTTagCompound();
-                inventoryTag.putInt("InventoryId", entry.getKey());
-                inventoryTag.put("InventoryContents", inventory.serializeNBT());
+                inventoryTag.putLong("Key", entry.getKey());
+                inventoryTag.put("Contents", inventory.serializeNBT());
                 inventories.add(inventoryTag);
             }
 
@@ -178,11 +179,11 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
             for (int i = 0; i < nbtTagList.size(); ++i)
             {
                 NBTTagCompound inventoryTag = nbtTagList.getCompound(i);
-                int j = inventoryTag.getInt("InventoryId");
+                long j = inventoryTag.getLong("Key");
 
                 EnderInventory inventory = new EnderInventory(this);
 
-                inventory.deserializeNBT(inventoryTag.getCompound("InventoryContents"));
+                inventory.deserializeNBT(inventoryTag.getCompound("Contents"));
 
                 inventories.put(j, inventory);
             }

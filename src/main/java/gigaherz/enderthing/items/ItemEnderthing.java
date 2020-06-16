@@ -6,6 +6,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -23,14 +25,12 @@ public class ItemEnderthing extends Item
     {
         super(properties);
         this.isPrivate = isPrivate;
-        //setMaxStackSize(16);
-        //setHasSubtypes(true);
-        //setCreativeTab(Enderthing.tabEnderthing);
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
-        Enderthing.addStandardInformation(stack, tooltip, flagIn, isPrivate);
+        Enderthing.Client.addStandardInformation(stack, tooltip, flagIn, isPrivate);
     }
 }

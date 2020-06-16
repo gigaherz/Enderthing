@@ -30,6 +30,7 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.ToolType;
 import net.minecraftforge.event.ForgeEventFactory;
 
 import javax.annotation.Nullable;
@@ -138,7 +139,7 @@ public class BlockEnderKeyChest extends Block
     private void getDrops(NonNullList<ItemStack> drops, @Nullable TileEntity te)
     {
         drops.add(new ItemStack(Blocks.OBSIDIAN, 8));
-        drops.add(Enderthing.getLock(Enderthing.getIdFromTE(te), isPrivate()));
+        drops.add(Enderthing.getLock(Enderthing.getKey(te), isPrivate()));
     }
 
     // Copy of super except it calls a custom getDrops with the TE param, and it supports not breaking itself based on config
@@ -188,6 +189,8 @@ public class BlockEnderKeyChest extends Block
 
         TileEnderKeyChest chest = (TileEnderKeyChest) te;
 
+        // TODO: implement new version
+        /*
         ItemStack heldItem = player.getHeldItem(hand);
         EnumDyeColor color = EnumDyeColor.getColor(heldItem);
         if (side == EnumFacing.UP && color != null
@@ -221,8 +224,8 @@ public class BlockEnderKeyChest extends Block
             z *= 16;
 
             boolean hitSuccess = false;
-            int oldId = chest.getInventoryId();
-            int id = oldId;
+            long oldId = chest.getKey();
+            long id = oldId;
             if (z >= 1 && z <= 8)
             {
                 int color1 = id & 15;
@@ -252,7 +255,7 @@ public class BlockEnderKeyChest extends Block
             {
                 if (!player.isCreative())
                     heldItem.grow(-1);
-                chest.setInventoryId(id);
+                chest.setKey(id);
             }
 
             if (hitSuccess)
@@ -260,9 +263,10 @@ public class BlockEnderKeyChest extends Block
                 return true;
             }
         }
+        */
 
         if (player instanceof EntityPlayerMP)
-            GuiHandler.openKeyGui(pos, (EntityPlayerMP) player, chest.getInventoryId(), isPrivate());
+            GuiHandler.openKeyGui(pos, (EntityPlayerMP) player, chest.getKey(), isPrivate());
 
         return true;
     }
@@ -318,9 +322,12 @@ public class BlockEnderKeyChest extends Block
 
         if (te instanceof TileEnderKeyChest)
         {
-            int id = ((TileEnderKeyChest) te).getInventoryId();
+            long id = ((TileEnderKeyChest) te).getKey();
 
-            return Enderthing.getItem(id, (state.getBlock() instanceof BlockEnderKeyChest) && ((BlockEnderKeyChest)state.getBlock()).isPrivate());
+            return Enderthing.getItem(
+                    (state.getBlock() instanceof BlockEnderKeyChest) && ((BlockEnderKeyChest)state.getBlock()).isPrivate()
+                    ? Enderthing.enderLockPrivate
+                    : Enderthing.enderLock, id);
         }
 
         return new ItemStack(Enderthing.enderKeyChest);
@@ -329,13 +336,11 @@ public class BlockEnderKeyChest extends Block
     public static class AsItem extends ItemBlock
     {
         private final boolean isPrivate;
-        private final boolean isBound;
 
-        public AsItem(Block block, boolean isPrivate, boolean isBound, Item.Properties properties)
+        public AsItem(Block block, boolean isPrivate, Item.Properties properties)
         {
             super(block, properties);
             this.isPrivate = isPrivate;
-            this.isBound = isBound;
         }
 
         @OnlyIn(Dist.CLIENT)
@@ -344,7 +349,7 @@ public class BlockEnderKeyChest extends Block
         {
             tooltip.add(new TextComponentTranslation("tooltip." + Enderthing.MODID + ".ender_key_chest.rightClick").applyTextStyle(TextFormatting.ITALIC));
 
-            Enderthing.addStandardInformation(stack, tooltip, flagIn, isPrivate);
+            Enderthing.Client.addStandardInformation(stack, tooltip, flagIn, isPrivate);
         }
 
         @Override
@@ -353,7 +358,7 @@ public class BlockEnderKeyChest extends Block
             ItemStack itemStackIn = playerIn.getHeldItem(hand);
             if (playerIn.isSneaking())
             {
-                int oldId = Enderthing.getIdFromBlock(itemStackIn);
+                long oldId = Enderthing.getBlockKey(itemStackIn);
 
                 ItemStack oldStack = Enderthing.getLock(oldId, isPrivate());
 

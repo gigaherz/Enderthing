@@ -16,6 +16,8 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -27,6 +29,7 @@ public class ItemEnderKey extends ItemEnderthing
         super(isprivate, properties);
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
@@ -53,7 +56,7 @@ public class ItemEnderKey extends ItemEnderthing
             return EnumActionResult.PASS;
 
         if (player instanceof EntityPlayerMP)
-            GuiHandler.openKeyGui(pos, (EntityPlayerMP) player, Enderthing.getIdFromItem(stack), isPrivate());
+            GuiHandler.openKeyGui(pos, (EntityPlayerMP) player, Enderthing.getKey(stack), isPrivate());
 
         return EnumActionResult.SUCCESS;
     }

@@ -1,14 +1,11 @@
 package gigaherz.enderthing.items;
 
-import com.mojang.realmsclient.gui.ChatFormatting;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.blocks.BlockEnderKeyChest;
 import gigaherz.enderthing.blocks.TileEnderKeyChest;
 import gigaherz.enderthing.storage.InventoryManager;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -19,7 +16,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
@@ -30,7 +26,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.ForgeI18n;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -138,12 +133,12 @@ public class ItemEnderCard extends Item
             return EnumActionResult.PASS;
         }
 
-        int id = 0;
+        long key = 0;
 
         TileEntity te = world.getTileEntity(pos);
         if (te instanceof TileEnderKeyChest)
         {
-            id = ((TileEnderKeyChest) te).getInventoryId();
+            key = ((TileEnderKeyChest) te).getKey();
         }
 
         state = state.with(BlockEnderKeyChest.Private.BOUND, true);
@@ -155,7 +150,7 @@ public class ItemEnderCard extends Item
             UUID uuid = getBoundPlayerUniqueID(stack);
 
             TileEnderKeyChest chest = (TileEnderKeyChest) te;
-            chest.setInventoryId(id);
+            chest.setKey(key);
             chest.bindToPlayer(uuid);
 
             String name = getBoundPlayerCachedName(stack);

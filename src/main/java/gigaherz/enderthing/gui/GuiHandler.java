@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.ResourceLocation;
@@ -24,33 +25,33 @@ public class GuiHandler
     public static final ResourceLocation GUI_KEY_RL = Enderthing.location("gui_key");
     public static final ResourceLocation GUI_PACK_RL = Enderthing.location("gui_pack");
 
-    private static void openEnderGui(int id, EntityPlayerMP playerIn, boolean isPack, boolean priv, int x, int y, int z)
+    private static void openEnderGui(long key, EntityPlayerMP playerIn, boolean isPack, boolean priv, int x, int y, int z)
     {
-        Server svr = new Server(id, isPack, priv, new BlockPos(x,y,z));
+        Server svr = new Server(key, isPack, priv, new BlockPos(x,y,z));
         NetworkHooks.openGui(playerIn, svr, svr::encode);
         playerIn.addStat(StatList.OPEN_ENDERCHEST);
     }
 
-    public static void openKeyGui(BlockPos pos, EntityPlayerMP playerIn, int id, boolean priv)
+    public static void openKeyGui(BlockPos pos, EntityPlayerMP player, long key, boolean priv)
     {
-        openEnderGui(id, playerIn, false, priv, pos.getX(), pos.getY(), pos.getZ());
+        openEnderGui(key, player, false, priv, pos.getX(), pos.getY(), pos.getZ());
     }
 
-    public static void openPackGui(int id, EntityPlayerMP player, boolean isPrivate, int slot)
+    public static void openPackGui(long key, EntityPlayerMP player, boolean isPrivate, int slot)
     {
-        openEnderGui(id, player, true, isPrivate, slot, 0, 0);
+        openEnderGui(key, player, true, isPrivate, slot, 0, 0);
     }
 
     public static class Server implements IInteractionObject
     {
-        private final int id;
+        private final long key;
         private final boolean priv;
         private final BlockPos pos;
         private final boolean isPack;
 
-        public Server(int id, boolean isPack, boolean priv, BlockPos pos)
+        public Server(long key, boolean isPack, boolean priv, BlockPos pos)
         {
-            this.id = id;
+            this.key = key;
             this.isPack = isPack;
             this.priv = priv;
             this.pos = pos;
@@ -59,7 +60,7 @@ public class GuiHandler
         @Override
         public Container createContainer(InventoryPlayer playerInventory, EntityPlayer playerIn)
         {
-            return new ContainerKey(playerInventory, this.id, isPack, priv, playerIn, playerIn.world, this.pos);
+            return new ContainerKey(playerInventory, this.key, isPack, priv, playerIn, playerIn.world, this.pos);
         }
 
         @Override
@@ -89,7 +90,7 @@ public class GuiHandler
 
         public void encode(PacketBuffer packetBuffer)
         {
-            packetBuffer.writeVarInt(id);
+            packetBuffer.writeLong(key);
             packetBuffer.writeBoolean(priv);
             packetBuffer.writeBlockPos(pos);
         }
@@ -105,7 +106,7 @@ public class GuiHandler
                 Minecraft mc = Minecraft.getInstance();
 
                 PacketBuffer data = message.getAdditionalData();
-                int id = data.readVarInt();
+                long id = data.readLong();
                 boolean priv = data.readBoolean();
                 BlockPos pos = data.readBlockPos();
 

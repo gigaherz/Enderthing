@@ -1,7 +1,6 @@
 package gigaherz.enderthing.blocks;
 
 import gigaherz.enderthing.Enderthing;
-import gigaherz.enderthing.network.UpdatePlayersUsing;
 import gigaherz.enderthing.storage.EnderInventory;
 import gigaherz.enderthing.storage.InventoryManager;
 import net.minecraft.block.state.IBlockState;
@@ -13,19 +12,14 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.IChestLid;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -54,7 +48,7 @@ public class TileEnderKeyChest extends TileEntity implements IChestLid, ITickabl
         }
     }
 
-    private int inventoryId;
+    private long key;
 
     private int ticksSinceSync;
 
@@ -68,14 +62,14 @@ public class TileEnderKeyChest extends TileEntity implements IChestLid, ITickabl
         return this.isPrivate;
     }
 
-    public int getInventoryId()
+    public long getKey()
     {
-        return inventoryId;
+        return key;
     }
 
-    public void setInventoryId(int inventoryId)
+    public void setKey(long key)
     {
-        this.inventoryId = inventoryId;
+        this.key = key;
 
         releasePreviousInventory();
         markDirty();
@@ -117,21 +111,21 @@ public class TileEnderKeyChest extends TileEntity implements IChestLid, ITickabl
 
     public boolean hasInventory()
     {
-        return (inventoryId >= 0) && (!isPrivate || isBoundToPlayer());
+        return (key >= 0) && (!isPrivate || isBoundToPlayer());
     }
 
     @Nullable
     public IItemHandlerModifiable getInventory()
     {
-        if (inventoryId < 0)
+        if (key < 0)
             return new ItemStackHandler(0);
 
         if (inventory == null && (!isPrivate || isBoundToPlayer()))
         {
             if (isBoundToPlayer())
-                inventory = InventoryManager.get(world).getPrivate(boundToPlayer).getInventory(inventoryId);
+                inventory = InventoryManager.get(world).getPrivate(boundToPlayer).getInventory(key);
             else
-                inventory = InventoryManager.get(world).getInventory(inventoryId);
+                inventory = InventoryManager.get(world).getInventory(key);
             inventory.addWeakListener(this);
         }
         return inventory;
@@ -141,7 +135,7 @@ public class TileEnderKeyChest extends TileEntity implements IChestLid, ITickabl
     public void read(NBTTagCompound tag)
     {
         super.read(tag);
-        inventoryId = tag.getInt(Enderthing.INVENTORY_ID_KEY);
+        key = tag.getLong("Key");
         boundToPlayer = InventoryManager.uuidFromNBT(tag);
         releasePreviousInventory();
     }
@@ -150,7 +144,7 @@ public class TileEnderKeyChest extends TileEntity implements IChestLid, ITickabl
     public NBTTagCompound write(NBTTagCompound tag)
     {
         tag = super.write(tag);
-        tag.putInt(Enderthing.INVENTORY_ID_KEY, inventoryId);
+        tag.putLong("Key", key);
         if (boundToPlayer != null)
         {
             InventoryManager.uuidToNBT(tag, boundToPlayer);

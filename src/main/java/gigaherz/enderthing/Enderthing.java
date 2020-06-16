@@ -7,38 +7,50 @@ import gigaherz.enderthing.items.ItemEnderCard;
 import gigaherz.enderthing.items.ItemEnderKey;
 import gigaherz.enderthing.items.ItemEnderLock;
 import gigaherz.enderthing.items.ItemEnderPack;
-import gigaherz.enderthing.network.UpdatePlayersUsing;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.*;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.ExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.minecraftforge.registries.ObjectHolder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,8 +59,6 @@ import java.util.UUID;
 public class Enderthing
 {
     public static final String MODID = "enderthing";
-
-    public static final String INVENTORY_ID_KEY = "InventoryId";
 
     @ObjectHolder("enderthing:key_chest")
     public static BlockEnderKeyChest enderKeyChest;
@@ -89,7 +99,7 @@ public class Enderthing
 
     //public static GuiHandler guiHandler = new GuiHandler();
 
-    public static ItemGroup tabEnderthing = new ItemGroup("tabEnderthing")
+    public static ItemGroup tabEnderthing = new ItemGroup("enderthing.things")
     {
         @Override
         public ItemStack createIcon()
@@ -97,15 +107,6 @@ public class Enderthing
             return new ItemStack(enderKey);
         }
     };
-
-    public static final String CHANNEL = MODID;
-    private static final String PROTOCOL_VERSION = "1.0";
-    public static SimpleChannel channel = NetworkRegistry.ChannelBuilder
-            .named(new ResourceLocation(MODID, CHANNEL))
-            .clientAcceptedVersions(PROTOCOL_VERSION::equals)
-            .serverAcceptedVersions(PROTOCOL_VERSION::equals)
-            .networkProtocolVersion(() -> PROTOCOL_VERSION)
-            .simpleChannel();
 
     public static boolean breakChestOnHarvest = true;
 
@@ -115,10 +116,11 @@ public class Enderthing
     {
         instance = this;
 
+        // TODO: Rune dust, rune, rune pattern
+
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Block.class, this::registerBlocks);
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Item.class, this::registerItems);
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(TileEntityType.class, this::registerTileEntities);
-
 
         ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.GUIFACTORY, () -> message -> GuiHandler.Client.getClientGuiElement(message));
     }
@@ -145,9 +147,9 @@ public class Enderthing
     public void registerItems(RegistryEvent.Register<Item> event)
     {
         event.getRegistry().registerAll(
-                new BlockEnderKeyChest.AsItem(enderKeyChest, false, false, new Item.Properties().group(tabEnderthing))
+                new BlockEnderKeyChest.AsItem(enderKeyChest, false, new Item.Properties().group(tabEnderthing))
                         .setRegistryName(enderKeyChest.getRegistryName()),
-                new BlockEnderKeyChest.AsItem(enderKeyChestPrivate, true, false, new Item.Properties().group(tabEnderthing))
+                new BlockEnderKeyChest.AsItem(enderKeyChestPrivate, true, new Item.Properties().group(tabEnderthing))
                         .setRegistryName(enderKeyChestPrivate.getRegistryName()),
 
                 new ItemEnderKey(false, new Item.Properties().group(tabEnderthing)).setRegistryName("key"),
@@ -165,21 +167,6 @@ public class Enderthing
     {
         TileEntityType.register(location("key_chest").toString(), TileEntityType.Builder.create(TileEnderKeyChest::new));
         TileEntityType.register(location("key_chest_private").toString(), TileEntityType.Builder.create(TileEnderKeyChest.Private::new));
-    }
-
-    public void preInit(FMLCommonSetupEvent event)
-    {
-        /*
-        config = new Configuration(event.getSuggestedConfigurationFile());
-        Property breakChest = config.get("Balance", "BreakChestOnHarvest", true);
-        breakChestOnHarvest = breakChest.getBoolean();
-
-        NetworkRegistry.INSTANCE.registerGuiHandler(this, guiHandler);
-        */
-
-        int messageNumber = 0;
-        channel.registerMessage(messageNumber++, UpdatePlayersUsing.class, UpdatePlayersUsing::encode, UpdatePlayersUsing::new, UpdatePlayersUsing::handle);
-        logger.debug("Final message number: " + messageNumber);
     }
 
         /*
@@ -222,24 +209,18 @@ public class Enderthing
         return new ResourceLocation(MODID, path);
     }
 
-    public static int getIdFromItem(ItemStack stack)
+    public static long getItemKey(ItemStack stack)
     {
-        int color1 = 0;
-        int color2 = 0;
-        int color3 = 0;
-
         NBTTagCompound tag = stack.getTag();
         if (tag != null)
         {
-            color1 = tag.getByte("Color1");
-            color2 = tag.getByte("Color2");
-            color3 = tag.getByte("Color3");
+            return tag.getLong("Key");
         }
 
-        return getId(color1, color2, color3);
+        return -1;
     }
 
-    public static int getIdFromBlock(ItemStack stack)
+    public static long getBlockKey(ItemStack stack)
     {
         NBTTagCompound tag = stack.getTag();
         if (tag != null)
@@ -247,118 +228,71 @@ public class Enderthing
             NBTTagCompound etag = tag.getCompound("BlockEntityTag");
             if (etag != null)
             {
-                return etag.getInt("InventoryId");
+                return etag.getLong("InventoryId");
             }
         }
 
         return -1;
     }
 
-    private static int getId(int c1, int c2, int c3)
-    {
-        return c1 | (c2 << 4) | (c3 << 8);
-    }
-
-    public static int getId(ItemStack stack)
+    public static long getKey(ItemStack stack)
     {
         if (stack.getItem() instanceof ItemBlock)
+            return getBlockKey(stack);
+        return getItemKey(stack);
+    }
+
+    public static long getKey(IBlockReader world, BlockPos pos)
+    {
+        TileEntity te = world.getTileEntity(pos);
+
+        if (te instanceof TileEnderKeyChest)
         {
-            return getIdFromBlock(stack);
+            return ((TileEnderKeyChest) te).getKey();
         }
 
-        return getIdFromItem(stack);
+        return -1;
     }
 
-    public static ItemStack getItem(Item item, int c1, int c2, int c3, boolean priv)
+    public static long getKey(TileEntity te)
     {
-        if (item instanceof ItemBlock)
+        if (te instanceof TileEnderKeyChest)
         {
-            return getItem(getId(c1, c2, c3), priv);
+            return ((TileEnderKeyChest) te).getKey();
         }
 
-        ItemStack key = new ItemStack(item, 1);
-
-        NBTTagCompound tag = new NBTTagCompound();
-        tag.putBoolean("Private", priv);
-        tag.putByte("Color1", (byte) c1);
-        tag.putByte("Color2", (byte) c2);
-        tag.putByte("Color3", (byte) c3);
-
-        key.setTag(tag);
-
-        return key;
+        return -1;
     }
 
-    public static ItemStack getLock(int id, boolean priv)
+    public static ItemStack getItem(IItemProvider itemProvider, long key)
     {
-        int c1 = id & 15;
-        int c2 = (id >> 4) & 15;
-        int c3 = (id >> 8) & 15;
-
-        return getItem(enderLock, c1, c2, c3, priv);
-    }
-
-    public static ItemStack getItem(int id, boolean priv)
-    {
-        ItemStack stack = new ItemStack(enderKeyChest, 1);
+        ItemStack stack = new ItemStack(itemProvider, 1);
 
         NBTTagCompound tag = new NBTTagCompound();
-        NBTTagCompound etag = new NBTTagCompound();
-        etag.putInt(INVENTORY_ID_KEY, id);
-        etag.putBoolean("Private", priv);
-        tag.put("BlockEntityTag", etag);
+        tag.putLong("Key", key);
 
         stack.setTag(tag);
 
         return stack;
     }
 
-    public static int getIdFromBlock(IBlockReader world, BlockPos pos)
+    public static ItemStack getLock(long key, boolean priv)
     {
-        TileEntity te = world.getTileEntity(pos);
-
-        if (te instanceof TileEnderKeyChest)
-        {
-            return ((TileEnderKeyChest) te).getInventoryId();
-        }
-
-        return -1;
+        return getItem(priv ? enderLockPrivate : enderLock, key);
     }
 
-    public static int getIdFromTE(TileEntity te)
+    public static ItemStack getBlockItem(long id, boolean priv)
     {
-        if (te instanceof TileEnderKeyChest)
-        {
-            return ((TileEnderKeyChest) te).getInventoryId();
-        }
+        ItemStack stack = new ItemStack(priv ? enderKeyChestPrivate : enderKeyChest, 1);
 
-        return -1;
-    }
+        NBTTagCompound tag = new NBTTagCompound();
+        NBTTagCompound etag = new NBTTagCompound();
+        etag.putLong("Key", id);
+        tag.put("BlockEntityTag", etag);
 
-    public static void addStandardInformation(ItemStack stack, List<ITextComponent> tooltip, ITooltipFlag flag, boolean isPrivate)
-    {
-        if (isPrivate)
-        {
-            tooltip.add(new TextComponentTranslation("tooltip." + Enderthing.MODID + ".private").applyTextStyle(TextFormatting.BOLD));
-        }
+        stack.setTag(tag);
 
-        int id = Enderthing.getId(stack);
-
-        if (id < 0)
-        {
-            tooltip.add(new TextComponentTranslation("tooltip." + Enderthing.MODID + ".colorMissing").applyTextStyle(TextFormatting.ITALIC));
-            return;
-        }
-
-        int color1 = id & 15;
-        int color2 = (id >> 4) & 15;
-        int color3 = (id >> 8) & 15;
-
-        EnumDyeColor c1 = EnumDyeColor.byId(color1);
-        EnumDyeColor c2 = EnumDyeColor.byId(color2);
-        EnumDyeColor c3 = EnumDyeColor.byId(color3);
-
-        tooltip.add(new TextComponentTranslation("tooltip." + Enderthing.MODID + ".colors", c1.getName(), c2.getName(), c3.getName()));
+        return stack;
     }
 
     @Nullable
@@ -374,6 +308,28 @@ public class Enderthing
         if (player != null)
             return player.getName().getString();
         return null;
+    }
+
+    public static class Client
+    {
+        public static void addStandardInformation(ItemStack stack, List<ITextComponent> tooltip, ITooltipFlag flag, boolean isPrivate)
+        {
+            if (isPrivate)
+            {
+                tooltip.add(new TextComponentTranslation("tooltip." + Enderthing.MODID + ".private").applyTextStyle(TextFormatting.BOLD));
+            }
+
+            long key = Enderthing.getKey(stack);
+
+            if (key < 0)
+            {
+                tooltip.add(new TextComponentTranslation("tooltip." + Enderthing.MODID + ".colorMissing").applyTextStyle(TextFormatting.ITALIC));
+                return;
+            }
+
+            //tooltip.add(new TextComponentTranslation("tooltip." + Enderthing.MODID + ".password", words));
+        }
+
     }
 }
 

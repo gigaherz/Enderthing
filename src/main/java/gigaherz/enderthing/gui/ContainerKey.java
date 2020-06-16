@@ -24,7 +24,7 @@ public class ContainerKey extends Container
     private World world;
     private BlockPos pos;
 
-    public ContainerKey(InventoryPlayer playerInventory, int id, boolean isPack, boolean isPriv, EntityPlayer player, World world, BlockPos pos)
+    public ContainerKey(InventoryPlayer playerInventory, long key, boolean isPack, boolean isPriv, EntityPlayer player, World world, BlockPos pos)
     {
 
         int lockedSlot = -1;
@@ -62,7 +62,7 @@ public class ContainerKey extends Container
                 InventoryManager.get(world).getPrivate(bound) :
                 InventoryManager.get(world);
 
-        IItemHandler inventory = mgr.getInventory(id);
+        IItemHandler inventory = mgr.getInventory(key);
 
         for (int j = 0; j < 3; ++j)
         {

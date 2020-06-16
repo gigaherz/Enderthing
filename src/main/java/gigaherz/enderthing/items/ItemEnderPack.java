@@ -14,6 +14,8 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -26,6 +28,7 @@ public class ItemEnderPack extends ItemEnderthing
         //setMaxStackSize(1);
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
@@ -44,7 +47,7 @@ public class ItemEnderPack extends ItemEnderthing
         if (world.isRemote)
             return EnumActionResult.SUCCESS;
 
-        openPackGui(world, player, stack);
+        openPackGui(player, stack);
 
         return EnumActionResult.SUCCESS;
     }
@@ -57,16 +60,16 @@ public class ItemEnderPack extends ItemEnderthing
         if (worldIn.isRemote)
             return ActionResult.newResult(EnumActionResult.SUCCESS, stack);
 
-        openPackGui(worldIn, playerIn, stack);
+        openPackGui(playerIn, stack);
 
         return ActionResult.newResult(EnumActionResult.SUCCESS, stack);
     }
 
-    public void openPackGui(World worldIn, EntityPlayer playerIn, ItemStack stack)
+    public void openPackGui(EntityPlayer playerIn, ItemStack stack)
     {
         if (playerIn instanceof EntityPlayerMP)
         {
-            GuiHandler.openPackGui(Enderthing.getIdFromItem(stack),
+            GuiHandler.openPackGui(Enderthing.getKey(stack),
                     (EntityPlayerMP) playerIn,
                     isPrivate(),
                     playerIn.inventory.currentItem);
