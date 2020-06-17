@@ -3,18 +3,18 @@ package gigaherz.enderthing.blocks;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.storage.EnderInventory;
 import gigaherz.enderthing.storage.InventoryManager;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.block.Blocks;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.util.SoundEvents;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.IChestLid;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
+import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -28,18 +28,18 @@ import net.minecraftforge.items.ItemStackHandler;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class TileEnderKeyChest extends TileEntity implements IChestLid, ITickable
+public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, ITickableTileEntity
 {
-    protected TileEnderKeyChest(TileEntityType<?> tileEntityTypeIn)
+    protected EnderKeyChestTileEntity(TileEntityType<?> tileEntityTypeIn)
     {
         super(tileEntityTypeIn);
     }
-    public TileEnderKeyChest()
+    public EnderKeyChestTileEntity()
     {
         super(Enderthing.tileKeyChest);
     }
 
-    public static class Private extends TileEnderKeyChest
+    public static class Private extends EnderKeyChestTileEntity
     {
         public Private()
         {
@@ -48,7 +48,7 @@ public class TileEnderKeyChest extends TileEntity implements IChestLid, ITickabl
         }
     }
 
-    private long key;
+    private long key = -1;
 
     private int ticksSinceSync;
 
@@ -74,7 +74,7 @@ public class TileEnderKeyChest extends TileEntity implements IChestLid, ITickabl
         releasePreviousInventory();
         markDirty();
 
-        IBlockState state = world.getBlockState(pos);
+        BlockState state = world.getBlockState(pos);
         world.notifyBlockUpdate(pos, state, state, 3);
     }
 
@@ -91,7 +91,7 @@ public class TileEnderKeyChest extends TileEntity implements IChestLid, ITickabl
         releasePreviousInventory();
         markDirty();
 
-        IBlockState state = world.getBlockState(pos);
+        BlockState state = world.getBlockState(pos);
         world.notifyBlockUpdate(pos, state, state, 3);
     }
 
@@ -132,7 +132,7 @@ public class TileEnderKeyChest extends TileEntity implements IChestLid, ITickabl
     }
 
     @Override
-    public void read(NBTTagCompound tag)
+    public void read(CompoundNBT tag)
     {
         super.read(tag);
         key = tag.getLong("Key");
@@ -141,7 +141,7 @@ public class TileEnderKeyChest extends TileEntity implements IChestLid, ITickabl
     }
 
     @Override
-    public NBTTagCompound write(NBTTagCompound tag)
+    public CompoundNBT write(CompoundNBT tag)
     {
         tag = super.write(tag);
         tag.putLong("Key", key);
@@ -155,7 +155,7 @@ public class TileEnderKeyChest extends TileEntity implements IChestLid, ITickabl
     private LazyOptional<IItemHandler> inventoryLazy = LazyOptional.of(this::getInventory);
 
     @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable EnumFacing facing)
+    public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing)
     {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
             return inventoryLazy.cast();
@@ -163,30 +163,30 @@ public class TileEnderKeyChest extends TileEntity implements IChestLid, ITickabl
     }
 
     @Override
-    public NBTTagCompound getUpdateTag()
+    public CompoundNBT getUpdateTag()
     {
-        return write(new NBTTagCompound());
+        return write(new CompoundNBT());
     }
 
     @Override
-    public void handleUpdateTag(NBTTagCompound tag)
+    public void handleUpdateTag(CompoundNBT tag)
     {
         read(tag);
     }
 
     @Override
-    public SPacketUpdateTileEntity getUpdatePacket()
+    public SUpdateTileEntityPacket getUpdatePacket()
     {
-        return new SPacketUpdateTileEntity(this.pos, 0, getUpdateTag());
+        return new SUpdateTileEntityPacket(this.pos, 0, getUpdateTag());
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
+    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet)
     {
         super.onDataPacket(net, packet);
         handleUpdateTag(packet.getNbtCompound());
 
-        IBlockState state = world.getBlockState(pos);
+        BlockState state = world.getBlockState(pos);
         world.notifyBlockUpdate(pos, state, state, 3);
     }
 
@@ -293,7 +293,7 @@ public class TileEnderKeyChest extends TileEntity implements IChestLid, ITickabl
         this.world.addBlockEvent(this.pos, Blocks.ENDER_CHEST, 1, this.numPlayersUsing);
     }
 
-    public boolean canBeUsed(EntityPlayer player) {
+    public boolean canBeUsed(PlayerEntity player) {
         if (this.world.getTileEntity(this.pos) != this) {
             return false;
         } else {

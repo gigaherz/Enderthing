@@ -11,7 +11,6 @@
     "item.enderthing.ender_card": "Tarjeta de Seguridad",
     "itemGroup.tabEnderthing": "Enderthing... Cosas",
 
-    "tooltip.enderthing.colorMissing": "El color se depende de las lanas que se usa.",
     "tooltip.enderthing.colors": "Colores: %s, %s, %s",
     "tooltip.enderthing.private": "Privado",
 

@@ -1,7 +1,7 @@
 package gigaherz.enderthing.storage;
 
 import com.google.common.collect.Lists;
-import gigaherz.enderthing.blocks.TileEnderKeyChest;
+import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.items.ItemStackHandler;
 
@@ -17,15 +17,15 @@ public class EnderInventory extends ItemStackHandler
 
     private final IInventoryManager manager;
 
-    private final List<Reference<? extends TileEnderKeyChest>> listeners = Lists.newArrayList();
-    private final ReferenceQueue<TileEnderKeyChest> deadListeners = new ReferenceQueue<>();
+    private final List<Reference<? extends EnderKeyChestTileEntity>> listeners = Lists.newArrayList();
+    private final ReferenceQueue<EnderKeyChestTileEntity> deadListeners = new ReferenceQueue<>();
 
-    public void addWeakListener(TileEnderKeyChest e)
+    public void addWeakListener(EnderKeyChestTileEntity e)
     {
         listeners.add(new WeakReference<>(e, deadListeners));
     }
 
-    public void removeWeakListener(TileEnderKeyChest e)
+    public void removeWeakListener(EnderKeyChestTileEntity e)
     {
         listeners.remove(e);
     }
@@ -35,7 +35,7 @@ public class EnderInventory extends ItemStackHandler
     {
         super.onContentsChanged(slot);
 
-        for (Reference<? extends TileEnderKeyChest>
+        for (Reference<? extends EnderKeyChestTileEntity>
              ref = deadListeners.poll();
              ref != null;
              ref = deadListeners.poll())
@@ -43,10 +43,10 @@ public class EnderInventory extends ItemStackHandler
             listeners.remove(ref);
         }
 
-        List<TileEnderKeyChest> dirty = Lists.newArrayList();
-        for (Iterator<Reference<? extends TileEnderKeyChest>> it = listeners.iterator(); it.hasNext(); )
+        List<EnderKeyChestTileEntity> dirty = Lists.newArrayList();
+        for (Iterator<Reference<? extends EnderKeyChestTileEntity>> it = listeners.iterator(); it.hasNext(); )
         {
-            TileEnderKeyChest te = it.next().get();
+            EnderKeyChestTileEntity te = it.next().get();
             if (te == null || te.isRemoved())
             {
                 it.remove();

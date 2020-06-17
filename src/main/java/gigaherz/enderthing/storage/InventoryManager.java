@@ -1,49 +1,43 @@
 package gigaherz.enderthing.storage;
 
 import com.google.common.collect.Maps;
-import gigaherz.enderthing.Enderthing;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.DimensionSavedDataManager;
 import net.minecraft.world.storage.WorldSavedData;
-import net.minecraft.world.storage.WorldSavedDataStorage;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 
-import java.util.HashMap;
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
 public class InventoryManager extends WorldSavedData implements IInventoryManager
 {
-    private static final String StorageKey = Enderthing.MODID + "_InventoryStorageManager";
+    private static final String DATA_NAME = "enderthing_InventoryStorageManager";
 
     private Container global = new Container();
     private Map<UUID, Container> perPlayer = Maps.newHashMap();
 
     public InventoryManager()
     {
-        super(StorageKey);
-    }
-
-    public InventoryManager(String s)
-    {
-        super(s);
+        super(DATA_NAME);
     }
 
     public static InventoryManager get(World world)
     {
-        WorldSavedDataStorage storage = world.getSavedDataStorage();
-        InventoryManager instance = storage.get(DimensionType.OVERWORLD, InventoryManager::new, StorageKey);
-        if (instance == null)
+        if (!(world instanceof ServerWorld))
         {
-            instance = new InventoryManager();
-            storage.set(DimensionType.OVERWORLD, StorageKey, instance);
+            throw new RuntimeException("Attempted to get the data from a client world. This is wrong.");
         }
 
-        return instance;
+        ServerWorld overworld = world.getServer().getWorld(DimensionType.OVERWORLD);
+
+        DimensionSavedDataManager storage = overworld.getSavedData();
+        return storage.getOrCreate(InventoryManager::new, DATA_NAME);
     }
 
     @Override
@@ -71,19 +65,19 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
     }
 
     @Override
-    public void read(NBTTagCompound nbt)
+    public void read(CompoundNBT nbt)
     {
         global.deserializeNBT(nbt);
 
         if (nbt.contains("Private", Constants.NBT.TAG_LIST))
         {
-            NBTTagList list = nbt.getList("Private", Constants.NBT.TAG_COMPOUND);
+            ListNBT list = nbt.getList("Private", Constants.NBT.TAG_COMPOUND);
 
             perPlayer.clear();
 
             for (int i = 0; i < list.size(); ++i)
             {
-                NBTTagCompound containerTag = list.getCompound(i);
+                CompoundNBT containerTag = list.getCompound(i);
                 UUID uuid = uuidFromNBT(containerTag);
 
                 Container container = new Container();
@@ -95,16 +89,16 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
     }
 
     @Override
-    public NBTTagCompound write(NBTTagCompound compound)
+    public CompoundNBT write(CompoundNBT compound)
     {
-        NBTTagCompound temp = global.serializeNBT();
+        CompoundNBT temp = global.serializeNBT();
 
         compound.put("Inventories", temp.get("Inventories"));
 
-        NBTTagList list = new NBTTagList();
+        ListNBT list = new ListNBT();
         for (Map.Entry<UUID, Container> e : perPlayer.entrySet())
         {
-            NBTTagCompound tag = e.getValue().serializeNBT();
+            CompoundNBT tag = e.getValue().serializeNBT();
             uuidToNBT(tag, e.getKey());
             list.add(tag);
         }
@@ -114,15 +108,17 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
         return compound;
     }
 
-    public static void uuidToNBT(NBTTagCompound tag, UUID uuid)
+    public static void uuidToNBT(CompoundNBT tag, UUID uuid)
     {
         tag.putLong("PlayerUUID0", uuid.getLeastSignificantBits());
         tag.putLong("PlayerUUID1", uuid.getMostSignificantBits());
     }
 
-    public static UUID uuidFromNBT(NBTTagCompound tag)
+    @Nullable
+    public static UUID uuidFromNBT(CompoundNBT tag)
     {
-        if (!tag.contains("PlayerUUID0", Constants.NBT.TAG_LONG))
+        if (!tag.contains("PlayerUUID0", Constants.NBT.TAG_LONG) ||
+                !tag.contains("PlayerUUID1", Constants.NBT.TAG_LONG))
             return null;
 
         long uuid0 = tag.getLong("PlayerUUID0");
@@ -131,7 +127,7 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
         return new UUID(uuid1, uuid0);
     }
 
-    private class Container implements INBTSerializable<NBTTagCompound>, IInventoryManager
+    private class Container implements INBTSerializable<CompoundNBT>, IInventoryManager
     {
         private Map<Long, EnderInventory> inventories = Maps.newHashMap();
 
@@ -150,16 +146,16 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
         }
 
         @Override
-        public NBTTagCompound serializeNBT()
+        public CompoundNBT serializeNBT()
         {
-            NBTTagCompound tag = new NBTTagCompound();
-            NBTTagList inventories = new NBTTagList();
+            CompoundNBT tag = new CompoundNBT();
+            ListNBT inventories = new ListNBT();
 
             for (Map.Entry<Long, EnderInventory> entry : this.inventories.entrySet())
             {
                 EnderInventory inventory = entry.getValue();
 
-                NBTTagCompound inventoryTag = new NBTTagCompound();
+                CompoundNBT inventoryTag = new CompoundNBT();
                 inventoryTag.putLong("Key", entry.getKey());
                 inventoryTag.put("Contents", inventory.serializeNBT());
                 inventories.add(inventoryTag);
@@ -170,15 +166,15 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
         }
 
         @Override
-        public void deserializeNBT(NBTTagCompound nbt)
+        public void deserializeNBT(CompoundNBT nbt)
         {
-            NBTTagList nbtTagList = nbt.getList("Inventories", Constants.NBT.TAG_COMPOUND);
+            ListNBT nbtTagList = nbt.getList("Inventories", Constants.NBT.TAG_COMPOUND);
 
             inventories.clear();
 
             for (int i = 0; i < nbtTagList.size(); ++i)
             {
-                NBTTagCompound inventoryTag = nbtTagList.getCompound(i);
+                CompoundNBT inventoryTag = nbtTagList.getCompound(i);
                 long j = inventoryTag.getLong("Key");
 
                 EnderInventory inventory = new EnderInventory(this);

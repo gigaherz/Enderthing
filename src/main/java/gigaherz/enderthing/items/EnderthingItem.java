@@ -12,7 +12,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class ItemEnderthing extends Item
+public class EnderthingItem extends Item
 {
     private final boolean isPrivate;
 
@@ -21,7 +21,7 @@ public class ItemEnderthing extends Item
         return isPrivate;
     }
 
-    public ItemEnderthing(boolean isPrivate, Properties properties)
+    public EnderthingItem(boolean isPrivate, Properties properties)
     {
         super(properties);
         this.isPrivate = isPrivate;
@@ -31,6 +31,6 @@ public class ItemEnderthing extends Item
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
-        Enderthing.Client.addStandardInformation(stack, tooltip, flagIn, isPrivate);
+        Enderthing.Client.addStandardInformation(stack, tooltip);
     }
 }

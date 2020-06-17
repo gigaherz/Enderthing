@@ -1,12 +1,5 @@
 package gigaherz.enderthing.recipes;
 
-import gigaherz.enderthing.Enderthing;
-import net.minecraft.block.Block;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.EnumDyeColor;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-
 /*
 public class ChangeColorsRecipe extends ShapedOreRecipe
 {
