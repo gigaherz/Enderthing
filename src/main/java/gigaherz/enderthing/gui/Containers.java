@@ -5,6 +5,7 @@ import gigaherz.enderthing.util.ILongAccessor;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.IContainerProvider;
 import net.minecraft.inventory.container.SimpleNamedContainerProvider;
+import net.minecraft.item.ItemStack;
 import net.minecraft.stats.Stats;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.text.ITextComponent;
@@ -44,11 +45,14 @@ public class Containers
         player.addStat(Stats.OPEN_ENDERCHEST);
     }
 
-    public static void openPasscodeScreen(ServerPlayerEntity player, ILongAccessor code)
+    public static void openPasscodeScreen(ServerPlayerEntity player, ILongAccessor code, ItemStack previewBase)
     {
         NetworkHooks.openGui(player, new SimpleNamedContainerProvider(
-                (id, inv, p) -> new PasscodeContainer(id, inv, code),
+                (id, inv, p) -> new PasscodeContainer(id, inv, code, previewBase),
                 new TranslationTextComponent(CODE_TITLE)
-        ), packet -> packet.writeLong(code.get()));
+        ), packet -> {
+            packet.writeLong(code.get());
+            packet.writeItemStack(previewBase);
+        });
     }
 }

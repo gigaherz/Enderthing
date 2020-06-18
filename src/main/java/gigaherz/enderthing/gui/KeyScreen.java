@@ -13,6 +13,7 @@ public class KeyScreen extends ContainerScreen<KeyContainer>
     public KeyScreen(KeyContainer container, PlayerInventory playerInventory, ITextComponent title)
     {
         super(container, playerInventory, title);
+        this.ySize = 168;
     }
 
     @Override

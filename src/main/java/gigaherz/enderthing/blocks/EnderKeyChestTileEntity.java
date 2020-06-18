@@ -1,21 +1,20 @@
 package gigaherz.enderthing.blocks;
 
-import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.storage.EnderInventory;
 import gigaherz.enderthing.storage.InventoryManager;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.block.Blocks;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.IChestLid;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
@@ -24,27 +23,39 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.registries.ObjectHolder;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
 public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, ITickableTileEntity
 {
+    @ObjectHolder("enderthing:key_chest")
+    public static TileEntityType<EnderKeyChestTileEntity> PUBLIC;
+    @ObjectHolder("enderthing:key_chest_private")
+    public static TileEntityType<EnderKeyChestTileEntity.Private> PRIVATE;
+
     protected EnderKeyChestTileEntity(TileEntityType<?> tileEntityTypeIn)
     {
         super(tileEntityTypeIn);
     }
     public EnderKeyChestTileEntity()
     {
-        super(Enderthing.tileKeyChest);
+        super(PUBLIC);
     }
 
     public static class Private extends EnderKeyChestTileEntity
     {
         public Private()
         {
-            super(Enderthing.tileKeyChestPrivate);
-            isPrivate = true;
+            super(PRIVATE);
+        }
+
+        @Override
+        public boolean isPrivate()
+        {
+            return true;
         }
     }
 
@@ -52,14 +63,13 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
 
     private int ticksSinceSync;
 
-    protected boolean isPrivate;
     private UUID boundToPlayer;
 
     private EnderInventory inventory;
 
     public boolean isPrivate()
     {
-        return this.isPrivate;
+        return false;
     }
 
     public long getKey()
@@ -111,16 +121,16 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
 
     public boolean hasInventory()
     {
-        return (key >= 0) && (!isPrivate || isBoundToPlayer());
+        return (key >= 0) && (!isPrivate() || isBoundToPlayer());
     }
 
-    @Nullable
+    @Nonnull
     public IItemHandlerModifiable getInventory()
     {
         if (key < 0)
             return new ItemStackHandler(0);
 
-        if (inventory == null && (!isPrivate || isBoundToPlayer()))
+        if (inventory == null && (!isPrivate() || isBoundToPlayer()))
         {
             if (isBoundToPlayer())
                 inventory = InventoryManager.get(world).getPrivate(boundToPlayer).getInventory(key);
@@ -136,7 +146,7 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
     {
         super.read(tag);
         key = tag.getLong("Key");
-        boundToPlayer = InventoryManager.uuidFromNBT(tag);
+        if (isPrivate()) boundToPlayer = InventoryManager.uuidFromNBT(tag);
         releasePreviousInventory();
     }
 
@@ -145,14 +155,14 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
     {
         tag = super.write(tag);
         tag.putLong("Key", key);
-        if (boundToPlayer != null)
+        if (isPrivate() && boundToPlayer != null)
         {
             InventoryManager.uuidToNBT(tag, boundToPlayer);
         }
         return tag;
     }
 
-    private LazyOptional<IItemHandler> inventoryLazy = LazyOptional.of(this::getInventory);
+    private final LazyOptional<IItemHandler> inventoryLazy = LazyOptional.of(this::getInventory);
 
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing)
@@ -203,7 +213,6 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
         {
             if (!world.isRemote)
             {
-
                 //new NetworkRegistry.TargetPoint(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 64)
                 //Enderthing.channel.sendTo(new UpdatePlayersUsing(pos, 1, numPlayersUsing), nethandler, NetworkDirection.PLAY_TO_CLIENT);
             }

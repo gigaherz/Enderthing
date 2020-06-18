@@ -109,7 +109,7 @@ public class EnderCardItem extends Item
         {
             bindToPlayer(itemStackIn, playerIn);
 
-            playerIn.sendMessage(new TranslationTextComponent("text." + Enderthing.MODID + ".ender_card.bound"));
+            playerIn.sendMessage(new TranslationTextComponent("text.enderthing.ender_card.bound"));
 
             return ActionResult.newResult(ActionResultType.SUCCESS, itemStackIn);
         }
@@ -157,10 +157,10 @@ public class EnderCardItem extends Item
             String name = getBoundPlayerCachedName(stack);
 
             if (name == null || name.length() == 0)
-                player.sendMessage(new TranslationTextComponent("text." + Enderthing.MODID + ".ender_chest.bound1",
+                player.sendMessage(new TranslationTextComponent("text.enderthing.ender_chest.bound1",
                         new StringTextComponent(uuid.toString())));
             else
-                player.sendMessage(new TranslationTextComponent("text." + Enderthing.MODID + ".ender_chest.bound2",
+                player.sendMessage(new TranslationTextComponent("text.enderthing.ender_chest.bound2",
                         new StringTextComponent(uuid.toString()),
                         new StringTextComponent(name)));
         }
@@ -190,14 +190,14 @@ public class EnderCardItem extends Item
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
-        tooltip.add(new TranslationTextComponent("tooltip." + Enderthing.MODID + ".ender_card.right_click1").applyTextStyle(TextFormatting.ITALIC));
-        tooltip.add(new TranslationTextComponent("tooltip." + Enderthing.MODID + ".ender_card.right_click2").applyTextStyle(TextFormatting.ITALIC));
+        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.right_click1").applyTextStyle(TextFormatting.ITALIC));
+        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.right_click2").applyTextStyle(TextFormatting.ITALIC));
 
         UUID uuid = getBoundPlayerUniqueID(stack);
 
         if (uuid == null)
         {
-            tooltip.add(new TranslationTextComponent("tooltip." + Enderthing.MODID + ".ender_card.unbound"));
+            tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.unbound"));
             return;
         }
 
@@ -212,8 +212,8 @@ public class EnderCardItem extends Item
         }
 
         if (name == null || name.length() == 0)
-            tooltip.add(new TranslationTextComponent("tooltip." + Enderthing.MODID + ".ender_card.bound1", uuidText));
+            tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.bound1", uuidText));
         else
-            tooltip.add(new TranslationTextComponent("tooltip." + Enderthing.MODID + ".ender_card.bound2", uuidText, name));
+            tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.bound2", uuidText, name));
     }
 }

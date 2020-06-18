@@ -13,9 +13,9 @@
     }
   },
   "textures": {
-    "layer0": "enderthing:items/key_base",
-    "layer1": "enderthing:items/key_layer1",
-    "layer2": "enderthing:items/key_layer2",
-    "layer3": "enderthing:items/key_layer3"
+    "layer0": "enderthing:item/key_base",
+    "layer1": "enderthing:item/key_layer1",
+    "layer2": "enderthing:item/key_layer2",
+    "layer3": "enderthing:item/key_layer3"
   }
 }

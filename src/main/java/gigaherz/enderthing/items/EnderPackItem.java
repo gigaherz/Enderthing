@@ -34,7 +34,7 @@ public class EnderPackItem extends EnderthingItem
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
-        tooltip.add(new TranslationTextComponent("tooltip." + Enderthing.MODID + ".ender_pack.right_click").applyTextStyle(TextFormatting.ITALIC));
+        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_pack.right_click").applyTextStyle(TextFormatting.ITALIC));
 
         super.addInformation(stack, worldIn, tooltip, flagIn);
     }
@@ -104,7 +104,7 @@ public class EnderPackItem extends EnderthingItem
             {
                 KeyUtils.setKey(stack, value);
             }
-        });
+        }, stack.copy());
     }
 
     public void openPackGui(PlayerEntity playerIn, long id)

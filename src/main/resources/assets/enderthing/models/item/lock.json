@@ -1,9 +1,9 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "enderthing:items/lock_base",
-    "layer1": "enderthing:items/lock_layer1",
-    "layer2": "enderthing:items/lock_layer2",
-    "layer3": "enderthing:items/lock_layer3"
+    "layer0": "enderthing:item/lock_base",
+    "layer1": "enderthing:item/lock_layer1",
+    "layer2": "enderthing:item/lock_layer2",
+    "layer3": "enderthing:item/lock_layer3"
   }
 }

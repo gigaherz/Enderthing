@@ -14,6 +14,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
@@ -49,9 +50,9 @@ public class KeyUtils
         if (tag != null)
         {
             CompoundNBT etag = tag.getCompound("BlockEntityTag");
-            if (etag != null)
+            if (etag != null && etag.contains("Key", Constants.NBT.TAG_LONG))
             {
-                return etag.getLong("InventoryId");
+                return etag.getLong("Key");
             }
         }
 
@@ -60,7 +61,7 @@ public class KeyUtils
 
     public static void setBlockKey(ItemStack stack, long key)
     {
-        stack.getOrCreateChildTag("BlockEntityTag").putLong("InventoryId", key);
+        stack.getOrCreateChildTag("BlockEntityTag").putLong("Key", key);
     }
 
     public static long getKey(ItemStack stack)
@@ -105,6 +106,14 @@ public class KeyUtils
         return getItem(priv ? Enderthing.enderLockPrivate : Enderthing.enderLock, key);
     }
 
+    public static ItemStack getLock(long key, boolean priv, @Nullable UUID bound)
+    {
+        ItemStack stack = getItem(priv ? Enderthing.enderLockPrivate : Enderthing.enderLock, key);
+        if (bound != null)
+            stack.getOrCreateTag().putString("Bound", bound.toString());
+        return stack;
+    }
+
     public static ItemStack getBlockItem(long id, boolean priv)
     {
         ItemStack stack = new ItemStack(priv ? Enderthing.enderKeyChestPrivate : Enderthing.enderKeyChest, 1);
@@ -137,7 +146,7 @@ public class KeyUtils
     public static long getKeyFromPasscode(String passcode)
     {
         if (Strings.isNullOrEmpty(passcode))
-            return 0;
+            return -1;
 
         if (!passcode.startsWith("-"))
         {
@@ -166,22 +175,20 @@ public class KeyUtils
     public static long getKeyFromPasscode(List<ItemStack> passcode)
     {
         if (passcode.size() == 0)
-            return 0;
+            return -1;
 
         try
         {
             MessageDigest md = MessageDigest.getInstance("MD5");
             for(ItemStack st : passcode)
             {
-                CompoundNBT tag = new CompoundNBT();
-                st.write(tag);
-                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                CompressedStreamTools.write(tag, new DataOutputStream(bytes));
-                md.update(bytes.toByteArray());
+                md.update(st.getItem().getRegistryName().toString().getBytes());
+                if (st.hasDisplayName())
+                    md.update(st.getDisplayName().getUnformattedComponentText().getBytes());
             }
             return Longs.fromByteArray(md.digest())&0x7fffffffffffffffL;
         }
-        catch (NoSuchAlgorithmException | IOException e)
+        catch (NoSuchAlgorithmException e)
         {
             throw new RuntimeException(e);
         }

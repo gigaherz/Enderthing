@@ -1,6 +1,5 @@
 package gigaherz.enderthing;
 
-import com.google.common.primitives.Longs;
 import gigaherz.enderthing.blocks.EnderKeyChestBlock;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
 import gigaherz.enderthing.gui.KeyContainer;
@@ -11,51 +10,34 @@ import gigaherz.enderthing.items.EnderCardItem;
 import gigaherz.enderthing.items.EnderKeyItem;
 import gigaherz.enderthing.items.EnderLockItem;
 import gigaherz.enderthing.items.EnderPackItem;
-import joptsimple.internal.Strings;
+import gigaherz.enderthing.network.SetItemKey;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.PlayerList;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.IBlockReader;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
 import net.minecraftforge.registries.ObjectHolder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.annotation.Nullable;
-import javax.xml.bind.DatatypeConverter;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.UUID;
 
 @Mod.EventBusSubscriber
 @Mod(Enderthing.MODID)
@@ -90,14 +72,7 @@ public class Enderthing
     @ObjectHolder("enderthing:card")
     public static EnderCardItem enderCard;
 
-    @ObjectHolder("enderthing:key_chest")
-    public static TileEntityType<EnderKeyChestTileEntity> tileKeyChest;
-    @ObjectHolder("enderthing:key_chest_private")
-    public static TileEntityType<EnderKeyChestTileEntity.Private> tileKeyChestPrivate;
-
     public static Enderthing instance;
-
-    //public static GuiHandler guiHandler = new GuiHandler();
 
     public static ItemGroup tabEnderthing = new ItemGroup("enderthing.things")
     {
@@ -110,7 +85,15 @@ public class Enderthing
 
     public static boolean breakChestOnHarvest = true;
 
-    public static final Logger logger = LogManager.getLogger(MODID);
+    public static final Logger LOGGER = LogManager.getLogger(MODID);
+
+    private static final String PROTOCOL_VERSION = "1.0";
+    public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
+            .named(new ResourceLocation(MODID, "main"))
+            .clientAcceptedVersions(PROTOCOL_VERSION::equals)
+            .serverAcceptedVersions(PROTOCOL_VERSION::equals)
+            .networkProtocolVersion(() -> PROTOCOL_VERSION)
+            .simpleChannel();
 
     public Enderthing()
     {
@@ -123,6 +106,7 @@ public class Enderthing
         modEventBus.addGenericListener(Item.class, this::registerItems);
         modEventBus.addGenericListener(TileEntityType.class, this::registerTileEntities);
         modEventBus.addGenericListener(ContainerType.class, this::registerContainerss);
+        modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::clientSetup);
 
         //ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.GUIFACTORY, () -> message -> Containers.Client.getClientGuiElement(message));
@@ -182,6 +166,13 @@ public class Enderthing
         );
     }
 
+    public void commonSetup(FMLCommonSetupEvent event)
+    {
+        int messageNumber = 0;
+        CHANNEL.messageBuilder(SetItemKey.class, messageNumber++).encoder(SetItemKey::encode).decoder(SetItemKey::new).consumer(SetItemKey::handle).add();
+        LOGGER.debug("Final message number: " + messageNumber);
+    }
+
     private void clientSetup(FMLClientSetupEvent event)
     {
         ScreenManager.registerFactory(KeyContainer.TYPE, KeyScreen::new);
@@ -234,13 +225,16 @@ public class Enderthing
         {
             long key = KeyUtils.getKey(stack);
 
-            if (key < 0)
+            if (key >= 0)
             {
-                tooltip.add(new TranslationTextComponent("tooltip." + Enderthing.MODID + ".color_missing").applyTextStyle(TextFormatting.ITALIC));
-                return;
+                tooltip.add(new TranslationTextComponent("tooltip.enderthing.key", key).applyTextStyle(TextFormatting.ITALIC));
+            }
+            else
+            {
+                tooltip.add(new TranslationTextComponent("tooltip.enderthing.key_missing").applyTextStyle(TextFormatting.ITALIC));
             }
 
-            //tooltip.add(new TextComponentTranslation("tooltip." + Enderthing.MODID + ".password", words));
+            //tooltip.add(new TextComponentTranslation("tooltip.enderthing.password", words));
         }
 
     }

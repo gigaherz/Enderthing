@@ -37,7 +37,7 @@ public class EnderKeyItem extends EnderthingItem
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
-        tooltip.add(new TranslationTextComponent("tooltip." + Enderthing.MODID + ".ender_key.right_click").applyTextStyle(TextFormatting.ITALIC));
+        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_key.right_click").applyTextStyle(TextFormatting.ITALIC));
 
         super.addInformation(stack, worldIn, tooltip, flagIn);
     }
@@ -57,7 +57,7 @@ public class EnderKeyItem extends EnderthingItem
             {
                 KeyUtils.setKey(stack, value);
             }
-        });
+        }, stack.copy());
     }
 
     @Override

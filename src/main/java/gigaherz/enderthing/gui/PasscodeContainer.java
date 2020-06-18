@@ -18,17 +18,19 @@ public class PasscodeContainer extends Container
     public static ContainerType<PasscodeContainer> TYPE = null;
 
     public final ILongAccessor keyHolder;
+    public final ItemStack previewBase;
 
     public PasscodeContainer(int windowId, PlayerInventory playerInventory, PacketBuffer packetData)
     {
-        this(windowId, playerInventory, new LongMutable(packetData.readLong()));
+        this(windowId, playerInventory, new LongMutable(packetData.readLong()), packetData.readItemStack());
     }
 
-    public PasscodeContainer(int windowId, PlayerInventory playerInventory, ILongAccessor keyHolder)
+    public PasscodeContainer(int windowId, PlayerInventory playerInventory, ILongAccessor keyHolder, ItemStack previewBase)
     {
         super(TYPE, windowId);
 
         this.keyHolder = keyHolder;
+        this.previewBase = previewBase;
 
         bindPlayerInventory(playerInventory);
 
@@ -59,18 +61,20 @@ public class PasscodeContainer extends Container
 
     private void bindPlayerInventory(PlayerInventory playerInventory)
     {
+        int xOffset = 18 + 8;
+        int yOffset = 126+22+6;
         for (int py = 0; py < 3; ++py)
         {
             for (int px = 0; px < 9; ++px)
             {
                 int slot = px + py * 9 + 9;
-                this.addSlot(new LockedSlot(playerInventory, slot, 8 + px * 18, 103 + py * 18 - 18));
+                this.addSlot(new LockedSlot(playerInventory, slot, xOffset + px * 18, yOffset + py * 18 - 18));
             }
         }
 
         for (int slot = 0; slot < 9; ++slot)
         {
-            this.addSlot(new LockedSlot(playerInventory, slot, 8 + slot * 18, 143));
+            this.addSlot(new LockedSlot(playerInventory, slot, xOffset + slot * 18, yOffset+40));
         }
     }
 

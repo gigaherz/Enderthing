@@ -56,12 +56,6 @@ public class KeyContainer extends Container
         return getInventory(world, user, isPriv, key, bound);
     }
 
-    private static IItemHandler getInventory(EnderChestTileEntity enderChest, PlayerEntity user, long id)
-    {
-        World world = enderChest.getWorld();
-        return getInventory(world, user, true, id, null);
-    }
-
     public KeyContainer(int windowId, PlayerInventory playerInv, PacketBuffer extraData)
     {
         this(windowId, playerInv, extraData.readInt(), new ItemStackHandler(27), p -> true, NOOP);

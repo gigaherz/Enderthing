@@ -1,0 +1,6 @@
+{
+  "parent": "enderthing:item/lock",
+  "textures": {
+    "layer4": "enderthing:item/lock_bound"
+  }
+}

@@ -2,6 +2,7 @@ package gigaherz.enderthing.blocks;
 
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
+import gigaherz.enderthing.client.ClientEvents;
 import gigaherz.enderthing.gui.Containers;
 import gigaherz.enderthing.util.ILongAccessor;
 import net.minecraft.block.*;
@@ -60,6 +61,7 @@ public class EnderKeyChestBlock extends Block
         {
             super(properties);
             setDefaultState(this.getDefaultState()
+                    .with(BOUND, false)
                     .with(FACING, Direction.NORTH));
         }
 
@@ -248,7 +250,7 @@ public class EnderKeyChestBlock extends Block
 
         public AsItem(Block block, boolean isPrivate, Item.Properties properties)
         {
-            super(block, properties);
+            super(block, properties.setTEISR(() -> ClientEvents::getKeyChestRenderer));
             this.isPrivate = isPrivate;
         }
 
@@ -256,7 +258,7 @@ public class EnderKeyChestBlock extends Block
         @Override
         public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
         {
-            tooltip.add(new TranslationTextComponent("tooltip." + Enderthing.MODID + ".ender_key_chest.right_click").applyTextStyle(TextFormatting.ITALIC));
+            tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_key_chest.right_click").applyTextStyle(TextFormatting.ITALIC));
 
             Enderthing.Client.addStandardInformation(stack, tooltip);
         }
@@ -276,7 +278,7 @@ public class EnderKeyChestBlock extends Block
                 {
                     KeyUtils.setKey(stack, value);
                 }
-            });
+            }, stack.copy());
         }
 
         @Override

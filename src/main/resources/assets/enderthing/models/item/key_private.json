@@ -1,6 +1,6 @@
 {
   "parent": "enderthing:item/key",
   "textures": {
-    "layer4": "enderthing:items/key_private"
+    "layer4": "enderthing:item/key_private"
   }
 }

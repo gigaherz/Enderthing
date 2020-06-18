@@ -1,6 +1,14 @@
 {
   "parent": "enderthing:item/lock",
   "textures": {
-    "layer4": "enderthing:items/lock_private"
-  }
+    "layer4": "enderthing:item/lock_private"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "bound": 1
+      },
+      "model": "enderthing:item/lock_bound"
+    }
+  ]
 }

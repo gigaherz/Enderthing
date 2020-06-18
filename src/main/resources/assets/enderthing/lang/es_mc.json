@@ -9,7 +9,7 @@
     "item.enderthing.ender_lock": "Cerradura de Ender",
     "item.enderthing.ender_pack": "Paquete de Seguridad",
     "item.enderthing.ender_card": "Tarjeta de Seguridad",
-    "itemGroup.tabEnderthing": "Enderthing... Cosas",
+    "itemGroup.enderthing.things": "Enderthing... Cosas",
 
     "tooltip.enderthing.colors": "Colores: %s, %s, %s",
     "tooltip.enderthing.private": "Privado",
