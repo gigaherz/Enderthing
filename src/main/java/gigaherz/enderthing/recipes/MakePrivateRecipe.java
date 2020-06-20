@@ -1,54 +1,81 @@
 package gigaherz.enderthing.recipes;
 
-/*
-import gigaherz.enderthing.Enderthing;
-import net.minecraft.block.Block;
-import net.minecraft.init.Items;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.Item;
+import gigaherz.enderthing.KeyUtils;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.oredict.ShapedOreRecipe;
+import net.minecraft.item.Items;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.crafting.SpecialRecipe;
+import net.minecraft.item.crafting.SpecialRecipeSerializer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import net.minecraftforge.common.crafting.IShapedRecipe;
+import net.minecraftforge.registries.ObjectHolder;
 
-public class MakePrivateRecipe extends ShapedOreRecipe
+public class MakePrivateRecipe extends SpecialRecipe implements IShapedRecipe<CraftingInventory>
 {
-    private MakePrivateRecipe(ItemStack out, ItemStack in)
-    {
-        super(out,
-                " n ",
-                "nkn",
-                " n ",
-                'n', Items.GOLD_NUGGET,
-                'k', in);
-    }
+    @ObjectHolder("enderthing:make_private")
+    public static SpecialRecipeSerializer<MakePrivateRecipe> SERIALIZER = null;
 
-    public MakePrivateRecipe(Item which)
+    public MakePrivateRecipe(ResourceLocation id)
     {
-        this(new ItemStack(which, 1, Enderthing.ITEM_PRIVATE_BIT), new ItemStack(which));
-    }
-
-    public MakePrivateRecipe(Block which)
-    {
-        this(new ItemStack(which, 1, Enderthing.BLOCK_PRIVATE_BIT), new ItemStack(which));
+        super(id);
     }
 
     @Override
-    public ItemStack getCraftingResult(InventoryCrafting inv)
+    public boolean matches(CraftingInventory inv, World worldIn)
     {
-        ItemStack out = super.getCraftingResult(inv);
+        ItemStack centerSlot = inv.getStackInSlot(4);
+        return inv.getStackInSlot(0).getCount() == 0
+                && inv.getStackInSlot(1).getItem() == Items.GOLD_NUGGET
+                && inv.getStackInSlot(2).getCount() == 0
+                && inv.getStackInSlot(3).getItem() == Items.GOLD_NUGGET
+                && inv.getStackInSlot(5).getItem() == Items.GOLD_NUGGET
+                && inv.getStackInSlot(6).getCount() == 0
+                && inv.getStackInSlot(7).getItem() == Items.GOLD_NUGGET
+                && inv.getStackInSlot(8).getCount() == 0
+                && centerSlot.getItem() instanceof KeyUtils.IKeyHolder
+                && !KeyUtils.isPrivate(centerSlot);
+    }
 
-        if (out.isEmpty())
-            return out;
+    @Override
+    public ItemStack getCraftingResult(CraftingInventory inv)
+    {
+        ItemStack output = inv.getStackInSlot(4).copy();
 
-        ItemStack itemStack = inv.getStackInSlot(4);
+        KeyUtils.setPrivate(output, true);
 
-        NBTTagCompound tag = itemStack.getTagCompound();
-        if (tag != null)
-            tag = tag.copy();
+        return output;
+    }
 
-        out.setTagCompound(tag);
+    @Override
+    public boolean canFit(int width, int height)
+    {
+        return width >= 3 && height >= 3;
+    }
 
-        return out;
+    @Override
+    public IRecipeSerializer<?> getSerializer()
+    {
+        return SERIALIZER;
+    }
+
+    @Override
+    public IRecipeType<?> getType()
+    {
+        return IRecipeType.CRAFTING;
+    }
+
+    @Override
+    public int getRecipeWidth()
+    {
+        return 3;
+    }
+
+    @Override
+    public int getRecipeHeight()
+    {
+        return 3;
     }
 }
-*/

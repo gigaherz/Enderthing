@@ -17,5 +17,13 @@
     "layer1": "enderthing:item/key_layer1",
     "layer2": "enderthing:item/key_layer2",
     "layer3": "enderthing:item/key_layer3"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "private": 1
+      },
+      "model": "enderthing:item/key_private"
+    }
+  ]
 }

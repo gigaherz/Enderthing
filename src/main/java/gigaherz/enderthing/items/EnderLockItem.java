@@ -4,20 +4,15 @@ import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.blocks.EnderKeyChestBlock;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
-import gigaherz.enderthing.gui.Containers;
-import gigaherz.enderthing.util.ILongAccessor;
-import joptsimple.internal.Strings;
 import net.minecraft.block.Block;
 import net.minecraft.block.EnderChestBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
@@ -35,17 +30,13 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public class EnderLockItem extends EnderthingItem
+public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableKeyHolder
 {
-    public EnderLockItem(boolean isprivate, Properties properties)
+    public EnderLockItem(Properties properties)
     {
-        super(isprivate, properties);
-
-        if (isprivate)
-        {
-            this.addPropertyOverride(new ResourceLocation("bound"),
-                    (stack, world, entity) -> isBound(stack) ? 1.0f : 0.0f);
-        }
+        super(properties);
+        this.addPropertyOverride(new ResourceLocation("bound"),
+                (stack, world, entity) -> isPrivate(stack) && isBound(stack) ? 1.0f : 0.0f);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -58,24 +49,6 @@ public class EnderLockItem extends EnderthingItem
             tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_lock.bound", getBoundStr(stack)));
 
         super.addInformation(stack, worldIn, tooltip, flagIn);
-    }
-
-    private void openPasscodeScreen(PlayerEntity playerIn, ItemStack stack)
-    {
-        Containers.openPasscodeScreen((ServerPlayerEntity) playerIn, new ILongAccessor()
-        {
-            @Override
-            public long get()
-            {
-                return KeyUtils.getKey(stack);
-            }
-
-            @Override
-            public void set(long value)
-            {
-                KeyUtils.setKey(stack, value);
-            }
-        }, stack.copy());
     }
 
     @Override
@@ -127,18 +100,19 @@ public class EnderLockItem extends EnderthingItem
 
         if (b instanceof EnderKeyChestBlock)
         {
-            boolean oldPrivate = ((EnderKeyChestBlock)b).isPrivate();
+            boolean oldPrivate = false;
             if (te instanceof EnderKeyChestTileEntity)
             {
                 EnderKeyChestTileEntity chest = (EnderKeyChestTileEntity) te;
                 long oldId = chest.getKey();
+                oldPrivate = chest.isPrivate();
                 UUID bound = chest.getPlayerBound();
                 ItemStack oldStack = KeyUtils.getLock(oldId, oldPrivate, bound);
 
                 InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
             }
 
-            boolean newPrivate = isPrivate();
+            boolean newPrivate = isPrivate(stack);
             return replaceWithKeyChest(worldIn, pos, stack, state, id, oldPrivate != newPrivate, player);
         }
 
@@ -154,7 +128,8 @@ public class EnderLockItem extends EnderthingItem
         {
             EnderKeyChestTileEntity chest = (EnderKeyChestTileEntity) te;
             chest.setKey(id);
-            if (isPrivate() && isBound(stack))
+            chest.setPrivate(isPrivate(stack));
+            if (isPrivate(stack) && isBound(stack))
                 chest.bindToPlayer(getBound(stack));
         }
 
@@ -164,49 +139,9 @@ public class EnderLockItem extends EnderthingItem
         return ActionResultType.SUCCESS;
     }
 
-    private boolean isBound(ItemStack stack)
-    {
-        if (!isPrivate())
-            return false;
-        CompoundNBT tag = stack.getTag();
-        return tag != null && !Strings.isNullOrEmpty(tag.getString("Bound"));
-    }
-
-    @Nullable
-    private String getBoundStr(ItemStack stack)
-    {
-        if (!isPrivate())
-            return null;
-        CompoundNBT tag = stack.getTag();
-        if (tag == null)
-            return null;
-        return tag.getString("Bound");
-    }
-
-    @Nullable
-    private UUID getBound(ItemStack stack)
-    {
-        if (!isPrivate())
-            return null;
-        CompoundNBT tag = stack.getTag();
-        if (tag == null)
-            return null;
-        try
-        {
-            return UUID.fromString(tag.getString("Bound"));
-        }
-        catch(IllegalArgumentException e)
-        {
-            Enderthing.LOGGER.warn("Stack contained wrong UUID", e);
-            return null;
-        }
-    }
-
     private void setKeyChest(World worldIn, BlockPos pos, BlockState state, ItemStack stack)
     {
-        worldIn.setBlockState(pos, (isPrivate()
-                ? Enderthing.enderKeyChestPrivate.getDefaultState().with(EnderKeyChestBlock.Private.BOUND, isBound(stack))
-                : Enderthing.enderKeyChest.getDefaultState())
+        worldIn.setBlockState(pos, Enderthing.KEY_CHEST.getDefaultState()
                     .with(EnderKeyChestBlock.FACING, state.get(EnderChestBlock.FACING)));
     }
 }

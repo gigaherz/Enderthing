@@ -18,6 +18,7 @@
 
     "tooltip.enderthing.key_missing": "No key set.",
     "tooltip.enderthing.key": "Key: %s",
+    "tooltip.enderthing.private": "Private",
 
     "tooltip.enderthing.ender_key_chest.right_click": "Craft an Ender Lock and Shift-rightclick on a vanilla chest.",
     "tooltip.enderthing.ender_key.right_click": "Shift-Rightclick on a vanilla ender chest to open the shared inventory.",

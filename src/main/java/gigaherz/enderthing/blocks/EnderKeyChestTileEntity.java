@@ -33,8 +33,6 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
 {
     @ObjectHolder("enderthing:key_chest")
     public static TileEntityType<EnderKeyChestTileEntity> PUBLIC;
-    @ObjectHolder("enderthing:key_chest_private")
-    public static TileEntityType<EnderKeyChestTileEntity.Private> PRIVATE;
 
     protected EnderKeyChestTileEntity(TileEntityType<?> tileEntityTypeIn)
     {
@@ -45,20 +43,6 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
         super(PUBLIC);
     }
 
-    public static class Private extends EnderKeyChestTileEntity
-    {
-        public Private()
-        {
-            super(PRIVATE);
-        }
-
-        @Override
-        public boolean isPrivate()
-        {
-            return true;
-        }
-    }
-
     private long key = -1;
 
     private int ticksSinceSync;
@@ -67,9 +51,16 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
 
     private EnderInventory inventory;
 
+    private boolean priv;
+
     public boolean isPrivate()
     {
-        return false;
+        return priv;
+    }
+
+    public void setPrivate(boolean p)
+    {
+        priv = p;
     }
 
     public long getKey()
@@ -94,7 +85,7 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
         return boundToPlayer;
     }
 
-    public void bindToPlayer(UUID boundToPlayer)
+    public void bindToPlayer(@Nullable UUID boundToPlayer)
     {
         this.boundToPlayer = boundToPlayer;
 
@@ -146,6 +137,7 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
     {
         super.read(tag);
         key = tag.getLong("Key");
+        priv = tag.getBoolean("IsPrivate");
         if (isPrivate()) boundToPlayer = InventoryManager.uuidFromNBT(tag);
         releasePreviousInventory();
     }
@@ -155,6 +147,7 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
     {
         tag = super.write(tag);
         tag.putLong("Key", key);
+        tag.putBoolean("IsPrivate", priv);
         if (isPrivate() && boundToPlayer != null)
         {
             InventoryManager.uuidToNBT(tag, boundToPlayer);

@@ -4,79 +4,169 @@ import com.google.common.primitives.Longs;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
 import joptsimple.internal.Strings;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IItemProvider;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class KeyUtils
 {
-    public static long getItemKey(ItemStack stack)
+    public interface IKeyHolder
     {
-        CompoundNBT tag = stack.getTag();
-        if (tag != null)
+        Optional<CompoundNBT> findHolderTag(ItemStack stack);
+        CompoundNBT getOrCreateHolderTag(ItemStack stack);
+
+        default boolean isPrivate(ItemStack stack)
         {
-            return tag.getLong("Key");
+            return findHolderTag(stack).map(blockTag -> blockTag.getBoolean("IsPrivate")).orElse(false);
         }
 
-        return -1;
-    }
-
-    public static void setItemKey(ItemStack stack, long key)
-    {
-        stack.getOrCreateTag().putLong("Key", key);
-    }
-
-    public static long getBlockKey(ItemStack stack)
-    {
-        CompoundNBT tag = stack.getTag();
-        if (tag != null)
+        default void setPrivate(ItemStack stack, boolean priv)
         {
-            CompoundNBT etag = tag.getCompound("BlockEntityTag");
-            if (etag != null && etag.contains("Key", Constants.NBT.TAG_LONG))
-            {
-                return etag.getLong("Key");
-            }
+            getOrCreateHolderTag(stack).putBoolean("IsPrivate", priv);
         }
 
-        return -1;
+        default long getKey(ItemStack stack)
+        {
+            return findHolderTag(stack).map(blockTag -> blockTag.contains("Key", Constants.NBT.TAG_LONG) ? blockTag.getLong("Key") : -1).orElse(-1L);
+        }
+
+        default void setKey(ItemStack stack, long key)
+        {
+            getOrCreateHolderTag(stack).putLong("Key", key);
+        }
+
+        @Nullable
+        default UUID getBound(ItemStack stack)
+        {
+            if (!isPrivate(stack))
+                return null;
+            return findHolderTag(stack).map(blockTag -> {
+                try
+                {
+                    return UUID.fromString(blockTag.getString("Bound"));
+                }
+                catch(IllegalArgumentException e)
+                {
+                    Enderthing.LOGGER.warn("Stack contained wrong UUID", e);
+                    return null;
+                }
+            }).orElse(null);
+        }
+
+        default void setBound(ItemStack stack, @Nullable UUID uuid)
+        {
+            if (uuid == null)
+                findHolderTag(stack).ifPresent(blockTag -> blockTag.remove("Bound"));
+            else
+                getOrCreateHolderTag(stack).putString("Bound", uuid.toString());
+        }
+
     }
 
-    public static void setBlockKey(ItemStack stack, long key)
+    public interface IBindableKeyHolder extends IKeyHolder
     {
-        stack.getOrCreateChildTag("BlockEntityTag").putLong("Key", key);
+        default boolean isBound(ItemStack stack)
+        {
+            if (!isPrivate(stack))
+                return false;
+            return findHolderTag(stack).map(tag -> !Strings.isNullOrEmpty(tag.getString("Bound"))).orElse(false);
+        }
+
+        @Nullable
+        default String getBoundStr(ItemStack stack)
+        {
+            if (!isPrivate(stack))
+                return null;
+            return findHolderTag(stack).map(tag -> tag.getString("Bound")).orElse(null);
+        }
+
+        @Nullable
+        default UUID getBound(ItemStack stack)
+        {
+            if (!isPrivate(stack))
+                return null;
+            return findHolderTag(stack).map(tag -> {
+                try
+                {
+                    return UUID.fromString(tag.getString("Bound"));
+                }
+                catch(IllegalArgumentException e)
+                {
+                    Enderthing.LOGGER.warn("Stack contained wrong UUID", e);
+                    return null;
+                }
+            }).orElse(null);
+        }
     }
 
     public static long getKey(ItemStack stack)
     {
-        if (stack.getItem() instanceof BlockItem)
-            return getBlockKey(stack);
-        return getItemKey(stack);
+        Item item = stack.getItem();
+        if (item instanceof IKeyHolder)
+            return ((IKeyHolder) item).getKey(stack);
+        return -1;
     }
 
-    public static void setKey(ItemStack stack, long key)
+    public static ItemStack setKey(ItemStack stack, long key)
     {
-        if (stack.getItem() instanceof BlockItem)
-            setBlockKey(stack, key);
-        else
-            setItemKey(stack, key);
+        Item item = stack.getItem();
+        if (item instanceof IKeyHolder)
+            ((IKeyHolder) item).setKey(stack, key);
+        return stack;
+    }
+
+    public static boolean isPrivate(ItemStack stack)
+    {
+        Item item = stack.getItem();
+        if (item instanceof IKeyHolder)
+            return ((IKeyHolder) item).isPrivate(stack);
+        return false;
+    }
+
+    public static ItemStack setPrivate(ItemStack stack, boolean priv)
+    {
+        Item item = stack.getItem();
+        if (item instanceof IKeyHolder)
+            ((IKeyHolder) item).setPrivate(stack, priv);
+        return stack;
+    }
+
+    public static boolean isBound(ItemStack stack)
+    {
+        Item item = stack.getItem();
+        if (item instanceof IBindableKeyHolder)
+            return ((IBindableKeyHolder) item).isPrivate(stack);
+        return false;
+    }
+
+    @Nullable
+    public static UUID getBound(ItemStack stack)
+    {
+        Item item = stack.getItem();
+        if (item instanceof IBindableKeyHolder)
+            return ((IBindableKeyHolder) item).getBound(stack);
+        return null;
+    }
+
+    public static ItemStack setBound(ItemStack stack, @Nullable UUID uuid)
+    {
+        Item item = stack.getItem();
+        if (item instanceof IBindableKeyHolder)
+            ((IBindableKeyHolder) item).setBound(stack, uuid);
+        return stack;
     }
 
     public static long getKey(TileEntity te)
@@ -89,42 +179,26 @@ public class KeyUtils
         return -1;
     }
 
-    public static ItemStack getItem(IItemProvider itemProvider, long key)
+    public static ItemStack getItem(IItemProvider itemProvider, long key, boolean priv)
     {
-        ItemStack stack = new ItemStack(itemProvider, 1);
+        ItemStack stack = new ItemStack(itemProvider);
 
-        CompoundNBT tag = new CompoundNBT();
-        tag.putLong("Key", key);
-
-        stack.setTag(tag);
+        setKey(stack, key);
+        setPrivate(stack, priv);
 
         return stack;
     }
 
     public static ItemStack getLock(long key, boolean priv)
     {
-        return getItem(priv ? Enderthing.enderLockPrivate : Enderthing.enderLock, key);
+        return getItem(Enderthing.LOCK, key, priv);
     }
 
     public static ItemStack getLock(long key, boolean priv, @Nullable UUID bound)
     {
-        ItemStack stack = getItem(priv ? Enderthing.enderLockPrivate : Enderthing.enderLock, key);
+        ItemStack stack = getItem(Enderthing.LOCK, key, priv);
         if (bound != null)
-            stack.getOrCreateTag().putString("Bound", bound.toString());
-        return stack;
-    }
-
-    public static ItemStack getBlockItem(long id, boolean priv)
-    {
-        ItemStack stack = new ItemStack(priv ? Enderthing.enderKeyChestPrivate : Enderthing.enderKeyChest, 1);
-
-        CompoundNBT tag = new CompoundNBT();
-        CompoundNBT etag = new CompoundNBT();
-        etag.putLong("Key", id);
-        tag.put("BlockEntityTag", etag);
-
-        stack.setTag(tag);
-
+            setBound(stack, bound);
         return stack;
     }
 

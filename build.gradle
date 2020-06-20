@@ -18,8 +18,14 @@ archivesBaseName = 'modid'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
+sourceSets {
+    main.resources.srcDirs += 'src/main/generated_resources'
+}
+
 minecraft {
     mappings channel: 'stable', version: '56-1.14.3'
+
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
         client {
@@ -31,7 +37,11 @@ minecraft {
 
             ideaModule "${project.name}_main"
 
-            environment 'MOD_CLASSES', "${project.file("out/production/resources").canonicalPath};${project.file("out/production/classes").canonicalPath}"
+            mods {
+                thismod {
+                    source sourceSets.main
+                }
+            }
         }
 
         server {
@@ -43,7 +53,28 @@ minecraft {
 
             ideaModule "${project.name}_main"
 
-            environment 'MOD_CLASSES', "${project.file("out/production/resources").canonicalPath};${project.file("out/production/classes").canonicalPath}"
+            mods {
+                thismod {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', ''
+            property 'forge.logging.console.level', 'debug'
+
+            ideaModule "${project.name}_main"
+
+            args '--mod', 'enderthing', '--all', '--output', file('src/main/generated_resources/'), '--existing', file('src/main/resources/')
+
+            mods {
+                thismod {
+                    source sourceSets.main
+                }
+            }
         }
     }
 }

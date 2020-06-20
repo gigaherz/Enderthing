@@ -5,5 +5,13 @@
     "layer1": "enderthing:item/pack_layer1",
     "layer2": "enderthing:item/pack_layer2",
     "layer3": "enderthing:item/pack_layer3"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "private": 1
+      },
+      "model": "enderthing:item/pack_private"
+    }
+  ]
 }

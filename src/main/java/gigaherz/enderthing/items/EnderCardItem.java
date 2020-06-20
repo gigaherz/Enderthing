@@ -2,7 +2,6 @@ package gigaherz.enderthing.items;
 
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
-import gigaherz.enderthing.blocks.EnderKeyChestBlock;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
 import gigaherz.enderthing.storage.InventoryManager;
 import net.minecraft.block.BlockState;
@@ -99,6 +98,18 @@ public class EnderCardItem extends Item
     }
 
     @Override
+    public boolean hasContainerItem(ItemStack stack)
+    {
+        return true;
+    }
+
+    @Override
+    public ItemStack getContainerItem(ItemStack itemStack)
+    {
+        return itemStack;
+    }
+
+    @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand hand)
     {
         ItemStack itemStackIn = playerIn.getHeldItem(hand);
@@ -119,53 +130,51 @@ public class EnderCardItem extends Item
     @Override
     public ActionResultType onItemUse(ItemUseContext context)
     {
+        PlayerEntity player = context.getPlayer();
         World world = context.getWorld();
         BlockPos pos = context.getPos();
-        PlayerEntity player = context.getPlayer();
         ItemStack stack = context.getItem();
+
+        UUID uuid = getBoundPlayerUniqueID(stack);
 
         if (world.isRemote)
             return ActionResultType.SUCCESS;
 
         BlockState state = world.getBlockState(pos);
 
-        if (state.getBlock() != Enderthing.enderKeyChestPrivate)
+        if (state.getBlock() != Enderthing.KEY_CHEST)
         {
             return ActionResultType.PASS;
         }
 
-        long key = 0;
-
         TileEntity te = world.getTileEntity(pos);
         if (te instanceof EnderKeyChestTileEntity)
         {
-            key = ((EnderKeyChestTileEntity) te).getKey();
-        }
-
-        state = state.with(EnderKeyChestBlock.Private.BOUND, true);
-        world.setBlockState(pos, state);
-
-        te = world.getTileEntity(pos);
-        if (te instanceof EnderKeyChestTileEntity)
-        {
-            UUID uuid = getBoundPlayerUniqueID(stack);
-
             EnderKeyChestTileEntity chest = (EnderKeyChestTileEntity) te;
-            chest.setKey(key);
+            if (!chest.isPrivate())
+            {
+                return ActionResultType.PASS;
+            }
+
             chest.bindToPlayer(uuid);
 
             String name = getBoundPlayerCachedName(stack);
 
-            if (name == null || name.length() == 0)
-                player.sendMessage(new TranslationTextComponent("text.enderthing.ender_chest.bound1",
-                        new StringTextComponent(uuid.toString())));
-            else
-                player.sendMessage(new TranslationTextComponent("text.enderthing.ender_chest.bound2",
-                        new StringTextComponent(uuid.toString()),
-                        new StringTextComponent(name)));
+            if (player != null)
+            {
+                if (name == null || name.length() == 0)
+                    player.sendMessage(new TranslationTextComponent("text.enderthing.ender_chest.bound1",
+                            new StringTextComponent(uuid.toString())));
+                else
+                    player.sendMessage(new TranslationTextComponent("text.enderthing.ender_chest.bound2",
+                            new StringTextComponent(uuid.toString()),
+                            new StringTextComponent(name)));
+            }
+
+            return ActionResultType.SUCCESS;
         }
 
-        return ActionResultType.SUCCESS;
+        return ActionResultType.PASS;
     }
 
     @Override

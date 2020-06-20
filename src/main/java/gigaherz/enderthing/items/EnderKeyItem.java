@@ -3,7 +3,6 @@ package gigaherz.enderthing.items;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.gui.Containers;
-import gigaherz.enderthing.util.ILongAccessor;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -28,9 +27,9 @@ import java.util.List;
 
 public class EnderKeyItem extends EnderthingItem
 {
-    public EnderKeyItem(boolean isprivate, Properties properties)
+    public EnderKeyItem(Properties properties)
     {
-        super(isprivate, properties);
+        super(properties);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -40,24 +39,6 @@ public class EnderKeyItem extends EnderthingItem
         tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_key.right_click").applyTextStyle(TextFormatting.ITALIC));
 
         super.addInformation(stack, worldIn, tooltip, flagIn);
-    }
-
-    private void openPasscodeScreen(PlayerEntity playerIn, ItemStack stack)
-    {
-        Containers.openPasscodeScreen((ServerPlayerEntity) playerIn, new ILongAccessor()
-        {
-            @Override
-            public long get()
-            {
-                return KeyUtils.getKey(stack);
-            }
-
-            @Override
-            public void set(long value)
-            {
-                KeyUtils.setKey(stack, value);
-            }
-        }, stack.copy());
     }
 
     @Override
@@ -99,11 +80,11 @@ public class EnderKeyItem extends EnderthingItem
         BlockState state = world.getBlockState(pos);
 
         Block b = state.getBlock();
-        if (b != Blocks.ENDER_CHEST && b != Enderthing.enderKeyChest)
+        if (b != Blocks.ENDER_CHEST && b != Enderthing.KEY_CHEST)
             return ActionResultType.PASS;
 
         if (player instanceof ServerPlayerEntity)
-            Containers.openItemGui((ServerPlayerEntity) player, isPrivate(), -1, id, null, world.getTileEntity(pos));
+            Containers.openItemGui((ServerPlayerEntity) player, isPrivate(stack), -1, id, null, world.getTileEntity(pos));
 
         return ActionResultType.SUCCESS;
     }

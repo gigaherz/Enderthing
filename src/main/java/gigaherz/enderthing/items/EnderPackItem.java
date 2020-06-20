@@ -1,6 +1,5 @@
 package gigaherz.enderthing.items;
 
-import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.gui.Containers;
 import gigaherz.enderthing.util.ILongAccessor;
@@ -24,10 +23,9 @@ import java.util.List;
 
 public class EnderPackItem extends EnderthingItem
 {
-    public EnderPackItem(boolean isprivate, Properties properties)
+    public EnderPackItem(Properties properties)
     {
-        super(isprivate, properties);
-        //setMaxStackSize(1);
+        super(properties);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -60,7 +58,7 @@ public class EnderPackItem extends EnderthingItem
             return ActionResultType.SUCCESS;
         }
 
-        openPackGui(player, id);
+        openPackGui(player, id, isPrivate(stack));
 
         return ActionResultType.SUCCESS;
     }
@@ -84,36 +82,18 @@ public class EnderPackItem extends EnderthingItem
             return ActionResult.newResult(ActionResultType.SUCCESS, stack);
         }
 
-        openPackGui(playerIn, id);
+        openPackGui(playerIn, id, isPrivate(stack));
 
         return ActionResult.newResult(ActionResultType.SUCCESS, stack);
     }
 
-    private void openPasscodeScreen(PlayerEntity playerIn, ItemStack stack)
-    {
-        Containers.openPasscodeScreen((ServerPlayerEntity) playerIn, new ILongAccessor()
-        {
-            @Override
-            public long get()
-            {
-                return KeyUtils.getKey(stack);
-            }
-
-            @Override
-            public void set(long value)
-            {
-                KeyUtils.setKey(stack, value);
-            }
-        }, stack.copy());
-    }
-
-    public void openPackGui(PlayerEntity playerIn, long id)
+    public void openPackGui(PlayerEntity playerIn, long id, boolean priv)
     {
         if (playerIn instanceof ServerPlayerEntity)
         {
             Containers.openItemGui(
                     (ServerPlayerEntity) playerIn,
-                    isPrivate(),
+                    priv,
                     playerIn.inventory.currentItem,
                     id, null, null);
         }

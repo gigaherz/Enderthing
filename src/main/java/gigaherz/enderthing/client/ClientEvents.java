@@ -4,7 +4,6 @@ import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.blocks.EnderKeyChestRenderer;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
-import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -41,9 +40,7 @@ public class ClientEvents
 
                     return (r << 16) | (g << 8) | (b);
                 },
-                Enderthing.enderKey, Enderthing.enderKeyPrivate,
-                Enderthing.enderLock, Enderthing.enderLockPrivate,
-                Enderthing.enderPack, Enderthing.enderPackPrivate);
+                Enderthing.KEY, Enderthing.LOCK, Enderthing.PACK);
     }
 
     private static final NonNullLazy<ItemStackTileEntityRenderer> renderer = NonNullLazy.of(() -> new ItemStackTileEntityRenderer(){

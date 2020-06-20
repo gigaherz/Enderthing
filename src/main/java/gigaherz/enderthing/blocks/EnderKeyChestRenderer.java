@@ -5,15 +5,20 @@ import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.blocks.EnderKeyChestBlock;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
+import joptsimple.internal.Strings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.model.RendererModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.model.ChestModel;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.ItemStackHandler;
 import org.lwjgl.opengl.GL11;
+
+import java.util.UUID;
 
 public class EnderKeyChestRenderer extends TileEntityRenderer<EnderKeyChestTileEntity>
 {
@@ -29,15 +34,8 @@ public class EnderKeyChestRenderer extends TileEntityRenderer<EnderKeyChestTileE
 
     public void renderFromItem(ItemStack stack)
     {
-        boolean isPrivate = stack.getItem() == Enderthing.enderKeyChestPrivate.asItem();
-        boolean isBound = false; // TODO
-
-        ItemStack lock = new ItemStack(isPrivate ? Enderthing.enderLockPrivate : Enderthing.enderLock);
-        if (isPrivate && isBound)
-            lock.getOrCreateTag().putString("Bound", "YES");
-        KeyUtils.setKey(lock, KeyUtils.getKey(stack));
-
         Minecraft minecraft = Minecraft.getInstance();
+        ItemStack lock = KeyUtils.getLock(KeyUtils.getKey(stack), KeyUtils.isPrivate(stack), KeyUtils.getBound(stack));
         renderInternal(0, 0, 0, minecraft.getRenderPartialTicks(), -1, 0, 0, 0, lock);
     }
 
@@ -64,11 +62,7 @@ public class EnderKeyChestRenderer extends TileEntityRenderer<EnderKeyChestTileE
             }
         }
 
-        ItemStack lock = new ItemStack(te.isPrivate() ? Enderthing.enderLockPrivate : Enderthing.enderLock);
-        if (te.isPrivate() && te.isBoundToPlayer())
-            lock.getOrCreateTag().putString("Bound", "YES");
-        KeyUtils.setKey(lock, te.getKey());
-
+        ItemStack lock = KeyUtils.getLock(te.getKey(), te.isPrivate(), te.getPlayerBound());
         renderInternal(x,y,z, partialTicks, destroyStage, j, te.prevLidAngle, te.lidAngle, lock);
     }
 
@@ -94,8 +88,8 @@ public class EnderKeyChestRenderer extends TileEntityRenderer<EnderKeyChestTileE
             GlStateManager.color4f(1, 1, 1, 1);
             GlStateManager.translated(x, y + 1.0F, z + 1.0F);
             GlStateManager.scalef(1, -1, -1);
-            GlStateManager.translatef(0.5F, 0.5F, 0.5F);
 
+            GlStateManager.translatef(0.5F, 0.5F, 0.5F);
             GlStateManager.rotatef((float) rotation, 0.0F, 1.0F, 0.0F);
             GlStateManager.translatef(-0.5F, -0.5F, -0.5F);
 
@@ -112,7 +106,13 @@ public class EnderKeyChestRenderer extends TileEntityRenderer<EnderKeyChestTileE
 
         GlStateManager.pushMatrix();
         {
-            GlStateManager.translated(x+0.5, y+0.35, z+(15.4f/16.0f));
+            GlStateManager.translated(x, y, z);
+
+            GlStateManager.translated(0.5, 0.5, 0.5);
+            GlStateManager.rotatef(-rotation, 0,1,0);
+            GlStateManager.translated(-0.5, -0.5, -0.5);
+
+            GlStateManager.translated(0.5, 0.35, (15.4f/16.0f));
             float scale = 6/8.0f;
             GlStateManager.scalef(scale, scale, scale);
             Minecraft.getInstance().getItemRenderer().renderItem(lock, ItemCameraTransforms.TransformType.FIXED);
