@@ -142,10 +142,7 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
     @Nonnull
     public IItemHandlerModifiable getInventory()
     {
-        if (key < 0)
-            return new ItemStackHandler(0);
-
-        if (inventory == null && (!isPrivate() || isBoundToPlayer()))
+        if (world != null && inventory == null && hasInventory())
         {
             if (isBoundToPlayer())
                 inventory = InventoryManager.get(world).getPrivate(boundToPlayer).getInventory(key);
@@ -184,7 +181,7 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
     public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing)
     {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY
-                && key >= 0 && (!isPrivate() || isBoundToPlayer()))
+                && hasInventory())
             return inventoryLazy.cast();
         return super.getCapability(capability, facing);
     }

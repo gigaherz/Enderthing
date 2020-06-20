@@ -18,30 +18,28 @@ public class EnderInventory extends ItemStackHandler
     private final IInventoryManager manager;
 
     private final List<Reference<? extends EnderKeyChestTileEntity>> listeners = Lists.newArrayList();
-    private final ReferenceQueue<EnderKeyChestTileEntity> deadListeners = new ReferenceQueue<>();
 
     public void addWeakListener(EnderKeyChestTileEntity e)
     {
-        listeners.add(new WeakReference<>(e, deadListeners));
+        listeners.add(new WeakReference<>(e));
     }
 
     public void removeWeakListener(EnderKeyChestTileEntity e)
     {
-        listeners.remove(e);
+        for (Iterator<Reference<? extends EnderKeyChestTileEntity>> it = listeners.iterator(); it.hasNext(); )
+        {
+            EnderKeyChestTileEntity te = it.next().get();
+            if (te == null || te.isRemoved() || te == e)
+            {
+                it.remove();
+            }
+        }
     }
 
     @Override
     protected void onContentsChanged(int slot)
     {
         super.onContentsChanged(slot);
-
-        for (Reference<? extends EnderKeyChestTileEntity>
-             ref = deadListeners.poll();
-             ref != null;
-             ref = deadListeners.poll())
-        {
-            listeners.remove(ref);
-        }
 
         List<EnderKeyChestTileEntity> dirty = Lists.newArrayList();
         for (Iterator<Reference<? extends EnderKeyChestTileEntity>> it = listeners.iterator(); it.hasNext(); )

@@ -109,10 +109,10 @@ public class EnderKeyChestRenderer extends TileEntityRenderer<EnderKeyChestTileE
             GlStateManager.translated(x, y, z);
 
             GlStateManager.translated(0.5, 0.5, 0.5);
-            GlStateManager.rotatef(-rotation, 0,1,0);
+            GlStateManager.rotatef(180-rotation, 0,1,0);
             GlStateManager.translated(-0.5, -0.5, -0.5);
 
-            GlStateManager.translated(0.5, 0.35, (15.4f/16.0f));
+            GlStateManager.translated(0.5, 0.35, 0.6/16.0);
             float scale = 6/8.0f;
             GlStateManager.scalef(scale, scale, scale);
             Minecraft.getInstance().getItemRenderer().renderItem(lock, ItemCameraTransforms.TransformType.FIXED);

@@ -12,9 +12,13 @@ apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 
-version = '1.0'
-group = 'com.yourname.modid' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'modid'
+version = '1.0.0'
+group = 'gigaherz.enderthing'
+archivesBaseName = "Enderthing-UNKNOWN"
+
+project.afterEvaluate {
+    archivesBaseName = "Enderthing-${project.MC_VERSION}"
+}
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
