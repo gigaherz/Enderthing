@@ -18,6 +18,7 @@ import net.minecraft.util.SoundEvents;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -53,6 +54,8 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
 
     private boolean priv;
 
+    private LazyOptional<IItemHandler> inventoryLazy = LazyOptional.of(this::getInventory);
+
     public boolean isPrivate()
     {
         return priv;
@@ -60,7 +63,15 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
 
     public void setPrivate(boolean p)
     {
-        priv = p;
+        if (priv != p)
+        {
+            priv = p;
+
+            if (!p && isBoundToPlayer())
+                boundToPlayer = null;
+
+            invalidateInventory();
+        }
     }
 
     public long getKey()
@@ -70,13 +81,12 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
 
     public void setKey(long key)
     {
-        this.key = key;
+        if (key != this.key)
+        {
+            this.key = key;
 
-        releasePreviousInventory();
-        markDirty();
-
-        BlockState state = world.getBlockState(pos);
-        world.notifyBlockUpdate(pos, state, state, 3);
+            invalidateInventory();
+        }
     }
 
     @Nullable
@@ -87,7 +97,21 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
 
     public void bindToPlayer(@Nullable UUID boundToPlayer)
     {
-        this.boundToPlayer = boundToPlayer;
+        if (!isPrivate())
+            return;
+
+        if (boundToPlayer != this.boundToPlayer)
+        {
+            this.boundToPlayer = boundToPlayer;
+
+            invalidateInventory();
+        }
+    }
+
+    private void invalidateInventory()
+    {
+        inventoryLazy.invalidate();
+        inventoryLazy = LazyOptional.of(this::getInventory);
 
         releasePreviousInventory();
         markDirty();
@@ -138,7 +162,8 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
         super.read(tag);
         key = tag.getLong("Key");
         priv = tag.getBoolean("IsPrivate");
-        if (isPrivate()) boundToPlayer = InventoryManager.uuidFromNBT(tag);
+        if (isPrivate() && tag.contains("Bound", Constants.NBT.TAG_STRING))
+            boundToPlayer = UUID.fromString(tag.getString("Bound"));
         releasePreviousInventory();
     }
 
@@ -150,17 +175,16 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
         tag.putBoolean("IsPrivate", priv);
         if (isPrivate() && boundToPlayer != null)
         {
-            InventoryManager.uuidToNBT(tag, boundToPlayer);
+            tag.putString("Bound", boundToPlayer.toString());
         }
         return tag;
     }
 
-    private final LazyOptional<IItemHandler> inventoryLazy = LazyOptional.of(this::getInventory);
-
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing)
     {
-        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY
+                && key >= 0 && (!isPrivate() || isBoundToPlayer()))
             return inventoryLazy.cast();
         return super.getCapability(capability, facing);
     }

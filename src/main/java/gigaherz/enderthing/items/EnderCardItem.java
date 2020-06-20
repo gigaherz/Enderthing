@@ -3,7 +3,7 @@ package gigaherz.enderthing.items;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
-import gigaherz.enderthing.storage.InventoryManager;
+import joptsimple.internal.Strings;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.ITooltipFlag;
@@ -29,37 +29,71 @@ import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-public class EnderCardItem extends Item
+public class EnderCardItem extends Item implements KeyUtils.IBindable
 {
     public EnderCardItem(Properties properties)
     {
         super(properties);
     }
 
-    public void bindToPlayer(ItemStack stack, PlayerEntity player)
+    @Override
+    public Optional<CompoundNBT> findHolderTag(ItemStack stack)
     {
-        CompoundNBT tag = stack.getTag();
-        if (tag == null)
-        {
-            tag = new CompoundNBT();
-            stack.setTag(tag);
-        }
+        return Optional.ofNullable(stack.getTag());
+    }
 
-        tag.putString("PlayerName", player.getName().getString());
+    @Override
+    public CompoundNBT getOrCreateHolderTag(ItemStack stack)
+    {
+        return stack.getOrCreateTag();
+    }
 
-        InventoryManager.uuidToNBT(tag, player.getUniqueID());
+    public boolean isBound(ItemStack stack)
+    {
+        return findHolderTag(stack).map(tag -> !Strings.isNullOrEmpty(tag.getString("Bound"))).orElse(false);
     }
 
     @Nullable
-    public UUID getBoundPlayerUniqueID(ItemStack stack)
+    public UUID getBound(ItemStack stack)
     {
-        CompoundNBT tag = stack.getTag();
-        if (tag == null)
-            return null;
+        return findHolderTag(stack).map(tag -> {
+            if (!tag.contains("Bound", Constants.NBT.TAG_STRING))
+                return null;
+            try
+            {
+                return UUID.fromString(tag.getString("Bound"));
+            }
+            catch(IllegalArgumentException e)
+            {
+                Enderthing.LOGGER.warn("Stack contained wrong UUID", e);
+                return null;
+            }
+        }).orElse(null);
+    }
 
-        return InventoryManager.uuidFromNBT(tag);
+    @Override
+    public void setBound(ItemStack stack, @Nullable UUID uuid)
+    {
+        if (uuid == null)
+            findHolderTag(stack).ifPresent(blockTag -> {
+                blockTag.remove("Bound");
+                blockTag.remove("PlayerName");
+            });
+        else
+        {
+            CompoundNBT tag = getOrCreateHolderTag(stack);
+            tag.putString("Bound", uuid.toString());
+            tag.remove("PlayerName");
+        }
+    }
+
+    public void bindToPlayer(ItemStack stack, PlayerEntity player)
+    {
+        setBound(stack, player.getUniqueID());
+        stack.getOrCreateTag().putString("PlayerName", player.getName().getString());
     }
 
     @Nullable
@@ -89,12 +123,7 @@ public class EnderCardItem extends Item
     @Override
     public boolean hasEffect(ItemStack stack)
     {
-        CompoundNBT tag = stack.getTag();
-        if (tag == null)
-            return super.hasEffect(stack);
-
-        return tag.contains("PlayerUUID0", Constants.NBT.TAG_LONG)
-                && tag.contains("PlayerUUID1", Constants.NBT.TAG_LONG);
+        return isBound(stack) || super.hasEffect(stack);
     }
 
     @Override
@@ -106,7 +135,7 @@ public class EnderCardItem extends Item
     @Override
     public ItemStack getContainerItem(ItemStack itemStack)
     {
-        return itemStack;
+        return itemStack.copy();
     }
 
     @Override
@@ -135,7 +164,7 @@ public class EnderCardItem extends Item
         BlockPos pos = context.getPos();
         ItemStack stack = context.getItem();
 
-        UUID uuid = getBoundPlayerUniqueID(stack);
+        UUID uuid = getBound(stack);
 
         if (world.isRemote)
             return ActionResultType.SUCCESS;
@@ -182,7 +211,7 @@ public class EnderCardItem extends Item
     {
         if (!worldIn.isRemote && (stack.hashCode() % 120) == (worldIn.getGameTime() % 120))
         {
-            UUID uuid = getBoundPlayerUniqueID(stack);
+            UUID uuid = getBound(stack);
             if (uuid != null)
             {
                 String name = getBoundPlayerCachedName(stack);
@@ -202,7 +231,7 @@ public class EnderCardItem extends Item
         tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.right_click1").applyTextStyle(TextFormatting.ITALIC));
         tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.right_click2").applyTextStyle(TextFormatting.ITALIC));
 
-        UUID uuid = getBoundPlayerUniqueID(stack);
+        UUID uuid = getBound(stack);
 
         if (uuid == null)
         {

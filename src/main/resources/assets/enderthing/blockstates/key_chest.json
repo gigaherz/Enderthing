@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "enderthing:block/builtin_entity"
+      "model": "enderthing:block/key_chest"
     }
   }
 }

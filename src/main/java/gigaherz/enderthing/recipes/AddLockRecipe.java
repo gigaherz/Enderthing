@@ -45,6 +45,8 @@ public class AddLockRecipe extends SpecialRecipe
                     lock = i;
                 else return false;
             }
+            else if(st.getCount() > 0)
+                return false;
         }
         // Make sure we found both.
         return chest >= 0 && lock >= 0;
@@ -71,12 +73,14 @@ public class AddLockRecipe extends SpecialRecipe
                     lock = st;
                 else return ItemStack.EMPTY;
             }
+            else if(st.getCount() > 0)
+                return ItemStack.EMPTY;
         }
 
         // Make sure we found both.
         if (chest.getCount() > 0 && lock.getCount() > 0)
         {
-            return KeyUtils.setPrivate(KeyUtils.setKey(chest.copy(), KeyUtils.getKey(lock)), KeyUtils.isPrivate(lock));
+            return KeyUtils.getKeyChest(KeyUtils.getKey(lock), KeyUtils.isPrivate(lock), KeyUtils.getBound(lock));
         }
 
         return ItemStack.EMPTY;
@@ -89,7 +93,7 @@ public class AddLockRecipe extends SpecialRecipe
 
         for(int i = 0; i < remaining.size(); ++i) {
             ItemStack st = inv.getStackInSlot(i);
-            if (st.getItem() == Items.ENDER_CHEST || st.getItem() == Enderthing.KEY_CHEST_ITEM)
+            if (st.getItem() == Enderthing.KEY_CHEST_ITEM)
             {
                 remaining.set(i, KeyUtils.getLock(
                         KeyUtils.getKey(st),

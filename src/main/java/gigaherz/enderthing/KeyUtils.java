@@ -47,36 +47,22 @@ public class KeyUtils
         {
             getOrCreateHolderTag(stack).putLong("Key", key);
         }
-
-        @Nullable
-        default UUID getBound(ItemStack stack)
-        {
-            if (!isPrivate(stack))
-                return null;
-            return findHolderTag(stack).map(blockTag -> {
-                try
-                {
-                    return UUID.fromString(blockTag.getString("Bound"));
-                }
-                catch(IllegalArgumentException e)
-                {
-                    Enderthing.LOGGER.warn("Stack contained wrong UUID", e);
-                    return null;
-                }
-            }).orElse(null);
-        }
-
-        default void setBound(ItemStack stack, @Nullable UUID uuid)
-        {
-            if (uuid == null)
-                findHolderTag(stack).ifPresent(blockTag -> blockTag.remove("Bound"));
-            else
-                getOrCreateHolderTag(stack).putString("Bound", uuid.toString());
-        }
-
     }
 
-    public interface IBindableKeyHolder extends IKeyHolder
+    public interface IBindable
+    {
+        Optional<CompoundNBT> findHolderTag(ItemStack stack);
+        CompoundNBT getOrCreateHolderTag(ItemStack stack);
+
+        boolean isBound(ItemStack stack);
+
+        @Nullable
+        UUID getBound(ItemStack stack);
+
+        void setBound(ItemStack stack, @Nullable UUID uuid);
+    }
+
+    public interface IBindableKeyHolder extends IKeyHolder, IBindable
     {
         default boolean isBound(ItemStack stack)
         {
@@ -99,6 +85,8 @@ public class KeyUtils
             if (!isPrivate(stack))
                 return null;
             return findHolderTag(stack).map(tag -> {
+                if (!tag.contains("Bound", Constants.NBT.TAG_STRING))
+                    return null;
                 try
                 {
                     return UUID.fromString(tag.getString("Bound"));
@@ -109,6 +97,14 @@ public class KeyUtils
                     return null;
                 }
             }).orElse(null);
+        }
+
+        default void setBound(ItemStack stack, @Nullable UUID uuid)
+        {
+            if (uuid == null)
+                findHolderTag(stack).ifPresent(blockTag -> blockTag.remove("Bound"));
+            else
+                getOrCreateHolderTag(stack).putString("Bound", uuid.toString());
         }
     }
 
@@ -147,8 +143,8 @@ public class KeyUtils
     public static boolean isBound(ItemStack stack)
     {
         Item item = stack.getItem();
-        if (item instanceof IBindableKeyHolder)
-            return ((IBindableKeyHolder) item).isPrivate(stack);
+        if (item instanceof IBindable)
+            return ((IBindable) item).isBound(stack);
         return false;
     }
 
@@ -156,16 +152,16 @@ public class KeyUtils
     public static UUID getBound(ItemStack stack)
     {
         Item item = stack.getItem();
-        if (item instanceof IBindableKeyHolder)
-            return ((IBindableKeyHolder) item).getBound(stack);
+        if (item instanceof IBindable)
+            return ((IBindable) item).getBound(stack);
         return null;
     }
 
     public static ItemStack setBound(ItemStack stack, @Nullable UUID uuid)
     {
         Item item = stack.getItem();
-        if (item instanceof IBindableKeyHolder)
-            ((IBindableKeyHolder) item).setBound(stack, uuid);
+        if (item instanceof IBindable)
+            ((IBindable) item).setBound(stack, uuid);
         return stack;
     }
 
@@ -197,6 +193,14 @@ public class KeyUtils
     public static ItemStack getLock(long key, boolean priv, @Nullable UUID bound)
     {
         ItemStack stack = getItem(Enderthing.LOCK, key, priv);
+        if (bound != null)
+            setBound(stack, bound);
+        return stack;
+    }
+
+    public static ItemStack getKeyChest(long key, boolean priv, @Nullable UUID bound)
+    {
+        ItemStack stack = getItem(Enderthing.KEY_CHEST_ITEM, key, priv);
         if (bound != null)
             setBound(stack, bound);
         return stack;

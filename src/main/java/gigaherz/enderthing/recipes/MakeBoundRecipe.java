@@ -44,6 +44,8 @@ public class MakeBoundRecipe extends SpecialRecipe
                     card = i;
                 else return false;
             }
+            else if(st.getCount() > 0)
+                return false;
         }
         // Make sure we found both.
         return holder >= 0 && card >= 0;
@@ -70,6 +72,8 @@ public class MakeBoundRecipe extends SpecialRecipe
                     card = st;
                 else return ItemStack.EMPTY;
             }
+            else if(st.getCount() > 0)
+                return ItemStack.EMPTY;
         }
 
         // Make sure we found both.
