@@ -185,7 +185,7 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
         this.renderBackground();
         super.render(mouseX, mouseY, partialTicks);
 
-        RenderHelper.enableGUIStandardItemLighting();
+        RenderHelper.enableStandardItemLighting();
         for (int i = 0; i < itemPasscode.size(); i++)
         {
             ItemStack st = itemPasscode.get(i);

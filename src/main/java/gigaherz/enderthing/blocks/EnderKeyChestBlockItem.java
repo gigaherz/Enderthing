@@ -35,7 +35,7 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
 {
     public EnderKeyChestBlockItem(Block block, Properties properties)
     {
-        super(block, properties.setTEISR(() -> ClientEvents::getKeyChestRenderer));
+        super(block, properties.setISTER(() -> ClientEvents::getKeyChestRenderer));
     }
 
     @Override
@@ -99,7 +99,7 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
         {
             if (!worldIn.isRemote)
                 openPasscodeScreen(playerIn, stack);
-            return ActionResult.newResult(ActionResultType.SUCCESS, stack);
+            return ActionResult.resultSuccess(stack);
         }
 
         if (playerIn.isSneaking())
@@ -120,10 +120,10 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
                 }
 
                 stack.grow(-1);
-                return ActionResult.newResult(ActionResultType.SUCCESS, stack);
+                return ActionResult.resultSuccess(stack);
             }
 
-            return ActionResult.newResult(ActionResultType.SUCCESS, new ItemStack(Blocks.ENDER_CHEST));
+            return ActionResult.resultSuccess(new ItemStack(Blocks.ENDER_CHEST));
         }
 
         return super.onItemRightClick(worldIn, playerIn, hand);

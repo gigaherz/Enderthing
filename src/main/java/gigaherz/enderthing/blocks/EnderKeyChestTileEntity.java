@@ -23,7 +23,6 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.registries.ObjectHolder;
 
 import javax.annotation.Nonnull;
@@ -33,7 +32,7 @@ import java.util.UUID;
 public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, ITickableTileEntity
 {
     @ObjectHolder("enderthing:key_chest")
-    public static TileEntityType<EnderKeyChestTileEntity> PUBLIC;
+    public static TileEntityType<EnderKeyChestTileEntity> TYPE;
 
     protected EnderKeyChestTileEntity(TileEntityType<?> tileEntityTypeIn)
     {
@@ -41,7 +40,7 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
     }
     public EnderKeyChestTileEntity()
     {
-        super(PUBLIC);
+        super(TYPE);
     }
 
     private long key = -1;

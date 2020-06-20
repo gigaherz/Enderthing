@@ -27,7 +27,7 @@ sourceSets {
 }
 
 minecraft {
-    mappings channel: 'stable', version: '56-1.14.3'
+    mappings channel: 'snapshot', version: '20200620-1.15.1'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -84,7 +84,7 @@ minecraft {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.14.4-28.2.18'
+    minecraft 'net.minecraftforge:forge:1.15.2-31.2.21'
 }
 
 jar {

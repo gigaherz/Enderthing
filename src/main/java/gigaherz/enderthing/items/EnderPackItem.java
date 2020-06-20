@@ -69,22 +69,22 @@ public class EnderPackItem extends EnderthingItem
         ItemStack stack = playerIn.getHeldItem(hand);
 
         if (hand != Hand.MAIN_HAND)
-            return ActionResult.newResult(ActionResultType.PASS, stack);
+            return ActionResult.resultPass(stack);
 
         if (worldIn.isRemote)
-            return ActionResult.newResult(ActionResultType.SUCCESS, stack);
+            return ActionResult.resultSuccess(stack);
 
         long id = KeyUtils.getKey(stack);
 
         if (id < 0)
         {
             openPasscodeScreen(playerIn, stack);
-            return ActionResult.newResult(ActionResultType.SUCCESS, stack);
+            return ActionResult.resultSuccess(stack);
         }
 
         openPackGui(playerIn, id, isPrivate(stack));
 
-        return ActionResult.newResult(ActionResultType.SUCCESS, stack);
+        return ActionResult.resultSuccess(stack);
     }
 
     public void openPackGui(PlayerEntity playerIn, long id, boolean priv)

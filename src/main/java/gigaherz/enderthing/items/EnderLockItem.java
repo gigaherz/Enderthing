@@ -62,10 +62,10 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
         {
             if (!worldIn.isRemote)
                 openPasscodeScreen(playerIn, stack);
-            return ActionResult.newResult(ActionResultType.SUCCESS, stack);
+            return ActionResult.resultSuccess(stack);
         }
 
-        return ActionResult.newResult(ActionResultType.PASS, stack);
+        return ActionResult.resultPass(stack);
     }
 
     @Override

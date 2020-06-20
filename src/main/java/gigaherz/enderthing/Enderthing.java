@@ -250,10 +250,10 @@ public class Enderthing
         }
 
         @Override
-        protected void validate(Map<ResourceLocation, LootTable> map, ValidationResults validationresults)
+        protected void validate(Map<ResourceLocation, LootTable> map, ValidationTracker validationtracker)
         {
             map.forEach((p_218436_2_, p_218436_3_) -> {
-                LootTableManager.func_215302_a(validationresults, p_218436_2_, p_218436_3_, map::get);
+                LootTableManager.func_227508_a_(validationtracker, p_218436_2_, p_218436_3_);
             });
         }
 
@@ -283,16 +283,16 @@ public class Enderthing
                                         .addEntry(ItemLootEntry.builder(block)
                                                 .acceptCondition(SILK_TOUCH)
                                                 .acceptFunction(CopyName.builder(CopyName.Source.BLOCK_ENTITY))
-                                                .acceptFunction(CopyNbt.func_215881_a(CopyNbt.Source.BLOCK_ENTITY)
-                                                        .func_216056_a("Key", "BlockEntityTag.Key")
-                                                        .func_216056_a("IsPrivate", "BlockEntityTag.IsPrivate")
-                                                        .func_216056_a("Bound", "BlockEntityTag.Bound")
+                                                .acceptFunction(CopyNbt.builder(CopyNbt.Source.BLOCK_ENTITY)
+                                                        .replaceOperation("Key", "BlockEntityTag.Key")
+                                                        .replaceOperation("IsPrivate", "BlockEntityTag.IsPrivate")
+                                                        .replaceOperation("Bound", "BlockEntityTag.Bound")
                                                 )
                                                 .alternatively(ItemLootEntry.builder(LOCK)
-                                                        .acceptFunction(CopyNbt.func_215881_a(CopyNbt.Source.BLOCK_ENTITY)
-                                                                .func_216056_a("Key", "Key")
-                                                                .func_216056_a("IsPrivate", "IsPrivate")
-                                                                .func_216056_a("Bound", "Bound")
+                                                        .acceptFunction(CopyNbt.builder(CopyNbt.Source.BLOCK_ENTITY)
+                                                                .replaceOperation("Key", "Key")
+                                                                .replaceOperation("IsPrivate", "IsPrivate")
+                                                                .replaceOperation("Bound", "Bound")
                                                         ))
                                         )
                                 )
@@ -367,9 +367,9 @@ public class Enderthing
                     .addCriterion("has_gold", hasItem(Items.ENDER_EYE))
                     .build(consumer);
 
-            CustomRecipeBuilder.func_218656_a(MakePrivateRecipe.SERIALIZER).build(consumer, "enderthing:make_private");
-            CustomRecipeBuilder.func_218656_a(AddLockRecipe.SERIALIZER).build(consumer, "enderthing:add_lock");
-            CustomRecipeBuilder.func_218656_a(MakeBoundRecipe.SERIALIZER).build(consumer, "enderthing:make_bound");
+            CustomRecipeBuilder.customRecipe(MakePrivateRecipe.SERIALIZER).build(consumer, "enderthing:make_private");
+            CustomRecipeBuilder.customRecipe(AddLockRecipe.SERIALIZER).build(consumer, "enderthing:add_lock");
+            CustomRecipeBuilder.customRecipe(MakeBoundRecipe.SERIALIZER).build(consumer, "enderthing:make_bound");
         }
     }
 }

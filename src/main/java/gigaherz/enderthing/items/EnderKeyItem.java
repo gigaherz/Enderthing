@@ -52,10 +52,10 @@ public class EnderKeyItem extends EnderthingItem
         {
             if (!worldIn.isRemote)
                 openPasscodeScreen(playerIn, stack);
-            return ActionResult.newResult(ActionResultType.SUCCESS, stack);
+            return ActionResult.resultSuccess(stack);
         }
 
-        return ActionResult.newResult(ActionResultType.PASS, stack);
+        return ActionResult.resultPass(stack);
     }
 
     @Override

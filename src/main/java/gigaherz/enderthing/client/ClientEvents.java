@@ -1,9 +1,11 @@
 package gigaherz.enderthing.client;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.blocks.EnderKeyChestRenderer;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,7 +22,7 @@ public class ClientEvents
     @SubscribeEvent
     public static void modelRegistry(ModelRegistryEvent event)
     {
-        ClientRegistry.bindTileEntitySpecialRenderer(EnderKeyChestTileEntity.class, EnderKeyChestRenderer.INSTANCE);
+        ClientRegistry.bindTileEntityRenderer(EnderKeyChestTileEntity.TYPE, EnderKeyChestRenderer::new);
     }
 
     @SubscribeEvent
@@ -43,11 +45,12 @@ public class ClientEvents
                 Enderthing.KEY, Enderthing.LOCK, Enderthing.PACK);
     }
 
+    private static final EnderKeyChestTileEntity defaultChest = new EnderKeyChestTileEntity();
     private static final NonNullLazy<ItemStackTileEntityRenderer> renderer = NonNullLazy.of(() -> new ItemStackTileEntityRenderer(){
         @Override
-        public void renderByItem(ItemStack stack)
+        public void render(ItemStack itemStackIn, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn)
         {
-            EnderKeyChestRenderer.INSTANCE.renderFromItem(stack);
+            EnderKeyChestRenderer.INSTANCE.renderFromItem(itemStackIn, defaultChest, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn);
         }
     });
 

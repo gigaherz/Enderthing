@@ -11,7 +11,9 @@ import net.minecraft.item.*;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
+import net.minecraft.tileentity.ChestTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityMerger;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -26,7 +28,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public class EnderKeyChestBlock extends Block
+public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEntity>
 {
     public static final DirectionProperty FACING = EnderChestBlock.FACING;
 
@@ -34,9 +36,14 @@ public class EnderKeyChestBlock extends Block
 
     public EnderKeyChestBlock(Properties properties)
     {
-        super(properties); // Material.ROCK
+        super(properties, () -> EnderKeyChestTileEntity.TYPE); // Material.ROCK
         setDefaultState(this.getStateContainer().getBaseState()
                 .with(FACING, Direction.NORTH));
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public TileEntityMerger.ICallbackWrapper<? extends ChestTileEntity> combine(BlockState state, World worldIn, BlockPos pos, boolean p_225536_4_) {
+        return TileEntityMerger.ICallback::func_225537_b_;
     }
 
     @Override
@@ -58,6 +65,13 @@ public class EnderKeyChestBlock extends Block
         return new EnderKeyChestTileEntity();
     }
 
+    @Nullable
+    @Override
+    public TileEntity createNewTileEntity(IBlockReader worldIn)
+    {
+        return new EnderKeyChestTileEntity();
+    }
+
     @Deprecated
     @Override
     public BlockRenderType getRenderType(BlockState state)
@@ -72,25 +86,25 @@ public class EnderKeyChestBlock extends Block
     }
 
     @Override
-    public boolean onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit)
+    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit)
     {
         TileEntity te = worldIn.getTileEntity(pos);
 
         if (!(te instanceof EnderKeyChestTileEntity))
-            return true;
+            return ActionResultType.PASS;
 
         if (worldIn.getBlockState(pos.up()).isNormalCube(worldIn, pos))
-            return true;
+            return ActionResultType.FAIL;
 
         if (worldIn.isRemote)
-            return true;
+            return ActionResultType.SUCCESS;
 
         EnderKeyChestTileEntity chest = (EnderKeyChestTileEntity) te;
 
         if (player instanceof ServerPlayerEntity)
             Containers.openBlockGui((ServerPlayerEntity) player, chest);
 
-        return true;
+        return ActionResultType.SUCCESS;
     }
 
     @Deprecated

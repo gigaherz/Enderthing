@@ -141,19 +141,20 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand hand)
     {
-        ItemStack itemStackIn = playerIn.getHeldItem(hand);
+        ItemStack stack = playerIn.getHeldItem(hand);
         if (worldIn.isRemote)
-            return ActionResult.newResult(ActionResultType.SUCCESS, itemStackIn);
+            return ActionResult.resultSuccess(stack);
 
         if (playerIn.isSneaking())
         {
-            bindToPlayer(itemStackIn, playerIn);
+            bindToPlayer(stack, playerIn);
 
             playerIn.sendMessage(new TranslationTextComponent("text.enderthing.ender_card.bound"));
 
-            return ActionResult.newResult(ActionResultType.SUCCESS, itemStackIn);
+            return ActionResult.resultSuccess(stack);
         }
-        return super.onItemRightClick(worldIn, playerIn, hand);
+
+        return ActionResult.resultPass(stack);
     }
 
     @Override

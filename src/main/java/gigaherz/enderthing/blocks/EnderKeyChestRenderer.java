@@ -1,130 +1,92 @@
 package gigaherz.enderthing.blocks;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import gigaherz.enderthing.Enderthing;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import gigaherz.enderthing.KeyUtils;
-import gigaherz.enderthing.blocks.EnderKeyChestBlock;
-import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
-import joptsimple.internal.Strings;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.model.RendererModel;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.tileentity.model.ChestModel;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.model.Material;
+import net.minecraft.client.renderer.tileentity.ChestTileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.items.ItemStackHandler;
-import org.lwjgl.opengl.GL11;
+import net.minecraft.state.properties.ChestType;
 
-import java.util.UUID;
+import static net.minecraft.client.renderer.Atlases.ENDER_CHEST_MATERIAL;
 
-public class EnderKeyChestRenderer extends TileEntityRenderer<EnderKeyChestTileEntity>
+
+public class EnderKeyChestRenderer extends ChestTileEntityRenderer<EnderKeyChestTileEntity>
 {
-    private static final ResourceLocation ENDER_CHEST_TEXTURE = new ResourceLocation("textures/entity/chest/ender.png");
+    public static EnderKeyChestRenderer INSTANCE = null;
 
-    public static final EnderKeyChestRenderer INSTANCE = new EnderKeyChestRenderer();
-
-    private final ChestModel chestModel = new ChestModel();
-
-    private EnderKeyChestRenderer()
+    public EnderKeyChestRenderer(TileEntityRendererDispatcher dispatcher)
     {
+        super(dispatcher);
+        INSTANCE = this;
     }
 
-    public void renderFromItem(ItemStack stack)
+    public void renderFromItem(ItemStack stack, EnderKeyChestTileEntity te, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn)
     {
         Minecraft minecraft = Minecraft.getInstance();
         ItemStack lock = KeyUtils.getLock(KeyUtils.getKey(stack), KeyUtils.isPrivate(stack), KeyUtils.getBound(stack));
-        renderInternal(0, 0, 0, minecraft.getRenderPartialTicks(), -1, 0, 0, 0, lock);
+        renderInternal(te, minecraft.getRenderPartialTicks(), matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, 0, lock);
     }
 
     @Override
-    public void render(EnderKeyChestTileEntity te, double x, double y, double z, float partialTicks, int destroyStage)
+    public void render(EnderKeyChestTileEntity te, float partialTicks,
+                       MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn,
+                       int combinedLightIn, int combinedOverlayIn)
     {
-        int j = 0;
+        int rotation = 0;
         if (te.hasWorld())
         {
             switch (te.getBlockState().get(EnderKeyChestBlock.FACING))
             {
                 case NORTH:
-                    j = 180;
+                    rotation = 180;
                     break;
                 case SOUTH:
-                    j = 0;
+                    rotation = 0;
                     break;
                 case WEST:
-                    j = 90;
+                    rotation = 90;
                     break;
                 case EAST:
-                    j = -90;
+                    rotation = -90;
                     break;
             }
         }
 
         ItemStack lock = KeyUtils.getLock(te.getKey(), te.isPrivate(), te.getPlayerBound());
-        renderInternal(x,y,z, partialTicks, destroyStage, j, te.prevLidAngle, te.lidAngle, lock);
+        renderInternal(te, partialTicks, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, rotation, lock);
     }
 
-    public void renderInternal(double x, double y, double z, float partialTicks, int destroyStage, int rotation, float prevLidAngle, float lidAngle, ItemStack lock)
+    public void renderInternal(EnderKeyChestTileEntity te, float partialTicks,
+                               MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn,
+                               int combinedLightIn, int combinedOverlayIn,
+                               int rotation, ItemStack lock)
     {
-        if (destroyStage >= 0)
+        matrixStackIn.push();
+        super.render(te, partialTicks, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn);
+        matrixStackIn.pop();
+
+        matrixStackIn.push();
         {
-            this.bindTexture(DESTROY_STAGES[destroyStage]);
-            GlStateManager.matrixMode(GL11.GL_TEXTURE);
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(4, 4, 1);
-            GlStateManager.translatef(0.0625F, 0.0625F, 0.0625F);
-            GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-        }
-        else
-        {
-            this.bindTexture(ENDER_CHEST_TEXTURE);
-        }
+            matrixStackIn.translate(0.5, 0.5, 0.5);
+            matrixStackIn.rotate(Vector3f.YP.rotationDegrees(180-rotation));
+            matrixStackIn.translate(-0.5, -0.5, -0.5);
 
-        GlStateManager.pushMatrix();
-        {
-            GlStateManager.enableRescaleNormal();
-            GlStateManager.color4f(1, 1, 1, 1);
-            GlStateManager.translated(x, y + 1.0F, z + 1.0F);
-            GlStateManager.scalef(1, -1, -1);
-
-            GlStateManager.translatef(0.5F, 0.5F, 0.5F);
-            GlStateManager.rotatef((float) rotation, 0.0F, 1.0F, 0.0F);
-            GlStateManager.translatef(-0.5F, -0.5F, -0.5F);
-
-            float angle = prevLidAngle + (lidAngle - prevLidAngle) * partialTicks;
-            angle = 1.0F - angle;
-            angle = 1.0F - angle * angle * angle;
-            this.chestModel.getLid().rotateAngleX = -(angle * ((float) Math.PI / 2F));
-            this.chestModel.renderAll();
-
-            GlStateManager.disableRescaleNormal();
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        }
-        GlStateManager.popMatrix();
-
-        GlStateManager.pushMatrix();
-        {
-            GlStateManager.translated(x, y, z);
-
-            GlStateManager.translated(0.5, 0.5, 0.5);
-            GlStateManager.rotatef(180-rotation, 0,1,0);
-            GlStateManager.translated(-0.5, -0.5, -0.5);
-
-            GlStateManager.translated(0.5, 0.35, 0.6/16.0);
+            matrixStackIn.translate(0.5, 0.35, 0.6/16.0);
             float scale = 6/8.0f;
-            GlStateManager.scalef(scale, scale, scale);
-            Minecraft.getInstance().getItemRenderer().renderItem(lock, ItemCameraTransforms.TransformType.FIXED);
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            matrixStackIn.scale(scale, scale, scale);
+            Minecraft.getInstance().getItemRenderer().renderItem(lock, ItemCameraTransforms.TransformType.FIXED, combinedLightIn, combinedOverlayIn, matrixStackIn, bufferIn);
         }
-        GlStateManager.popMatrix();
+        matrixStackIn.pop();
+    }
 
-        if (destroyStage >= 0)
-        {
-            GlStateManager.matrixMode(GL11.GL_TEXTURE);
-            GlStateManager.popMatrix();
-            GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-        }
+    @Override
+    protected Material getMaterial(EnderKeyChestTileEntity tileEntity, ChestType chestType)
+    {
+        return ENDER_CHEST_MATERIAL;
     }
 }
