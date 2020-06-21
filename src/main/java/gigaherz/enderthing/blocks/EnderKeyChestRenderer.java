@@ -27,9 +27,8 @@ public class EnderKeyChestRenderer extends ChestTileEntityRenderer<EnderKeyChest
 
     public void renderFromItem(ItemStack stack, EnderKeyChestTileEntity te, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn)
     {
-        Minecraft minecraft = Minecraft.getInstance();
         ItemStack lock = KeyUtils.getLock(KeyUtils.getKey(stack), KeyUtils.isPrivate(stack), KeyUtils.getBound(stack));
-        renderInternal(te, minecraft.getRenderPartialTicks(), matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, 0, lock);
+        renderInternal(te, 0, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, 0, lock);
     }
 
     @Override
