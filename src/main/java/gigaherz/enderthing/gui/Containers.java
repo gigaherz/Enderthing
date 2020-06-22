@@ -7,6 +7,7 @@ import net.minecraft.inventory.container.IContainerProvider;
 import net.minecraft.inventory.container.SimpleNamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.Stats;
+import net.minecraft.tileentity.EnderChestTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -31,7 +32,17 @@ public class Containers
         openGui(player, chest.isPrivate(), -1, (id, inv, p) -> new KeyContainer(id, inv, chest));
     }
 
-    public static void openItemGui(ServerPlayerEntity player, boolean isPrivate, int slot, long key, @Nullable UUID bound, @Nullable TileEntity te)
+    public static void openItemGui(ServerPlayerEntity player, boolean isPrivate, int slot, long key, @Nullable UUID bound)
+    {
+        openGui(player, isPrivate, slot, (id, inv, p) -> new KeyContainer(id, inv, isPrivate, slot, key, bound));
+    }
+
+    public static void openItemGui(ServerPlayerEntity player, boolean isPrivate, int slot, long key, @Nullable UUID bound, EnderKeyChestTileEntity te)
+    {
+        openGui(player, isPrivate, slot, (id, inv, p) -> new KeyContainer(id, inv, te, isPrivate, slot, key, bound));
+    }
+
+    public static void openItemGui(ServerPlayerEntity player, boolean isPrivate, int slot, long key, @Nullable UUID bound, EnderChestTileEntity te)
     {
         openGui(player, isPrivate, slot, (id, inv, p) -> new KeyContainer(id, inv, te, isPrivate, slot, key, bound));
     }

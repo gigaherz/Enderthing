@@ -128,10 +128,7 @@ public class Enderthing
     public void registerBlocks(RegistryEvent.Register<Block> event)
     {
         event.getRegistry().registerAll(
-                new EnderKeyChestBlock(Block.Properties.create(Material.IRON)
-                        .hardnessAndResistance(22.5F, 1000F)
-                        .sound(SoundType.STONE)
-                        .lightValue(5)).setRegistryName("key_chest")
+                new EnderKeyChestBlock(Block.Properties.from(Blocks.ENDER_CHEST)).setRegistryName("key_chest")
         );
     }
 

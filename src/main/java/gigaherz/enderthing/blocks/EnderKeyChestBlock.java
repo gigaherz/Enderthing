@@ -7,10 +7,15 @@ import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.fluid.IFluidState;
 import net.minecraft.item.*;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.pathfinding.PathType;
+import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.ChestTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityMerger;
@@ -21,16 +26,19 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEntity>
+public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEntity> implements IWaterLoggable
 {
     public static final DirectionProperty FACING = EnderChestBlock.FACING;
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     protected static final VoxelShape SHAPE = Block.makeCuboidShape(1.0D, 0.0D, 1.0D, 15.0D, 14.0D, 15.0D);
 
@@ -38,12 +46,19 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEnti
     {
         super(properties, () -> EnderKeyChestTileEntity.TYPE); // Material.ROCK
         setDefaultState(this.getStateContainer().getBaseState()
+                .with(WATERLOGGED, false)
                 .with(FACING, Direction.NORTH));
     }
 
     @OnlyIn(Dist.CLIENT)
     public TileEntityMerger.ICallbackWrapper<? extends ChestTileEntity> combine(BlockState state, World worldIn, BlockPos pos, boolean p_225536_4_) {
         return TileEntityMerger.ICallback::func_225537_b_;
+    }
+
+    @Override
+    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+    {
+        builder.add(FACING, WATERLOGGED);
     }
 
     @Override
@@ -86,6 +101,12 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEnti
     }
 
     @Override
+    public IFluidState getFluidState(BlockState state)
+    {
+        return state.get(WATERLOGGED) ? Fluids.WATER.getDefaultState() : Fluids.EMPTY.getDefaultState();
+    }
+
+    @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit)
     {
         TileEntity te = worldIn.getTileEntity(pos);
@@ -99,6 +120,15 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEnti
         if (worldIn.isRemote)
             return ActionResultType.SUCCESS;
 
+        if (player.isSneaking())
+        {
+            ItemHandlerHelper.giveItemToPlayer(player, getItem(worldIn, pos));
+            worldIn.setBlockState(pos, Blocks.ENDER_CHEST.getDefaultState()
+                    .with(EnderKeyChestBlock.WATERLOGGED, state.get(EnderChestBlock.WATERLOGGED))
+                    .with(EnderKeyChestBlock.FACING, state.get(EnderChestBlock.FACING)));
+            return ActionResultType.SUCCESS;
+        }
+
         EnderKeyChestTileEntity chest = (EnderKeyChestTileEntity) te;
 
         if (player instanceof ServerPlayerEntity)
@@ -107,18 +137,13 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEnti
         return ActionResultType.SUCCESS;
     }
 
-    @Deprecated
-    //@Override
-    public boolean canSilkHarvest()
-    {
-        return true;
-    }
-
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context)
     {
-        return this.getDefaultState().with(FACING, context.getPlayer().getHorizontalFacing().getOpposite());
+        IFluidState fluidState = context.getWorld().getFluidState(context.getPos());
+        return this.getDefaultState().with(FACING, context.getPlayer().getHorizontalFacing().getOpposite())
+                .with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
     }
 
     @Override
@@ -145,10 +170,28 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEnti
         }
     }
 
+    @Deprecated
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
-    {
-        builder.add(FACING);
+    public BlockState updatePostPlacement(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn, BlockPos currentPos, BlockPos facingPos) {
+        if (stateIn.get(WATERLOGGED)) {
+            worldIn.getPendingFluidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickRate(worldIn));
+        }
+
+        return super.updatePostPlacement(stateIn, facing, facingState, worldIn, currentPos, facingPos);
+    }
+
+    @Deprecated
+    @Override
+    public boolean allowsMovement(BlockState state, IBlockReader worldIn, BlockPos pos, PathType type) {
+        return false;
+    }
+
+    @Deprecated
+    @Override
+    public boolean eventReceived(BlockState state, World worldIn, BlockPos pos, int id, int param) {
+        super.eventReceived(state, worldIn, pos, id, param);
+        TileEntity tileentity = worldIn.getTileEntity(pos);
+        return tileentity != null && tileentity.receiveClientEvent(id, param);
     }
 
     private static ItemStack getItem(IBlockReader world, BlockPos pos)

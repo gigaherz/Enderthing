@@ -20,7 +20,6 @@ import net.minecraftforge.registries.ObjectHolder;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 public class KeyContainer extends Container
 {
@@ -29,8 +28,7 @@ public class KeyContainer extends Container
     @ObjectHolder("enderthing:key")
     public static ContainerType<KeyContainer> TYPE = null;
 
-    private final Predicate<PlayerEntity> interactTest;
-    private final Runnable onClose;
+    private final IContainerInteraction interactionHandler;
 
     private static boolean isUsableByPlayer(@Nullable TileEntity te, PlayerEntity p)
     {
@@ -56,34 +54,104 @@ public class KeyContainer extends Container
         return getInventory(world, user, isPriv, key, bound);
     }
 
+    // Client side shared container
     public KeyContainer(int windowId, PlayerInventory playerInv, PacketBuffer extraData)
     {
-        this(windowId, playerInv, extraData.readInt(), new ItemStackHandler(27), p -> true, NOOP);
+        this(windowId, playerInv, extraData.readInt(), new ItemStackHandler(27), new IContainerInteraction()
+        {
+            @Override
+            public boolean canBeUsed(PlayerEntity player)
+            {
+                return true;
+            }
+
+            @Override
+            public void openChest()
+            {
+            }
+
+            @Override
+            public void closeChest()
+            {
+            }
+        });
     }
 
+    // Ender Locked chest
     public KeyContainer(int windowId, PlayerInventory playerInventory, EnderKeyChestTileEntity keyChest)
     {
-        this(windowId, playerInventory, -1,
-                getInventory(keyChest, playerInventory.player),
-                p -> KeyContainer.isUsableByPlayer(keyChest, p),
-                keyChest::closeChest);
+        this(windowId, playerInventory, -1, getInventory(keyChest, playerInventory.player), keyChest);
     }
 
-    public KeyContainer(int windowId, PlayerInventory playerInventory, @Nullable TileEntity enderChest,
+    // Ender Key on chest
+    public KeyContainer(int windowId, PlayerInventory playerInventory, @Nullable EnderKeyChestTileEntity enderChest,
+                        boolean isPrivate, int slot, long id, @Nullable UUID bound)
+    {
+        this(windowId, playerInventory, slot,
+                getInventory(playerInventory.player.world, playerInventory.player, isPrivate, id, bound), enderChest);
+    }
+
+    // Ender Key on chest
+    public KeyContainer(int windowId, PlayerInventory playerInventory, @Nullable EnderChestTileEntity enderChest,
                         boolean isPrivate, int slot, long id, @Nullable UUID bound)
     {
         this(windowId, playerInventory, slot,
                 getInventory(playerInventory.player.world, playerInventory.player, isPrivate, id, bound),
-                p -> KeyContainer.isUsableByPlayer(enderChest, p),
-                NOOP);
+                new IContainerInteraction()
+                {
+                    @Override
+                    public boolean canBeUsed(PlayerEntity player)
+                    {
+                        return enderChest.canBeUsed(player);
+                    }
+
+                    @Override
+                    public void openChest()
+                    {
+                        enderChest.openChest();
+                    }
+
+                    @Override
+                    public void closeChest()
+                    {
+                        enderChest.closeChest();
+                    }
+                });
     }
 
-    public KeyContainer(int windowId, PlayerInventory playerInventory, int lockedSlot, IItemHandler inventory, @Nullable Predicate<PlayerEntity> interactTest, @Nullable Runnable onClose)
+    // Ender Pack
+    public KeyContainer(int windowId, PlayerInventory playerInventory, boolean isPrivate, int slot, long id, @Nullable UUID bound)
+    {
+        this(windowId, playerInventory, slot,
+                getInventory(playerInventory.player.world, playerInventory.player, isPrivate, id, bound),
+                new IContainerInteraction()
+                {
+                    @Override
+                    public boolean canBeUsed(PlayerEntity player)
+                    {
+                        return true;
+                    }
+
+                    @Override
+                    public void openChest()
+                    {
+                    }
+
+                    @Override
+                    public void closeChest()
+                    {
+                    }
+                });
+    }
+
+    public KeyContainer(int windowId, PlayerInventory playerInventory, int lockedSlot, IItemHandler inventory,
+                        IContainerInteraction interactionHandler)
     {
         super(TYPE, windowId);
 
-        this.interactTest = interactTest;
-        this.onClose = onClose;
+        this.interactionHandler = interactionHandler;
+
+        interactionHandler.openChest();
 
         for (int j = 0; j < 3; ++j)
         {
@@ -123,13 +191,13 @@ public class KeyContainer extends Container
     public void onContainerClosed(PlayerEntity playerIn)
     {
         super.onContainerClosed(playerIn);
-        onClose.run();
+        interactionHandler.closeChest();
     }
 
     @Override
     public boolean canInteractWith(PlayerEntity playerIn)
     {
-        return interactTest.test(playerIn);
+        return interactionHandler.canBeUsed(playerIn);
     }
 
     @Override

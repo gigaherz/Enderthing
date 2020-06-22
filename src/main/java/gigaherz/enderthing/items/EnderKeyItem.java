@@ -2,6 +2,7 @@ package gigaherz.enderthing.items;
 
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
+import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
 import gigaherz.enderthing.gui.Containers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -11,6 +12,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
+import net.minecraft.tileentity.EnderChestTileEntity;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -84,7 +87,13 @@ public class EnderKeyItem extends EnderthingItem
             return ActionResultType.PASS;
 
         if (player instanceof ServerPlayerEntity)
-            Containers.openItemGui((ServerPlayerEntity) player, isPrivate(stack), -1, id, null, world.getTileEntity(pos));
+        {
+            TileEntity te = world.getTileEntity(pos);
+            if (te instanceof EnderKeyChestTileEntity)
+                Containers.openItemGui((ServerPlayerEntity) player, isPrivate(stack), -1, id, null, (EnderKeyChestTileEntity)te);
+            else if (te instanceof EnderChestTileEntity)
+                Containers.openItemGui((ServerPlayerEntity) player, isPrivate(stack), -1, id, null, (EnderChestTileEntity)te);
+        }
 
         return ActionResultType.SUCCESS;
     }

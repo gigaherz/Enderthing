@@ -142,6 +142,7 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
     private void setKeyChest(World worldIn, BlockPos pos, BlockState state, ItemStack stack)
     {
         worldIn.setBlockState(pos, Enderthing.KEY_CHEST.getDefaultState()
+                    .with(EnderKeyChestBlock.WATERLOGGED, state.get(EnderChestBlock.WATERLOGGED))
                     .with(EnderKeyChestBlock.FACING, state.get(EnderChestBlock.FACING)));
     }
 }

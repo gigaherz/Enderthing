@@ -95,7 +95,7 @@ public class EnderPackItem extends EnderthingItem
                     (ServerPlayerEntity) playerIn,
                     priv,
                     playerIn.inventory.currentItem,
-                    id, null, null);
+                    id, null);
         }
     }
 }
