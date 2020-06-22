@@ -34,9 +34,8 @@ public class EnderKeyChestRenderer extends TileEntityRenderer<EnderKeyChestTileE
 
     public void renderFromItem(ItemStack stack)
     {
-        Minecraft minecraft = Minecraft.getInstance();
         ItemStack lock = KeyUtils.getLock(KeyUtils.getKey(stack), KeyUtils.isPrivate(stack), KeyUtils.getBound(stack));
-        renderInternal(0, 0, 0, minecraft.getRenderPartialTicks(), -1, 0, 0, 0, lock);
+        renderInternal(0, 0, 0, 0, -1, 0, 0, 0, lock);
     }
 
     @Override
