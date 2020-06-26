@@ -34,5 +34,5 @@
     "text.enderthing.ender_card.bound": "Cette carte est maintenant liée à vous",
     "text.enderthing.ender_chest.bound1": "Ce coffre est maintenant liée à: %s",
     "text.enderthing.ender_chest.bound2": "Ce coffre est maintenant liée à: %s (%s)",
-    "text.enderthing.key_change": "The key has been successfully changed to %s"
+    "text.enderthing.key_change": "La clé a bien été définie en %s"
 }
