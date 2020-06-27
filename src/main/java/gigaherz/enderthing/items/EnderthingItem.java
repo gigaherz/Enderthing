@@ -28,9 +28,6 @@ public class EnderthingItem extends Item implements KeyUtils.IKeyHolder
     public EnderthingItem(Properties properties)
     {
         super(properties);
-
-        this.addPropertyOverride(new ResourceLocation("private"),
-                (stack, world, entity) -> isPrivate(stack) ? 1.0f : 0.0f);
     }
 
     @Override

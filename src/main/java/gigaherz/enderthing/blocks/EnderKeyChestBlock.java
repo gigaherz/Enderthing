@@ -7,8 +7,8 @@ import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.fluid.IFluidState;
 import net.minecraft.item.*;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.PathType;
@@ -101,7 +101,7 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEnti
     }
 
     @Override
-    public IFluidState getFluidState(BlockState state)
+    public FluidState getFluidState(BlockState state)
     {
         return state.get(WATERLOGGED) ? Fluids.WATER.getDefaultState() : Fluids.EMPTY.getDefaultState();
     }
@@ -141,7 +141,7 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEnti
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context)
     {
-        IFluidState fluidState = context.getWorld().getFluidState(context.getPos());
+        FluidState fluidState = context.getWorld().getFluidState(context.getPos());
         return this.getDefaultState().with(FACING, context.getPlayer().getHorizontalFacing().getOpposite())
                 .with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
     }
@@ -207,5 +207,11 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEnti
         }
 
         return new ItemStack(Enderthing.KEY_CHEST);
+    }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public TileEntityMerger.ICallbackWrapper<? extends ChestTileEntity> func_225536_a_(BlockState p_225536_1_, World p_225536_2_, BlockPos p_225536_3_, boolean p_225536_4_) {
+        return TileEntityMerger.ICallback::func_225537_b_;
     }
 }

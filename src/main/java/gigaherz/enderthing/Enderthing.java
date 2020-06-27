@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import gigaherz.enderthing.blocks.EnderKeyChestBlock;
 import gigaherz.enderthing.blocks.EnderKeyChestBlockItem;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
+import gigaherz.enderthing.client.ClientEvents;
 import gigaherz.enderthing.gui.KeyContainer;
 import gigaherz.enderthing.gui.KeyScreen;
 import gigaherz.enderthing.gui.PasscodeContainer;
@@ -19,33 +20,29 @@ import gigaherz.enderthing.recipes.MakeBoundRecipe;
 import gigaherz.enderthing.recipes.MakePrivateRecipe;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.data.*;
 import net.minecraft.data.loot.BlockLootTables;
 import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.SpecialRecipe;
 import net.minecraft.item.crafting.SpecialRecipeSerializer;
+import net.minecraft.loot.*;
+import net.minecraft.loot.conditions.ILootCondition;
+import net.minecraft.loot.functions.CopyName;
+import net.minecraft.loot.functions.CopyNbt;
+import net.minecraft.loot.functions.SetCount;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.storage.loot.*;
-import net.minecraft.world.storage.loot.conditions.ILootCondition;
-import net.minecraft.world.storage.loot.functions.CopyName;
-import net.minecraft.world.storage.loot.functions.CopyNbt;
-import net.minecraft.world.storage.loot.functions.SetCount;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -179,6 +176,13 @@ public class Enderthing
     {
         ScreenManager.registerFactory(KeyContainer.TYPE, KeyScreen::new);
         ScreenManager.registerFactory(PasscodeContainer.TYPE, PasscodeScreen::new);
+
+        ItemModelsProperties.func_239418_a_(KEY, new ResourceLocation("private"), (stack, world, entity) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+        ItemModelsProperties.func_239418_a_(LOCK, new ResourceLocation("private"), (stack, world, entity) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+        ItemModelsProperties.func_239418_a_(PACK, new ResourceLocation("private"), (stack, world, entity) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+        ItemModelsProperties.func_239418_a_(KEY_CHEST_ITEM, new ResourceLocation("private"), (stack, world, entity) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+
+        ItemModelsProperties.func_239418_a_(LOCK, new ResourceLocation("bound"), (stack, world, entity) -> KeyUtils.isPrivate(stack) && KeyUtils.isBound(stack) ? 1.0f : 0.0f);
     }
 
     public static ResourceLocation location(String path)
@@ -192,17 +196,17 @@ public class Enderthing
         {
             if (KeyUtils.isPrivate(stack))
             {
-                tooltip.add(new TranslationTextComponent("tooltip.enderthing.private").applyTextStyles(TextFormatting.ITALIC, TextFormatting.BOLD));
+                tooltip.add(new TranslationTextComponent("tooltip.enderthing.private").func_240701_a_(TextFormatting.ITALIC, TextFormatting.BOLD));
             }
 
             long key = KeyUtils.getKey(stack);
             if (key >= 0)
             {
-                tooltip.add(new TranslationTextComponent("tooltip.enderthing.key", key).applyTextStyle(TextFormatting.ITALIC));
+                tooltip.add(new TranslationTextComponent("tooltip.enderthing.key", key).func_240701_a_(TextFormatting.ITALIC));
             }
             else
             {
-                tooltip.add(new TranslationTextComponent("tooltip.enderthing.key_missing").applyTextStyle(TextFormatting.ITALIC));
+                tooltip.add(new TranslationTextComponent("tooltip.enderthing.key_missing").func_240701_a_(TextFormatting.ITALIC));
             }
         }
 

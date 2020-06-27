@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.DimensionSavedDataManager;
 import net.minecraft.world.storage.WorldSavedData;
@@ -33,8 +32,7 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
         {
             throw new RuntimeException("Attempted to get the data from a client world. This is wrong.");
         }
-
-        ServerWorld overworld = world.getServer().getWorld(DimensionType.OVERWORLD);
+        ServerWorld overworld = world.getServer().func_241755_D_();
 
         DimensionSavedDataManager storage = overworld.getSavedData();
         return storage.getOrCreate(InventoryManager::new, DATA_NAME);

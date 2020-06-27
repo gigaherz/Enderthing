@@ -154,9 +154,9 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
     }
 
     @Override
-    public void read(CompoundNBT tag)
+    public void func_230337_a_(BlockState state, CompoundNBT tag) // read
     {
-        super.read(tag);
+        super.func_230337_a_(state, tag);
         key = tag.getLong("Key");
         priv = tag.getBoolean("IsPrivate");
         if (isPrivate() && tag.contains("Bound", Constants.NBT.TAG_STRING))
@@ -192,10 +192,11 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
         return write(new CompoundNBT());
     }
 
+
     @Override
-    public void handleUpdateTag(CompoundNBT tag)
+    public void handleUpdateTag(BlockState state, CompoundNBT tag)
     {
-        read(tag);
+        func_230337_a_(state, tag);
     }
 
     @Override
@@ -208,7 +209,7 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
     public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet)
     {
         super.onDataPacket(net, packet);
-        handleUpdateTag(packet.getNbtCompound());
+        handleUpdateTag(getBlockState(), packet.getNbtCompound());
 
         BlockState state = world.getBlockState(pos);
         world.notifyBlockUpdate(pos, state, state, 3);

@@ -1,5 +1,6 @@
 package gigaherz.enderthing.gui;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
@@ -14,31 +15,24 @@ public class KeyScreen extends ContainerScreen<KeyContainer>
     {
         super(container, playerInventory, title);
         this.ySize = 168;
+        this.field_238745_s_ = this.ySize - 94;
     }
 
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground();
-        super.render(mouseX, mouseY, partialTicks);
-        this.renderHoveredToolTip(mouseX, mouseY);
-    }
-
-    @Override
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
+    public void func_230430_a_(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
-        GlStateManager.color4f(1, 1, 1, 1);
-
-        assert minecraft != null; // Shut up Intellij, it's not null.
-        minecraft.textureManager.bindTexture(CHEST_GUI_TEXTURE);
-
-        blit(guiLeft, guiTop, 0, 0, xSize, 3 * 18 + 17);
-        blit(guiLeft, guiTop + 3 * 18 + 17, 0, 126, xSize, 96);
+        this.func_230446_a_(matrixStack);
+        super.func_230430_a_(matrixStack, mouseX, mouseY, partialTicks);
+        this.func_230459_a_(matrixStack, mouseX, mouseY);
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
+    protected void func_230450_a_(MatrixStack matrixStack, float p_230450_2_, int mouseX, int mouseY)
     {
-        font.drawString(title.getFormattedText(), 8, 6, 0x404040);
-        font.drawString(playerInventory.getName().getFormattedText(), 8, ySize - 96 + 2, 0x404040);
+        assert field_230706_i_ != null; // Shut up Intellij, it's not null.
+        field_230706_i_.textureManager.bindTexture(CHEST_GUI_TEXTURE);
+
+        func_238474_b_(matrixStack, guiLeft, guiTop, 0, 0, xSize, 3 * 18 + 17);
+        func_238474_b_(matrixStack, guiLeft, guiTop + 3 * 18 + 17, 0, 126, xSize, 96);
     }
 }

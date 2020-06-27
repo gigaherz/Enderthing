@@ -6,6 +6,7 @@ import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.blocks.EnderKeyChestRenderer;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -48,9 +49,10 @@ public class ClientEvents
     private static final EnderKeyChestTileEntity defaultChest = new EnderKeyChestTileEntity();
     private static final NonNullLazy<ItemStackTileEntityRenderer> renderer = NonNullLazy.of(() -> new ItemStackTileEntityRenderer(){
         @Override
-        public void render(ItemStack itemStackIn, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn)
+        public void func_239207_a_(ItemStack itemStackIn, ItemCameraTransforms.TransformType transformType, MatrixStack matrixStackIn,
+                                   IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn)
         {
-            EnderKeyChestRenderer.INSTANCE.renderFromItem(itemStackIn, defaultChest, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn);
+            EnderKeyChestRenderer.INSTANCE.renderFromItem(itemStackIn, defaultChest, transformType, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn);
         }
     });
 

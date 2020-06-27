@@ -17,6 +17,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -149,7 +150,7 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
         {
             bindToPlayer(stack, playerIn);
 
-            playerIn.sendMessage(new TranslationTextComponent("text.enderthing.ender_card.bound"));
+            playerIn.sendMessage(new TranslationTextComponent("text.enderthing.ender_card.bound"), Util.field_240973_b_);
 
             return ActionResult.resultSuccess(stack);
         }
@@ -194,11 +195,11 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
             {
                 if (name == null || name.length() == 0)
                     player.sendMessage(new TranslationTextComponent("text.enderthing.ender_chest.bound1",
-                            new StringTextComponent(uuid.toString())));
+                            new StringTextComponent(uuid.toString())), Util.field_240973_b_);
                 else
                     player.sendMessage(new TranslationTextComponent("text.enderthing.ender_chest.bound2",
                             new StringTextComponent(uuid.toString()),
-                            new StringTextComponent(name)));
+                            new StringTextComponent(name)), Util.field_240973_b_);
             }
 
             return ActionResultType.SUCCESS;
@@ -229,8 +230,8 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
-        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.right_click1").applyTextStyle(TextFormatting.ITALIC));
-        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.right_click2").applyTextStyle(TextFormatting.ITALIC));
+        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.right_click1").func_240701_a_(TextFormatting.ITALIC));
+        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.right_click2").func_240701_a_(TextFormatting.ITALIC));
 
         UUID uuid = getBound(stack);
 
@@ -243,7 +244,7 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
         String name = getBoundPlayerCachedName(stack);
         String uuidText = uuid.toString();
 
-        if (flagIn == ITooltipFlag.TooltipFlags.NORMAL && !Screen.hasShiftDown())
+        if (flagIn == ITooltipFlag.TooltipFlags.NORMAL && !Screen.func_231173_s_())
         {
             String uuidBegin = uuidText.substring(0, 4);
             String uuidEnd = uuidText.substring(uuidText.length() - 4);

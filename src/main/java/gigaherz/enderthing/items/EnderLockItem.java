@@ -35,15 +35,13 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
     public EnderLockItem(Properties properties)
     {
         super(properties);
-        this.addPropertyOverride(new ResourceLocation("bound"),
-                (stack, world, entity) -> isPrivate(stack) && isBound(stack) ? 1.0f : 0.0f);
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
-        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_lock.right_click").applyTextStyle(TextFormatting.ITALIC));
+        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_lock.right_click").func_240701_a_(TextFormatting.ITALIC));
 
         if (isBound(stack))
             tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_lock.bound", getBoundStr(stack)));
