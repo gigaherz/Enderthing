@@ -31,6 +31,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
+@OnlyIn(
+        value = Dist.CLIENT,
+        _interface = IChestLid.class
+)
 public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, ITickableTileEntity, IContainerInteraction
 {
     @ObjectHolder("enderthing:key_chest")
@@ -154,9 +158,9 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
     }
 
     @Override
-    public void func_230337_a_(BlockState state, CompoundNBT tag) // read
+    public void read(BlockState state, CompoundNBT tag) // read
     {
-        super.func_230337_a_(state, tag);
+        super.read(state, tag);
         key = tag.getLong("Key");
         priv = tag.getBoolean("IsPrivate");
         if (isPrivate() && tag.contains("Bound", Constants.NBT.TAG_STRING))
@@ -196,7 +200,7 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
     @Override
     public void handleUpdateTag(BlockState state, CompoundNBT tag)
     {
-        func_230337_a_(state, tag);
+        read(state, tag);
     }
 
     @Override
@@ -213,12 +217,6 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
 
         BlockState state = world.getBlockState(pos);
         world.notifyBlockUpdate(pos, state, state, 3);
-    }
-
-    @Override
-    public boolean canRenderBreaking()
-    {
-        return true;
     }
 
     @Override

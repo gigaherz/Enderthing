@@ -43,19 +43,19 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
     }
 
     @Override
-    protected void func_231160_c_()
+    protected void init()
     {
-        super.func_231160_c_();
+        super.init();
         long cc = container.keyHolder.get();
         String startKey = cc >= 0 ? String.format("%d", cc) : "";
-        func_230480_a_(setButton = new Button(guiLeft + (xSize-30-10), guiTop + 95, 30, 20, new StringTextComponent("Set"), this::setButtonPressed));
-        func_230480_a_(textPasscode = new TextFieldWidget(field_230712_o_, guiLeft + 12, guiTop + 78, xSize-24, 12, new StringTextComponent(startKey))
+        addButton(setButton = new Button(guiLeft + (xSize-30-10), guiTop + 95, 30, 20, new StringTextComponent("Set"), this::setButtonPressed));
+        addButton(textPasscode = new TextFieldWidget(font, guiLeft + 12, guiTop + 78, xSize-24, 12, new StringTextComponent(startKey))
         {
             @Override
-            public boolean func_231044_a_(double mouseX, double mouseY, int mouseButton)
+            public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
             {
-                if (mouseX >= (double) this.field_230690_l_ && mouseX < (double) (this.field_230690_l_ + this.field_230688_j_)
-                        && mouseY >= (double) this.field_230691_m_ && mouseY < (double) (this.field_230691_m_ + this.field_230689_k_))
+                if (mouseX >= (double) this.x && mouseX < (double) (this.x + this.width)
+                        && mouseY >= (double) this.y && mouseY < (double) (this.y + this.height))
                 {
                     if (mouseButton == 1 && !Strings.isNullOrEmpty(getText()) && getText().length() > 0)
                     {
@@ -64,7 +64,7 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
                     }
                 }
 
-                return super.func_231044_a_(mouseX, mouseY, mouseButton);
+                return super.mouseClicked(mouseX, mouseY, mouseButton);
             }
         });
         textPasscode.setVisible(true);
@@ -73,7 +73,7 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
         textPasscode.setMaxStringLength(32767);
         textPasscode.setValidator(this::textPasscodeChanging);
         if (cc >= 0) updateCodeText(startKey);
-        setButton.field_230693_o_ = currentCode >= 0;
+        setButton.active = currentCode >= 0;
     }
 
     private void setButtonPressed(Button button)
@@ -93,30 +93,30 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
     }
 
     @Override
-    public boolean func_231042_a_(char p_charTyped_1_, int p_charTyped_2_)
+    public boolean charTyped(char p_charTyped_1_, int p_charTyped_2_)
     {
-        if (textPasscode.func_230999_j_() && textPasscode.func_231042_a_(p_charTyped_1_, p_charTyped_2_))
+        if (textPasscode.isFocused() && textPasscode.charTyped(p_charTyped_1_, p_charTyped_2_))
             return true;
 
-        return this.func_241217_q_() != null && this.func_241217_q_().func_231042_a_(p_charTyped_1_, p_charTyped_2_);
+        return this.getFocused() != null && this.getFocused().charTyped(p_charTyped_1_, p_charTyped_2_);
     }
 
     @Override
-    public boolean func_231046_a_(int key, int scanCode, int modifiers)
+    public boolean keyPressed(int key, int scanCode, int modifiers)
     {
-        if (textPasscode.func_230999_j_())
+        if (textPasscode.isFocused())
         {
-            if (textPasscode.func_231046_a_(key, scanCode, modifiers))
+            if (textPasscode.keyPressed(key, scanCode, modifiers))
                 return true;
             if (key != GLFW.GLFW_KEY_ESCAPE && key != GLFW.GLFW_KEY_TAB && key != GLFW.GLFW_KEY_ENTER)
                 return false;
         }
 
-        return super.func_231046_a_(key, scanCode, modifiers);
+        return super.keyPressed(key, scanCode, modifiers);
     }
 
     @Override
-    public boolean func_231044_a_(double x, double y, int btn)
+    public boolean mouseClicked(double x, double y, int btn)
     {
         if(btn == 0)
         {
@@ -147,7 +147,7 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
             }
         }
 
-        return super.func_231044_a_(x, y, btn);
+        return super.mouseClicked(x, y, btn);
     }
 
     private void updateCodeText(String text)
@@ -163,7 +163,7 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
     private void updateCode(long keyFromPasscode)
     {
         currentCode = keyFromPasscode;
-        setButton.field_230693_o_ = currentCode >= 0;
+        setButton.active = currentCode >= 0;
         if (currentCode >= 0)
         {
             preview = container.previewBase.copy();
@@ -176,57 +176,57 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
     }
 
     @Override
-    public void func_231152_a_(@Nonnull Minecraft minecraft, int scaledWidth, int scaledHeight)
+    public void resize(@Nonnull Minecraft minecraft, int scaledWidth, int scaledHeight)
     {
         String s = textPasscode.getText();
-        super.func_231152_a_(minecraft, scaledWidth, scaledHeight);
+        super.resize(minecraft, scaledWidth, scaledHeight);
         textPasscode.setText(s);
     }
 
-    @Override
-    public void func_230430_a_(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    @Override // render
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
-        this.func_230446_a_(matrixStack);
-        super.func_230430_a_(matrixStack, mouseX, mouseY, partialTicks);
+        this.renderBackground(matrixStack); // draw background
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
 
         RenderHelper.enableStandardItemLighting();
         for (int i = 0; i < itemPasscode.size(); i++)
         {
             ItemStack st = itemPasscode.get(i);
-            field_230707_j_.renderItemAndEffectIntoGUI(st,guiLeft + 12 + i*16, guiTop + 46);
+            itemRenderer.renderItemAndEffectIntoGUI(st,guiLeft + 12 + i*16, guiTop + 46);
         }
         if (preview != null)
-            field_230707_j_.renderItemAndEffectIntoGUI(preview, guiLeft+xSize-58, guiTop+97);
+            itemRenderer.renderItemAndEffectIntoGUI(preview, guiLeft+xSize-58, guiTop+97);
         RenderHelper.disableStandardItemLighting();
 
-        this.func_230459_a_(matrixStack, mouseX, mouseY);
+        this.func_230459_a_(matrixStack, mouseX, mouseY); // draw tooltips
     }
 
     @Override
     protected void func_230450_a_(MatrixStack matrixStack, float p_230450_2_, int mouseX, int mouseY)
     {
-        assert field_230706_i_ != null; // Shut up Intellij, it's not null.
-        field_230706_i_.textureManager.bindTexture(CHEST_GUI_TEXTURE);
+        assert minecraft != null; // Shut up Intellij, it's not null.
+        minecraft.textureManager.bindTexture(CHEST_GUI_TEXTURE);
 
-        func_238474_b_(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize);
+        blit(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize);
     }
 
-    @Override
+    @Override // background
     protected void func_230459_a_(MatrixStack p_230459_1_, int p_230459_2_, int p_230459_3_)
     {
         super.func_230459_a_(p_230459_1_, p_230459_2_, p_230459_3_);
     }
 
-    @Override
+    @Override // foreground
     protected void func_230451_b_(MatrixStack p_230451_1_, int p_230451_2_, int p_230451_3_)
     {
         super.func_230451_b_(p_230451_1_, p_230451_2_, p_230451_3_);
 
-        field_230712_o_.func_238422_b_(p_230451_1_, getKeyFormatted("Current key", container.keyHolder.get(), "<not set>"), 10, 22, 0xd8d8d8);
+        font.func_238422_b_(p_230451_1_, getKeyFormatted("Current key", container.keyHolder.get(), "<not set>"), 10, 22, 0xd8d8d8);
 
-        field_230712_o_.func_238422_b_(p_230451_1_, new StringTextComponent("Click on some items to set a key... "), 10, 35, 0xd8d8d8);
-        field_230712_o_.func_238422_b_(p_230451_1_, new StringTextComponent("...or enter a key manually"), 10, 66, 0xd8d8d8);
-        field_230712_o_.func_238422_b_(p_230451_1_, getKeyFormatted("Key", currentCode, "<invalid>"), 10, 100, 0xd8d8d8);
+        font.func_238422_b_(p_230451_1_, new StringTextComponent("Click on some items to set a key... "), 10, 35, 0xd8d8d8);
+        font.func_238422_b_(p_230451_1_, new StringTextComponent("...or enter a key manually"), 10, 66, 0xd8d8d8);
+        font.func_238422_b_(p_230451_1_, getKeyFormatted("Key", currentCode, "<invalid>"), 10, 100, 0xd8d8d8);
     }
 
     private ITextComponent getKeyFormatted(String s1, long currentCode, String s2)

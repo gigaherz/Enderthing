@@ -65,7 +65,7 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
-        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_key_chest.right_click").func_240701_a_(TextFormatting.ITALIC));
+        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_key_chest.right_click").mergeStyle(TextFormatting.ITALIC));
 
         Enderthing.Client.addStandardInformation(stack, tooltip);
     }

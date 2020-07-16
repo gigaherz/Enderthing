@@ -32,7 +32,7 @@ public class EnderPackItem extends EnderthingItem
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
-        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_pack.right_click").func_240701_a_(TextFormatting.ITALIC));
+        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_pack.right_click").mergeStyle(TextFormatting.ITALIC));
 
         super.addInformation(stack, worldIn, tooltip, flagIn);
     }

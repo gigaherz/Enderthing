@@ -196,17 +196,17 @@ public class Enderthing
         {
             if (KeyUtils.isPrivate(stack))
             {
-                tooltip.add(new TranslationTextComponent("tooltip.enderthing.private").func_240701_a_(TextFormatting.ITALIC, TextFormatting.BOLD));
+                tooltip.add(new TranslationTextComponent("tooltip.enderthing.private").mergeStyle(TextFormatting.ITALIC, TextFormatting.BOLD));
             }
 
             long key = KeyUtils.getKey(stack);
             if (key >= 0)
             {
-                tooltip.add(new TranslationTextComponent("tooltip.enderthing.key", key).func_240701_a_(TextFormatting.ITALIC));
+                tooltip.add(new TranslationTextComponent("tooltip.enderthing.key", key).mergeStyle(TextFormatting.ITALIC));
             }
             else
             {
-                tooltip.add(new TranslationTextComponent("tooltip.enderthing.key_missing").func_240701_a_(TextFormatting.ITALIC));
+                tooltip.add(new TranslationTextComponent("tooltip.enderthing.key_missing").mergeStyle(TextFormatting.ITALIC));
             }
         }
 

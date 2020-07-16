@@ -150,7 +150,7 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
         {
             bindToPlayer(stack, playerIn);
 
-            playerIn.sendMessage(new TranslationTextComponent("text.enderthing.ender_card.bound"), Util.field_240973_b_);
+            playerIn.sendMessage(new TranslationTextComponent("text.enderthing.ender_card.bound"), Util.DUMMY_UUID);
 
             return ActionResult.resultSuccess(stack);
         }
@@ -195,11 +195,11 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
             {
                 if (name == null || name.length() == 0)
                     player.sendMessage(new TranslationTextComponent("text.enderthing.ender_chest.bound1",
-                            new StringTextComponent(uuid.toString())), Util.field_240973_b_);
+                            new StringTextComponent(uuid.toString())), Util.DUMMY_UUID);
                 else
                     player.sendMessage(new TranslationTextComponent("text.enderthing.ender_chest.bound2",
                             new StringTextComponent(uuid.toString()),
-                            new StringTextComponent(name)), Util.field_240973_b_);
+                            new StringTextComponent(name)), Util.DUMMY_UUID);
             }
 
             return ActionResultType.SUCCESS;
@@ -230,8 +230,8 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
-        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.right_click1").func_240701_a_(TextFormatting.ITALIC));
-        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.right_click2").func_240701_a_(TextFormatting.ITALIC));
+        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.right_click1").mergeStyle(TextFormatting.ITALIC));
+        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.right_click2").mergeStyle(TextFormatting.ITALIC));
 
         UUID uuid = getBound(stack);
 
@@ -244,7 +244,7 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
         String name = getBoundPlayerCachedName(stack);
         String uuidText = uuid.toString();
 
-        if (flagIn == ITooltipFlag.TooltipFlags.NORMAL && !Screen.func_231173_s_())
+        if (flagIn == ITooltipFlag.TooltipFlags.NORMAL && !Screen.hasShiftDown())
         {
             String uuidBegin = uuidText.substring(0, 4);
             String uuidEnd = uuidText.substring(uuidText.length() - 4);

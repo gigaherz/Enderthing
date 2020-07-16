@@ -41,7 +41,7 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
-        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_lock.right_click").func_240701_a_(TextFormatting.ITALIC));
+        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_lock.right_click").mergeStyle(TextFormatting.ITALIC));
 
         if (isBound(stack))
             tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_lock.bound", getBoundStr(stack)));

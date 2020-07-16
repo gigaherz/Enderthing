@@ -50,8 +50,9 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEnti
                 .with(FACING, Direction.NORTH));
     }
 
+    @Override
     @OnlyIn(Dist.CLIENT)
-    public TileEntityMerger.ICallbackWrapper<? extends ChestTileEntity> combine(BlockState state, World worldIn, BlockPos pos, boolean p_225536_4_) {
+    public TileEntityMerger.ICallbackWrapper<? extends ChestTileEntity> combine(BlockState p_225536_1_, World p_225536_2_, BlockPos p_225536_3_, boolean p_225536_4_) {
         return TileEntityMerger.ICallback::func_225537_b_;
     }
 
@@ -207,11 +208,5 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEnti
         }
 
         return new ItemStack(Enderthing.KEY_CHEST);
-    }
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public TileEntityMerger.ICallbackWrapper<? extends ChestTileEntity> func_225536_a_(BlockState p_225536_1_, World p_225536_2_, BlockPos p_225536_3_, boolean p_225536_4_) {
-        return TileEntityMerger.ICallback::func_225537_b_;
     }
 }

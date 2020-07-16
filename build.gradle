@@ -12,7 +12,7 @@ apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 
-version = '1.0.1'
+version = '1.0.2'
 group = 'gigaherz.enderthing'
 archivesBaseName = "Enderthing-UNKNOWN"
 
@@ -27,7 +27,7 @@ sourceSets {
 }
 
 minecraft {
-    mappings channel: 'snapshot', version: '20200514-1.16'
+    mappings channel: 'snapshot', version: '20200712-1.16.1'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -84,7 +84,7 @@ minecraft {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.1-32.0.14'
+    minecraft 'net.minecraftforge:forge:1.16.1-32.0.66'
 }
 
 jar {
