@@ -15,7 +15,7 @@ public class KeyScreen extends ContainerScreen<KeyContainer>
     {
         super(container, playerInventory, title);
         this.ySize = 168;
-        this.field_238745_s_ = this.ySize - 94;
+        this.playerInventoryTitleY = this.ySize - 94;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class KeyScreen extends ContainerScreen<KeyContainer>
     }
 
     @Override
-    protected void func_230450_a_(MatrixStack matrixStack, float p_230450_2_, int mouseX, int mouseY)
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float p_230450_2_, int mouseX, int mouseY)
     {
         assert minecraft != null; // Shut up Intellij, it's not null.
         minecraft.textureManager.bindTexture(CHEST_GUI_TEXTURE);

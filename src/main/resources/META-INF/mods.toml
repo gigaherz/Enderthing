@@ -5,6 +5,7 @@ displayURL="https://github.com/gigaherz/Enderthing" #optional
 logoFile="logo.png" #optional
 credits="Thanks for this example mod goes to Java" #optional
 authors="gigaherz" #optional
+license="BSD (3 clause)"
 
 [[mods]] #mandatory
 modId="enderthing" #mandatory

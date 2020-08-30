@@ -39,7 +39,7 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
         super(screenContainer, inv, titleIn);
         xSize = 212;
         ySize = 218;
-        this.field_238745_s_ = this.ySize - 94;
+        this.playerInventoryTitleY = this.ySize - 94;
     }
 
     @Override
@@ -98,7 +98,7 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
         if (textPasscode.isFocused() && textPasscode.charTyped(p_charTyped_1_, p_charTyped_2_))
             return true;
 
-        return this.getFocused() != null && this.getFocused().charTyped(p_charTyped_1_, p_charTyped_2_);
+        return this.getListener() != null && this.getListener().charTyped(p_charTyped_1_, p_charTyped_2_);
     }
 
     @Override
@@ -203,7 +203,7 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
     }
 
     @Override
-    protected void func_230450_a_(MatrixStack matrixStack, float p_230450_2_, int mouseX, int mouseY)
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float p_230450_2_, int mouseX, int mouseY)
     {
         assert minecraft != null; // Shut up Intellij, it's not null.
         minecraft.textureManager.bindTexture(CHEST_GUI_TEXTURE);
@@ -218,9 +218,9 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
     }
 
     @Override // foreground
-    protected void func_230451_b_(MatrixStack p_230451_1_, int p_230451_2_, int p_230451_3_)
+    protected void drawGuiContainerForegroundLayer(MatrixStack p_230451_1_, int p_230451_2_, int p_230451_3_)
     {
-        super.func_230451_b_(p_230451_1_, p_230451_2_, p_230451_3_);
+        super.drawGuiContainerForegroundLayer(p_230451_1_, p_230451_2_, p_230451_3_);
 
         font.func_238422_b_(p_230451_1_, getKeyFormatted("Current key", container.keyHolder.get(), "<not set>"), 10, 22, 0xd8d8d8);
 
