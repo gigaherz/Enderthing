@@ -199,7 +199,7 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
             itemRenderer.renderItemAndEffectIntoGUI(preview, guiLeft+xSize-58, guiTop+97);
         RenderHelper.disableStandardItemLighting();
 
-        this.func_230459_a_(matrixStack, mouseX, mouseY); // draw tooltips
+        this.renderHoveredTooltip(matrixStack, mouseX, mouseY); // draw tooltips
     }
 
     @Override
@@ -212,9 +212,9 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
     }
 
     @Override // background
-    protected void func_230459_a_(MatrixStack p_230459_1_, int p_230459_2_, int p_230459_3_)
+    protected void renderHoveredTooltip(MatrixStack p_230459_1_, int p_230459_2_, int p_230459_3_)
     {
-        super.func_230459_a_(p_230459_1_, p_230459_2_, p_230459_3_);
+        super.renderHoveredTooltip(p_230459_1_, p_230459_2_, p_230459_3_);
     }
 
     @Override // foreground
@@ -222,11 +222,11 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
     {
         super.drawGuiContainerForegroundLayer(p_230451_1_, p_230451_2_, p_230451_3_);
 
-        font.func_238422_b_(p_230451_1_, getKeyFormatted("Current key", container.keyHolder.get(), "<not set>"), 10, 22, 0xd8d8d8);
+        font.func_243246_a(p_230451_1_, getKeyFormatted("Current key", container.keyHolder.get(), "<not set>"), 10, 22, 0xd8d8d8);
 
-        font.func_238422_b_(p_230451_1_, new StringTextComponent("Click on some items to set a key... "), 10, 35, 0xd8d8d8);
-        font.func_238422_b_(p_230451_1_, new StringTextComponent("...or enter a key manually"), 10, 66, 0xd8d8d8);
-        font.func_238422_b_(p_230451_1_, getKeyFormatted("Key", currentCode, "<invalid>"), 10, 100, 0xd8d8d8);
+        font.func_243246_a(p_230451_1_, new StringTextComponent("Click on some items to set a key... "), 10, 35, 0xd8d8d8);
+        font.func_243246_a(p_230451_1_, new StringTextComponent("...or enter a key manually"), 10, 66, 0xd8d8d8);
+        font.func_243246_a(p_230451_1_, getKeyFormatted("Key", currentCode, "<invalid>"), 10, 100, 0xd8d8d8);
     }
 
     private ITextComponent getKeyFormatted(String s1, long currentCode, String s2)
