@@ -1,5 +1,5 @@
 modLoader="javafml" #mandatory
-loaderVersion="[32,)" #mandatory
+loaderVersion="[33,)" #mandatory
 issueTrackerURL="https://github.com/gigaherz/Enderthing/issues" #optional
 displayURL="https://github.com/gigaherz/Enderthing" #optional
 logoFile="logo.png" #optional
