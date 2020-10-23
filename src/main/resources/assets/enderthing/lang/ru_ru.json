@@ -1,0 +1,38 @@
+{
+    "block.enderthing.key_chest": "Ендер ключ сундук",
+    "block.enderthing.key_chest_private": "Приватный ендер ключ сундук",
+
+    "item.enderthing.key": "Ендер ключ",
+    "item.enderthing.key_private": "Приватный ендер ключ",
+    "item.enderthing.lock": "Ендер замок",
+    "item.enderthing.lock_private": "Приватный ендер замок",
+    "item.enderthing.pack": "Ендер упаковка",
+    "item.enderthing.pack_private": "Приватная ендер упаковка",
+    "item.enderthing.card": "Ендер карта безопасности",
+
+    "itemGroup.enderthing.things": "Enderthing... Вещы",
+
+    "container.enderthing.global": "Глобальный ендер инвентрь",
+    "container.enderthing.private": "Приватный ендер инвентрь",
+    "container.enderthing.passcode": "Назначить пароль",
+
+    "tooltip.enderthing.key_missing": "Ключ не установлен.",
+    "tooltip.enderthing.key": "Ключ: %s",
+    "tooltip.enderthing.private": "Приватный",
+
+    "tooltip.enderthing.ender_key_chest.right_click": "Создайте замок Эндер и щелкните правой кнопкой мыши ванильный сундук.",
+    "tooltip.enderthing.ender_key.right_click": "Shift-Щелкните правой кнопкой мыши по сундуку ванильного края, чтобы открыть общий инвентарь.",
+    "tooltip.enderthing.ender_lock.right_click": "Shift-щелчок правой кнопкой мыши по сундуку end, чтобы установить или заменить ключ.",
+    "tooltip.enderthing.ender_pack.right_click": "Щелкните правой кнопкой мыши, чтобы открыть общий инвентарь.",
+    "tooltip.enderthing.ender_card.right_click1": "Shift-Rightclick по воздуху, чтобы привязать его к вам.",
+    "tooltip.enderthing.ender_card.right_click2": "Shift-щелчок правой кнопкой мыши на личном сундуке, чтобы связать сундук и разрешить автоматизацию.",
+    "tooltip.enderthing.ender_card.unbound": "Несвязанный",
+    "tooltip.enderthing.ender_card.bound1": "Привязан к: %s",
+    "tooltip.enderthing.ender_card.bound2": "Привязан к: %s (%s)",
+    "tooltip.enderthing.ender_lock.bound": "Привязан к: %s",
+
+    "text.enderthing.ender_card.bound": "Карта теперь привязана к вам",
+    "text.enderthing.ender_chest.bound1": "Сундук теперь привязан к: %s",
+    "text.enderthing.ender_chest.bound2": "Сундук теперь привязан к: %s (%s)",
+    "text.enderthing.key_change": "Ключ был успешно изменен на %s"
+}
