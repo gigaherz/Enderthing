@@ -1,6 +1,7 @@
 package gigaherz.enderthing.storage;
 
 import com.google.common.collect.Maps;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.world.World;
@@ -9,13 +10,17 @@ import net.minecraft.world.storage.DimensionSavedDataManager;
 import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
 public class InventoryManager extends WorldSavedData implements IInventoryManager
 {
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final String DATA_NAME = "enderthing_InventoryStorageManager";
 
     private Container global = new Container();
@@ -26,11 +31,49 @@ public class InventoryManager extends WorldSavedData implements IInventoryManage
         super(DATA_NAME);
     }
 
+    private static boolean errorLogged = false;
+
+    private static InventoryManager DUMMY_CLIENT = new InventoryManager()
+    {
+        private final EnderInventory inv = new EnderInventory(this) {
+            @Nonnull
+            @Override
+            public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate)
+            {
+                return stack;
+            }
+
+            @Override
+            public boolean isItemValid(int slot, @Nonnull ItemStack stack)
+            {
+                return false;
+            }
+        };
+
+        @Override
+        public EnderInventory getInventory(long id)
+        {
+            return inv;
+        }
+
+        @Override
+        public IInventoryManager getPrivate(UUID uuid)
+        {
+            return this;
+        }
+    };
+
     public static InventoryManager get(World world)
     {
         if (!(world instanceof ServerWorld))
         {
-            throw new RuntimeException("Attempted to get the data from a client world. This is wrong.");
+            if (!errorLogged)
+            {
+                RuntimeException exc = new RuntimeException("Attempted to get the data from a client world. This is wrong.");
+
+                LOGGER.error("Some mod attempted to get the inventory contents of an Ender Key from the client. This is not supported.", exc);
+            }
+            return DUMMY_CLIENT;
         }
         ServerWorld overworld = world.getServer().func_241755_D_();
 
