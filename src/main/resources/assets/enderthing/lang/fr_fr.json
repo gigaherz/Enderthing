@@ -1,0 +1,38 @@
+{
+    "block.enderthing.key_chest": "Coffre de la clé de l'Ender",
+    "block.enderthing.key_chest_private": "Coffre privé de la clé de l'Ender",
+
+    "item.enderthing.key": "Clé de l'Ender",
+    "item.enderthing.key_private": "Clé de l'Ender privée",
+    "item.enderthing.lock": "Cadena de l'Ender",
+    "item.enderthing.lock_private": "Cadena de l'Ender privé",
+    "item.enderthing.pack": "Sac de l'Ender",
+    "item.enderthing.pack_private": "Sac de l'Ender privé",
+    "item.enderthing.card": "Carte de sécuritée de l'Ender",
+
+    "itemGroup.enderthing.things": "Chose d'Enderthing...",
+
+    "container.enderthing.global": "Inventaire de l'Ender global",
+    "container.enderthing.private": "Inventaire de l'Ender privé",
+    "container.enderthing.passcode": "Assigner un mot de passe",
+
+    "tooltip.enderthing.key_missing": "Aucune clé définie.",
+    "tooltip.enderthing.key": "Clé: %s",
+    "tooltip.enderthing.private": "Privé",
+
+    "tooltip.enderthing.ender_key_chest.right_click": "Fabriquer un cadena de l\'Ender et Majuscule et clique-droit sur un coffre vanilla.",
+    "tooltip.enderthing.ender_key.right_click": "Majuscule et clique-droit sur un coffre de l\'Ender pour accéder a l\'inventaire partagé.",
+    "tooltip.enderthing.ender_lock.right_click": "Majuscule et clique-droit sur un coffre de l\'Ender pour définir ou changer la clé.",
+    "tooltip.enderthing.ender_pack.right_click": "Clique-droit pour ouvre l\'inventaire partagé.",
+    "tooltip.enderthing.ender_card.right_click1": "Majuscule et clique-droit dans les airs pour la lié a vous.",
+    "tooltip.enderthing.ender_card.right_click2": "Majuscule et clique-droit sur un coffre privée pour lier celui-ci et autoriser l\'automatisation.",
+    "tooltip.enderthing.ender_card.unbound": "Non liée",
+    "tooltip.enderthing.ender_card.bound1": "Liée à: %s",
+    "tooltip.enderthing.ender_card.bound2": "Liée à: %s (%s)",
+    "tooltip.enderthing.ender_lock.bound": "Liée à: %s",
+
+    "text.enderthing.ender_card.bound": "Cette carte est maintenant liée à vous",
+    "text.enderthing.ender_chest.bound1": "Ce coffre est maintenant liée à: %s",
+    "text.enderthing.ender_chest.bound2": "Ce coffre est maintenant liée à: %s (%s)",
+    "text.enderthing.key_change": "La clé a bien été définie en %s"
+}
