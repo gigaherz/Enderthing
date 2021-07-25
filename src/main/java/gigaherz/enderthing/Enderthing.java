@@ -48,6 +48,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -168,7 +169,7 @@ public class Enderthing
     public void commonSetup(FMLCommonSetupEvent event)
     {
         int messageNumber = 0;
-        CHANNEL.messageBuilder(SetItemKey.class, messageNumber++).encoder(SetItemKey::encode).decoder(SetItemKey::new).consumer(SetItemKey::handle).add();
+        CHANNEL.messageBuilder(SetItemKey.class, messageNumber++, NetworkDirection.PLAY_TO_SERVER).encoder(SetItemKey::encode).decoder(SetItemKey::new).consumer(SetItemKey::handle).add();
         LOGGER.debug("Final message number: " + messageNumber);
     }
 
