@@ -5,23 +5,24 @@ import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.gui.Containers;
 import gigaherz.enderthing.util.ILongAccessor;
 import joptsimple.internal.Strings;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
+
+import net.minecraft.world.item.Item.Properties;
 
 public class EnderthingItem extends Item implements KeyUtils.IKeyHolder
 {
@@ -31,9 +32,9 @@ public class EnderthingItem extends Item implements KeyUtils.IKeyHolder
     }
 
     @Override
-    public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items)
+    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items)
     {
-        if (isInGroup(group))
+        if (allowdedIn(group))
         {
             items.add(new ItemStack(this));
             items.add(KeyUtils.setPrivate(new ItemStack(this), true));
@@ -41,20 +42,20 @@ public class EnderthingItem extends Item implements KeyUtils.IKeyHolder
     }
 
     @Override
-    public Optional<CompoundNBT> findHolderTag(ItemStack stack)
+    public Optional<CompoundTag> findHolderTag(ItemStack stack)
     {
         return Optional.ofNullable(stack.getTag());
     }
 
     @Override
-    public CompoundNBT getOrCreateHolderTag(ItemStack stack)
+    public CompoundTag getOrCreateHolderTag(ItemStack stack)
     {
         return stack.getOrCreateTag();
     }
 
-    protected void openPasscodeScreen(PlayerEntity playerIn, ItemStack stack)
+    protected void openPasscodeScreen(Player playerIn, ItemStack stack)
     {
-        Containers.openPasscodeScreen((ServerPlayerEntity) playerIn, new ILongAccessor()
+        Containers.openPasscodeScreen((ServerPlayer) playerIn, new ILongAccessor()
         {
             @Override
             public long get()
@@ -72,7 +73,7 @@ public class EnderthingItem extends Item implements KeyUtils.IKeyHolder
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
     {
         Enderthing.Client.addStandardInformation(stack, tooltip);
     }

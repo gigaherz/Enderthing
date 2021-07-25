@@ -4,19 +4,20 @@ import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.gui.IContainerInteraction;
 import gigaherz.enderthing.storage.EnderInventory;
 import gigaherz.enderthing.storage.InventoryManager;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.IChestLid;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.entity.LidBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
@@ -33,20 +34,21 @@ import java.util.UUID;
 
 @OnlyIn(
         value = Dist.CLIENT,
-        _interface = IChestLid.class
+        _interface = LidBlockEntity.class
 )
-public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, ITickableTileEntity, IContainerInteraction
+public class EnderKeyChestTileEntity extends BlockEntity implements LidBlockEntity, IContainerInteraction
 {
     @ObjectHolder("enderthing:key_chest")
-    public static TileEntityType<EnderKeyChestTileEntity> TYPE;
+    public static BlockEntityType<EnderKeyChestTileEntity> TYPE;
 
-    protected EnderKeyChestTileEntity(TileEntityType<?> tileEntityTypeIn)
+    protected EnderKeyChestTileEntity(BlockEntityType<?> tileEntityTypeIn, BlockPos blockPos, BlockState blockState)
     {
-        super(tileEntityTypeIn);
+        super(tileEntityTypeIn, blockPos, blockState);
     }
-    public EnderKeyChestTileEntity()
+
+    public EnderKeyChestTileEntity(BlockPos blockPos, BlockState blockState)
     {
-        super(TYPE);
+        super(TYPE, blockPos, blockState);
     }
 
     public float lidAngle;
@@ -118,10 +120,10 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
         inventoryLazy = LazyOptional.of(this::getInventory);
 
         releasePreviousInventory();
-        markDirty();
+        setChanged();
 
-        BlockState state = world.getBlockState(pos);
-        world.notifyBlockUpdate(pos, state, state, 3);
+        BlockState state = level.getBlockState(worldPosition);
+        level.sendBlockUpdated(worldPosition, state, state, 3);
     }
 
     public boolean isBoundToPlayer()
@@ -146,21 +148,21 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
     @Nonnull
     public IItemHandlerModifiable getInventory()
     {
-        if (world != null && inventory == null && hasInventory())
+        if (level != null && inventory == null && hasInventory())
         {
             if (isBoundToPlayer())
-                inventory = InventoryManager.get(world).getPrivate(boundToPlayer).getInventory(key);
+                inventory = InventoryManager.get(level).getPrivate(boundToPlayer).getInventory(key);
             else
-                inventory = InventoryManager.get(world).getInventory(key);
+                inventory = InventoryManager.get(level).getInventory(key);
             inventory.addWeakListener(this);
         }
         return inventory;
     }
 
     @Override
-    public void read(BlockState state, CompoundNBT tag) // read
+    public void load(CompoundTag tag) // read
     {
-        super.read(state, tag);
+        super.load(tag);
         key = tag.getLong("Key");
         priv = tag.getBoolean("IsPrivate");
         if (isPrivate() && tag.contains("Bound", Constants.NBT.TAG_STRING))
@@ -169,9 +171,9 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT tag)
+    public CompoundTag save(CompoundTag tag)
     {
-        tag = super.write(tag);
+        tag = super.save(tag);
         tag.putLong("Key", key);
         tag.putBoolean("IsPrivate", priv);
         if (isPrivate() && boundToPlayer != null)
@@ -191,51 +193,55 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
     }
 
     @Override
-    public CompoundNBT getUpdateTag()
+    public CompoundTag getUpdateTag()
     {
-        return write(new CompoundNBT());
+        return save(new CompoundTag());
     }
 
 
     @Override
-    public void handleUpdateTag(BlockState state, CompoundNBT tag)
+    public void handleUpdateTag(CompoundTag tag)
     {
-        read(state, tag);
+        load(tag);
     }
 
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket()
+    public ClientboundBlockEntityDataPacket getUpdatePacket()
     {
-        return new SUpdateTileEntityPacket(this.pos, 0, getUpdateTag());
+        return new ClientboundBlockEntityDataPacket(this.worldPosition, 0, getUpdateTag());
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet)
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet)
     {
         super.onDataPacket(net, packet);
-        handleUpdateTag(getBlockState(), packet.getNbtCompound());
+        handleUpdateTag(packet.getTag());
 
-        BlockState state = world.getBlockState(pos);
-        world.notifyBlockUpdate(pos, state, state, 3);
+        BlockState state = level.getBlockState(worldPosition);
+        level.sendBlockUpdated(worldPosition, state, state, 3);
     }
 
-    @Override
+    public static void lidAnimationTick(Level level, BlockPos pos, BlockState state, EnderKeyChestTileEntity be)
+    {
+        be.tick();
+    }
+
     public void tick()
     {
         if (++this.ticksSinceSync % 20 * 4 == 0) {
-            this.world.addBlockEvent(this.pos, Blocks.ENDER_CHEST, 1, this.numPlayersUsing);
+            this.level.blockEvent(this.worldPosition, Blocks.ENDER_CHEST, 1, this.numPlayersUsing);
         }
 
 
         this.prevLidAngle = this.lidAngle;
-        int i = this.pos.getX();
-        int j = this.pos.getY();
-        int k = this.pos.getZ();
+        int i = this.worldPosition.getX();
+        int j = this.worldPosition.getY();
+        int k = this.worldPosition.getZ();
         float f = 0.1F;
         if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F) {
             double d0 = (double)i + 0.5D;
             double d1 = (double)k + 0.5D;
-            this.world.playSound(null, d0, (double)j + 0.5D, d1, SoundEvents.BLOCK_ENDER_CHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+            this.level.playSound(null, d0, (double)j + 0.5D, d1, SoundEvents.ENDER_CHEST_OPEN, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F);
         }
 
         if (this.numPlayersUsing == 0 && this.lidAngle > 0.0F || this.numPlayersUsing > 0 && this.lidAngle < 1.0F) {
@@ -254,7 +260,7 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
             if (this.lidAngle < 0.5F && f2 >= 0.5F) {
                 double d3 = (double)i + 0.5D;
                 double d2 = (double)k + 0.5D;
-                this.world.playSound((PlayerEntity)null, d3, (double)j + 0.5D, d2, SoundEvents.BLOCK_ENDER_CHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+                this.level.playSound((Player)null, d3, (double)j + 0.5D, d2, SoundEvents.ENDER_CHEST_CLOSE, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F);
             }
 
             if (this.lidAngle < 0.0F) {
@@ -264,42 +270,36 @@ public class EnderKeyChestTileEntity extends TileEntity implements IChestLid, IT
     }
 
     @Override
-    public boolean receiveClientEvent(int id, int type) {
+    public boolean triggerEvent(int id, int type) {
         if (id == 1) {
             this.numPlayersUsing = type;
             return true;
         } else {
-            return super.receiveClientEvent(id, type);
+            return super.triggerEvent(id, type);
         }
-    }
-
-    @Override
-    public void remove() {
-        this.updateContainingBlockInfo();
-        super.remove();
     }
 
     public void openChest() {
         ++this.numPlayersUsing;
-        this.world.addBlockEvent(this.pos, Enderthing.KEY_CHEST, 1, this.numPlayersUsing);
+        this.level.blockEvent(this.worldPosition, Enderthing.KEY_CHEST, 1, this.numPlayersUsing);
     }
 
     public void closeChest() {
         --this.numPlayersUsing;
-        this.world.addBlockEvent(this.pos, Enderthing.KEY_CHEST, 1, this.numPlayersUsing);
+        this.level.blockEvent(this.worldPosition, Enderthing.KEY_CHEST, 1, this.numPlayersUsing);
     }
 
-    public boolean canBeUsed(PlayerEntity player) {
-        if (this.world.getTileEntity(this.pos) != this) {
+    public boolean canBeUsed(Player player) {
+        if (this.level.getBlockEntity(this.worldPosition) != this) {
             return false;
         } else {
-            return !(player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) > 64.0D);
+            return !(player.distanceToSqr((double)this.worldPosition.getX() + 0.5D, (double)this.worldPosition.getY() + 0.5D, (double)this.worldPosition.getZ() + 0.5D) > 64.0D);
         }
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public float getLidAngle(float partialTicks) {
+    public float getOpenNess(float partialTicks) {
         return this.prevLidAngle + (this.lidAngle - this.prevLidAngle) * partialTicks;
     }
 }

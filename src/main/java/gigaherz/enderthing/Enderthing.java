@@ -5,7 +5,6 @@ import com.mojang.datafixers.util.Pair;
 import gigaherz.enderthing.blocks.EnderKeyChestBlock;
 import gigaherz.enderthing.blocks.EnderKeyChestBlockItem;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
-import gigaherz.enderthing.client.ClientEvents;
 import gigaherz.enderthing.gui.KeyContainer;
 import gigaherz.enderthing.gui.KeyScreen;
 import gigaherz.enderthing.gui.PasscodeContainer;
@@ -18,39 +17,54 @@ import gigaherz.enderthing.network.SetItemKey;
 import gigaherz.enderthing.recipes.AddLockRecipe;
 import gigaherz.enderthing.recipes.MakeBoundRecipe;
 import gigaherz.enderthing.recipes.MakePrivateRecipe;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.data.*;
-import net.minecraft.data.loot.BlockLootTables;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.*;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.SpecialRecipeSerializer;
-import net.minecraft.loot.*;
-import net.minecraft.loot.conditions.ILootCondition;
-import net.minecraft.loot.functions.CopyName;
-import net.minecraft.loot.functions.CopyNbt;
-import net.minecraft.loot.functions.SetCount;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.api.distmarker.Dist;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.data.DataProvider;
+import net.minecraft.data.loot.BlockLoot;
+import net.minecraft.data.loot.LootTableProvider;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.SpecialRecipeBuilder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.storage.loot.*;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
+import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.fmllegacy.network.NetworkDirection;
+import net.minecraftforge.fmllegacy.network.NetworkRegistry;
+import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ObjectHolder;
 import org.apache.logging.log4j.LogManager;
@@ -89,10 +103,10 @@ public class Enderthing
 
     public static Enderthing INSTANCE;
 
-    public static ItemGroup ENDERTHING_GROUP = new ItemGroup("enderthing.things")
+    public static CreativeModeTab ENDERTHING_GROUP = new CreativeModeTab("enderthing.things")
     {
         @Override
-        public ItemStack createIcon()
+        public ItemStack makeIcon()
         {
             return new ItemStack(KEY);
         }
@@ -115,9 +129,9 @@ public class Enderthing
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addGenericListener(Block.class, this::registerBlocks);
         modEventBus.addGenericListener(Item.class, this::registerItems);
-        modEventBus.addGenericListener(TileEntityType.class, this::registerTileEntities);
-        modEventBus.addGenericListener(ContainerType.class, this::registerContainers);
-        modEventBus.addGenericListener(IRecipeSerializer.class, this::registerRecipeSerializers);
+        modEventBus.addGenericListener(BlockEntityType.class, this::registerTileEntities);
+        modEventBus.addGenericListener(MenuType.class, this::registerContainers);
+        modEventBus.addGenericListener(RecipeSerializer.class, this::registerRecipeSerializers);
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::clientSetup);
         modEventBus.addListener(this::gatherData);
@@ -126,7 +140,7 @@ public class Enderthing
     public void registerBlocks(RegistryEvent.Register<Block> event)
     {
         event.getRegistry().registerAll(
-                new EnderKeyChestBlock(Block.Properties.from(Blocks.ENDER_CHEST)).setRegistryName("key_chest")
+                new EnderKeyChestBlock(Block.Properties.copy(Blocks.ENDER_CHEST)).setRegistryName("key_chest")
         );
     }
 
@@ -135,21 +149,21 @@ public class Enderthing
         event.getRegistry().registerAll(
                 new EnderKeyChestBlockItem(KEY_CHEST, new Item.Properties())
                         .setRegistryName(KEY_CHEST.getRegistryName()),
-                new EnderKeyItem(new Item.Properties().group(ENDERTHING_GROUP)).setRegistryName("key"),
-                new EnderLockItem(new Item.Properties().group(ENDERTHING_GROUP)).setRegistryName("lock"),
-                new EnderPackItem(new Item.Properties().maxStackSize(1).group(ENDERTHING_GROUP)).setRegistryName("pack"),
-                new EnderCardItem(new Item.Properties().maxStackSize(1).group(ENDERTHING_GROUP)).setRegistryName("card")
+                new EnderKeyItem(new Item.Properties().tab(ENDERTHING_GROUP)).setRegistryName("key"),
+                new EnderLockItem(new Item.Properties().tab(ENDERTHING_GROUP)).setRegistryName("lock"),
+                new EnderPackItem(new Item.Properties().stacksTo(1).tab(ENDERTHING_GROUP)).setRegistryName("pack"),
+                new EnderCardItem(new Item.Properties().stacksTo(1).tab(ENDERTHING_GROUP)).setRegistryName("card")
         );
     }
 
-    private void registerTileEntities(RegistryEvent.Register<TileEntityType<?>> event)
+    private void registerTileEntities(RegistryEvent.Register<BlockEntityType<?>> event)
     {
         event.getRegistry().registerAll(
-                TileEntityType.Builder.create(EnderKeyChestTileEntity::new, KEY_CHEST).build(null).setRegistryName("key_chest")
+                BlockEntityType.Builder.of(EnderKeyChestTileEntity::new, KEY_CHEST).build(null).setRegistryName("key_chest")
         );
     }
 
-    private void registerContainers(RegistryEvent.Register<ContainerType<?>> event)
+    private void registerContainers(RegistryEvent.Register<MenuType<?>> event)
     {
         event.getRegistry().registerAll(
                 IForgeContainerType.create(KeyContainer::new).setRegistryName("key"),
@@ -157,12 +171,12 @@ public class Enderthing
         );
     }
 
-    private void registerRecipeSerializers(RegistryEvent.Register<IRecipeSerializer<?>> event)
+    private void registerRecipeSerializers(RegistryEvent.Register<RecipeSerializer<?>> event)
     {
         event.getRegistry().registerAll(
-                new SpecialRecipeSerializer<>(MakePrivateRecipe::new).setRegistryName("make_private"),
-                new SpecialRecipeSerializer<>(AddLockRecipe::new).setRegistryName("add_lock"),
-                new SpecialRecipeSerializer<>(MakeBoundRecipe::new).setRegistryName("make_bound")
+                new SimpleRecipeSerializer<>(MakePrivateRecipe::new).setRegistryName("make_private"),
+                new SimpleRecipeSerializer<>(AddLockRecipe::new).setRegistryName("add_lock"),
+                new SimpleRecipeSerializer<>(MakeBoundRecipe::new).setRegistryName("make_bound")
         );
     }
 
@@ -175,15 +189,15 @@ public class Enderthing
 
     private void clientSetup(FMLClientSetupEvent event)
     {
-        ScreenManager.registerFactory(KeyContainer.TYPE, KeyScreen::new);
-        ScreenManager.registerFactory(PasscodeContainer.TYPE, PasscodeScreen::new);
+        MenuScreens.register(KeyContainer.TYPE, KeyScreen::new);
+        MenuScreens.register(PasscodeContainer.TYPE, PasscodeScreen::new);
 
-        ItemModelsProperties.func_239418_a_(KEY, new ResourceLocation("private"), (stack, world, entity) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-        ItemModelsProperties.func_239418_a_(LOCK, new ResourceLocation("private"), (stack, world, entity) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-        ItemModelsProperties.func_239418_a_(PACK, new ResourceLocation("private"), (stack, world, entity) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-        ItemModelsProperties.func_239418_a_(KEY_CHEST_ITEM, new ResourceLocation("private"), (stack, world, entity) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+        ItemProperties.register(KEY, new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+        ItemProperties.register(LOCK, new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+        ItemProperties.register(PACK, new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+        ItemProperties.register(KEY_CHEST_ITEM, new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
 
-        ItemModelsProperties.func_239418_a_(LOCK, new ResourceLocation("bound"), (stack, world, entity) -> KeyUtils.isPrivate(stack) && KeyUtils.isBound(stack) ? 1.0f : 0.0f);
+        ItemProperties.register(LOCK, new ResourceLocation("bound"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) && KeyUtils.isBound(stack) ? 1.0f : 0.0f);
     }
 
     public static ResourceLocation location(String path)
@@ -193,21 +207,21 @@ public class Enderthing
 
     public static class Client
     {
-        public static void addStandardInformation(ItemStack stack, List<ITextComponent> tooltip)
+        public static void addStandardInformation(ItemStack stack, List<Component> tooltip)
         {
             if (KeyUtils.isPrivate(stack))
             {
-                tooltip.add(new TranslationTextComponent("tooltip.enderthing.private").mergeStyle(TextFormatting.ITALIC, TextFormatting.BOLD));
+                tooltip.add(new TranslatableComponent("tooltip.enderthing.private").withStyle(ChatFormatting.ITALIC, ChatFormatting.BOLD));
             }
 
             long key = KeyUtils.getKey(stack);
             if (key >= 0)
             {
-                tooltip.add(new TranslationTextComponent("tooltip.enderthing.key", key).mergeStyle(TextFormatting.ITALIC));
+                tooltip.add(new TranslatableComponent("tooltip.enderthing.key", key).withStyle(ChatFormatting.ITALIC));
             }
             else
             {
-                tooltip.add(new TranslationTextComponent("tooltip.enderthing.key_missing").mergeStyle(TextFormatting.ITALIC));
+                tooltip.add(new TranslatableComponent("tooltip.enderthing.key_missing").withStyle(ChatFormatting.ITALIC));
             }
         }
 
@@ -220,7 +234,7 @@ public class Enderthing
         if (event.includeServer())
         {
             gen.addProvider(new Recipes(gen));
-            gen.addProvider(new LootTables(gen));
+            gen.addProvider(new Loot(gen));
             //gen.addProvider(new ItemTagGens(gen));
             //gen.addProvider(new BlockTagGens(gen));
         }
@@ -230,15 +244,15 @@ public class Enderthing
         }
     }
 
-    private static class LootTables extends LootTableProvider implements IDataProvider
+    private static class Loot extends LootTableProvider implements DataProvider
     {
-        public LootTables(DataGenerator gen)
+        public Loot(DataGenerator gen)
         {
             super(gen);
         }
 
-        private final List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootParameterSet>> tables = ImmutableList.of(
-                Pair.of(BlockTables::new, LootParameterSets.BLOCK)
+        private final List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> tables = ImmutableList.of(
+                Pair.of(BlockTables::new, LootContextParamSets.BLOCK)
                 //Pair.of(FishingLootTables::new, LootParameterSets.FISHING),
                 //Pair.of(ChestLootTables::new, LootParameterSets.CHEST),
                 //Pair.of(EntityLootTables::new, LootParameterSets.ENTITY),
@@ -246,65 +260,65 @@ public class Enderthing
         );
 
         @Override
-        protected List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootParameterSet>> getTables()
+        protected List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> getTables()
         {
             return tables;
         }
 
         @Override
-        protected void validate(Map<ResourceLocation, LootTable> map, ValidationTracker validationtracker)
+        protected void validate(Map<ResourceLocation, LootTable> map, ValidationContext validationtracker)
         {
             map.forEach((p_218436_2_, p_218436_3_) -> {
-                LootTableManager.func_227508_a_(validationtracker, p_218436_2_, p_218436_3_);
+                LootTables.validate(validationtracker, p_218436_2_, p_218436_3_);
             });
         }
 
-        public static class BlockTables extends BlockLootTables
+        public static class BlockTables extends BlockLoot
         {
             @SuppressWarnings("ConstantConditions")
             @Override
             protected void addTables()
             {
-                this.registerLootTable(KEY_CHEST, BlockTables::droppingWithContents);
+                this.add(KEY_CHEST, BlockTables::droppingWithContents);
             }
 
-            protected static LootTable.Builder dropping(Block block, ILootCondition.IBuilder condition, LootEntry.Builder<?> alternativeEntry) {
-                return LootTable.builder()
-                        .addLootPool(LootPool.builder()
-                                .rolls(ConstantRange.of(1))
-                                .addEntry(ItemLootEntry
-                                        .builder(block).acceptCondition(condition)
-                                        .alternatively(alternativeEntry)));
+            protected static LootTable.Builder dropping(Block block, LootItemCondition.Builder condition, LootPoolEntryContainer.Builder<?> alternativeEntry) {
+                return LootTable.lootTable()
+                        .withPool(LootPool.lootPool()
+                                .setRolls(ConstantValue.exactly(1))
+                                .add(LootItem
+                                        .lootTableItem(block).when(condition)
+                                        .otherwise(alternativeEntry)));
             }
 
             protected static LootTable.Builder droppingWithContents(Block block) {
-                return LootTable.builder()
-                        .addLootPool(withSurvivesExplosion(block,
-                                LootPool.builder()
-                                        .rolls(ConstantRange.of(1))
-                                        .addEntry(ItemLootEntry.builder(block)
-                                                .acceptCondition(SILK_TOUCH)
-                                                .acceptFunction(CopyName.builder(CopyName.Source.BLOCK_ENTITY))
-                                                .acceptFunction(CopyNbt.builder(CopyNbt.Source.BLOCK_ENTITY)
-                                                        .replaceOperation("Key", "BlockEntityTag.Key")
-                                                        .replaceOperation("IsPrivate", "BlockEntityTag.IsPrivate")
-                                                        .replaceOperation("Bound", "BlockEntityTag.Bound")
+                return LootTable.lootTable()
+                        .withPool(applyExplosionCondition(block,
+                                LootPool.lootPool()
+                                        .setRolls(ConstantValue.exactly(1))
+                                        .add(LootItem.lootTableItem(block)
+                                                .when(HAS_SILK_TOUCH)
+                                                .apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY))
+                                                .apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+                                                        .copy("Key", "BlockEntityTag.Key")
+                                                        .copy("IsPrivate", "BlockEntityTag.IsPrivate")
+                                                        .copy("Bound", "BlockEntityTag.Bound")
                                                 )
-                                                .alternatively(ItemLootEntry.builder(LOCK)
-                                                        .acceptFunction(CopyNbt.builder(CopyNbt.Source.BLOCK_ENTITY)
-                                                                .replaceOperation("Key", "Key")
-                                                                .replaceOperation("IsPrivate", "IsPrivate")
-                                                                .replaceOperation("Bound", "Bound")
+                                                .otherwise(LootItem.lootTableItem(LOCK)
+                                                        .apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+                                                                .copy("Key", "Key")
+                                                                .copy("IsPrivate", "IsPrivate")
+                                                                .copy("Bound", "Bound")
                                                         ))
                                         )
                                 )
-                        ).addLootPool(LootPool.builder().rolls(ConstantRange.of(1))
-                                .addEntry(withNoSilkTouchRandomly(block, Items.OBSIDIAN, ConstantRange.of(8)))
+                        ).withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1))
+                                .add(withNoSilkTouchRandomly(block, Items.OBSIDIAN, ConstantValue.exactly(8)))
                         );
             }
 
-            protected static LootEntry.Builder<?> withNoSilkTouchRandomly(Block block, IItemProvider item, IRandomRange range) {
-                return withExplosionDecay(block, ItemLootEntry.builder(item).acceptFunction(SetCount.builder(range))).acceptCondition(NO_SILK_TOUCH);
+            protected static LootPoolEntryContainer.Builder<?> withNoSilkTouchRandomly(Block block, ItemLike item, NumberProvider range) {
+                return applyExplosionDecay(block, LootItem.lootTableItem(item).apply(SetItemCountFunction.setCount(range))).when(HAS_NO_SILK_TOUCH);
             }
 
 
@@ -326,52 +340,52 @@ public class Enderthing
         }
 
         @Override
-        protected void registerRecipes(Consumer<IFinishedRecipe> consumer)
+        protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer)
         {
-            ShapedRecipeBuilder.shapedRecipe(Enderthing.KEY)
-                    .patternLine("o  ")
-                    .patternLine("eog")
-                    .patternLine("nnn")
-                    .key('o', Blocks.OBSIDIAN)
-                    .key('g', Items.GOLD_INGOT)
-                    .key('e', Items.ENDER_EYE)
-                    .key('n', Items.IRON_NUGGET)
-                    .addCriterion("has_gold", hasItem(Items.ENDER_EYE))
-                    .build(consumer);
+            ShapedRecipeBuilder.shaped(Enderthing.KEY)
+                    .pattern("o  ")
+                    .pattern("eog")
+                    .pattern("nnn")
+                    .define('o', Blocks.OBSIDIAN)
+                    .define('g', Items.GOLD_INGOT)
+                    .define('e', Items.ENDER_EYE)
+                    .define('n', Items.IRON_NUGGET)
+                    .unlockedBy("has_gold", has(Items.ENDER_EYE))
+                    .save(consumer);
 
-            ShapedRecipeBuilder.shapedRecipe(Enderthing.LOCK)
-                    .patternLine(" g ")
-                    .patternLine("geg")
-                    .patternLine("nnn")
-                    .key('g', Items.GOLD_INGOT)
-                    .key('e', Items.ENDER_EYE)
-                    .key('n', Items.IRON_NUGGET)
-                    .addCriterion("has_gold", hasItem(Items.ENDER_EYE))
-                    .build(consumer);
+            ShapedRecipeBuilder.shaped(Enderthing.LOCK)
+                    .pattern(" g ")
+                    .pattern("geg")
+                    .pattern("nnn")
+                    .define('g', Items.GOLD_INGOT)
+                    .define('e', Items.ENDER_EYE)
+                    .define('n', Items.IRON_NUGGET)
+                    .unlockedBy("has_gold", has(Items.ENDER_EYE))
+                    .save(consumer);
 
-            ShapedRecipeBuilder.shapedRecipe(Enderthing.PACK)
-                    .patternLine("lel")
-                    .patternLine("nnn")
-                    .patternLine("lcl")
-                    .key('l', Items.LEATHER)
-                    .key('c', Blocks.ENDER_CHEST)
-                    .key('e', Items.ENDER_EYE)
-                    .key('n', Items.IRON_NUGGET)
-                    .addCriterion("has_gold", hasItem(Items.ENDER_EYE))
-                    .build(consumer);
+            ShapedRecipeBuilder.shaped(Enderthing.PACK)
+                    .pattern("lel")
+                    .pattern("nnn")
+                    .pattern("lcl")
+                    .define('l', Items.LEATHER)
+                    .define('c', Blocks.ENDER_CHEST)
+                    .define('e', Items.ENDER_EYE)
+                    .define('n', Items.IRON_NUGGET)
+                    .unlockedBy("has_gold", has(Items.ENDER_EYE))
+                    .save(consumer);
 
-            ShapedRecipeBuilder.shapedRecipe(Enderthing.CARD)
-                    .patternLine("nnn")
-                    .patternLine("ppp")
-                    .patternLine("nnn")
-                    .key('n', Items.GOLD_NUGGET)
-                    .key('p', Items.PAPER)
-                    .addCriterion("has_gold", hasItem(Items.ENDER_EYE))
-                    .build(consumer);
+            ShapedRecipeBuilder.shaped(Enderthing.CARD)
+                    .pattern("nnn")
+                    .pattern("ppp")
+                    .pattern("nnn")
+                    .define('n', Items.GOLD_NUGGET)
+                    .define('p', Items.PAPER)
+                    .unlockedBy("has_gold", has(Items.ENDER_EYE))
+                    .save(consumer);
 
-            CustomRecipeBuilder.customRecipe(MakePrivateRecipe.SERIALIZER).build(consumer, "enderthing:make_private");
-            CustomRecipeBuilder.customRecipe(AddLockRecipe.SERIALIZER).build(consumer, "enderthing:add_lock");
-            CustomRecipeBuilder.customRecipe(MakeBoundRecipe.SERIALIZER).build(consumer, "enderthing:make_bound");
+            SpecialRecipeBuilder.special(MakePrivateRecipe.SERIALIZER).save(consumer, "enderthing:make_private");
+            SpecialRecipeBuilder.special(AddLockRecipe.SERIALIZER).save(consumer, "enderthing:add_lock");
+            SpecialRecipeBuilder.special(MakeBoundRecipe.SERIALIZER).save(consumer, "enderthing:make_bound");
         }
     }
 }

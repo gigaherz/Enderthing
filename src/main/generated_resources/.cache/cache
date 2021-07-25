@@ -1,8 +1,8 @@
-b6f8e469647bc49d711ce516b525d9f40954381e data/enderthing/advancements/recipes/enderthing.things/card.json
-8d1b4b45895a61cbcc44ad4bf3a146562cbfa766 data/enderthing/advancements/recipes/enderthing.things/key.json
-4addfbc2e1b8382484289da03ca34c8f021cf7ed data/enderthing/advancements/recipes/enderthing.things/lock.json
-a4a45bd86afeb5c887c2c0a262cb9bedac1f3005 data/enderthing/advancements/recipes/enderthing.things/pack.json
-0138c30fb529ca9d1e9d5aeeafec89f3dece4e80 data/enderthing/loot_tables/blocks/key_chest.json
+990eac61701a224b7ad8b9cd6d5977c6abb86f71 data/enderthing/advancements/recipes/enderthing.things/card.json
+8df8cb0843b5c455c6837ca1affeb1f62570be99 data/enderthing/advancements/recipes/enderthing.things/key.json
+14021ea01e8d77366e21e76d6faf13e6905739bf data/enderthing/advancements/recipes/enderthing.things/lock.json
+62352770ce62b0491be250376ca63eacc7d68068 data/enderthing/advancements/recipes/enderthing.things/pack.json
+7564e0d6d2f36cfbf36a4797bcf71e750e102a31 data/enderthing/loot_tables/blocks/key_chest.json
 64507edfdfa020355b6860ccfc9d17d26ac8e61a data/enderthing/recipes/add_lock.json
 ab66e19eef39b0826c31a7f606b235e55e166d27 data/enderthing/recipes/card.json
 9272bbb7a9fffc81d6545607c84eaacca51f2074 data/enderthing/recipes/key.json

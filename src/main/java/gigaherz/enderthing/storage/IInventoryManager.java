@@ -2,7 +2,7 @@ package gigaherz.enderthing.storage;
 
 public interface IInventoryManager
 {
-    void setDirty();
+    void makeDirty();
 
     EnderInventory getInventory(long id);
 }

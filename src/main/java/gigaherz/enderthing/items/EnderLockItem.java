@@ -4,31 +4,32 @@ import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.blocks.EnderKeyChestBlock;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
-import net.minecraft.block.Block;
-import net.minecraft.block.EnderChestBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.block.Blocks;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EnderChestBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.Containers;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
+
+import net.minecraft.world.item.Item.Properties;
 
 public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableKeyHolder
 {
@@ -39,43 +40,43 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
     {
-        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_lock.right_click").mergeStyle(TextFormatting.ITALIC));
+        tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_lock.right_click").withStyle(ChatFormatting.ITALIC));
 
         if (isBound(stack))
-            tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_lock.bound", getBoundStr(stack)));
+            tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_lock.bound", getBoundStr(stack)));
 
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn)
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn)
     {
-        ItemStack stack = playerIn.getHeldItem(handIn);
+        ItemStack stack = playerIn.getItemInHand(handIn);
 
         long id = KeyUtils.getKey(stack);
 
         if (id < 0)
         {
-            if (!worldIn.isRemote)
+            if (!worldIn.isClientSide)
                 openPasscodeScreen(playerIn, stack);
-            return ActionResult.resultSuccess(stack);
+            return InteractionResultHolder.success(stack);
         }
 
-        return ActionResult.resultPass(stack);
+        return InteractionResultHolder.pass(stack);
     }
 
     @Override
-    public ActionResultType onItemUse(ItemUseContext context)
+    public InteractionResult useOn(UseOnContext context)
     {
-        World worldIn = context.getWorld();
-        BlockPos pos = context.getPos();
-        PlayerEntity player = context.getPlayer();
-        ItemStack stack = context.getItem();
+        Level worldIn = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        Player player = context.getPlayer();
+        ItemStack stack = context.getItemInHand();
 
-        if (worldIn.isRemote)
-            return ActionResultType.SUCCESS;
+        if (worldIn.isClientSide)
+            return InteractionResult.SUCCESS;
 
         BlockState state = worldIn.getBlockState(pos);
 
@@ -84,12 +85,12 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
         if (id < 0)
         {
             openPasscodeScreen(player, stack);
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         Block b = state.getBlock();
 
-        TileEntity te = worldIn.getTileEntity(pos);
+        BlockEntity te = worldIn.getBlockEntity(pos);
 
         if (b == Blocks.ENDER_CHEST)
         {
@@ -107,21 +108,21 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
                 UUID bound = chest.getPlayerBound();
                 ItemStack oldStack = KeyUtils.getLock(oldId, oldPrivate, bound);
 
-                InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
+                Containers.dropItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
             }
 
             boolean newPrivate = isPrivate(stack);
             return replaceWithKeyChest(worldIn, pos, stack, state, id, oldPrivate != newPrivate, player);
         }
 
-        return ActionResultType.PASS;
+        return InteractionResult.PASS;
     }
 
-    private ActionResultType replaceWithKeyChest(World worldIn, BlockPos pos, ItemStack stack, BlockState state, long id, boolean replace, PlayerEntity player)
+    private InteractionResult replaceWithKeyChest(Level worldIn, BlockPos pos, ItemStack stack, BlockState state, long id, boolean replace, Player player)
     {
         if (replace) setKeyChest(worldIn, pos, state, stack);
 
-        TileEntity te = worldIn.getTileEntity(pos);
+        BlockEntity te = worldIn.getBlockEntity(pos);
         if (te instanceof EnderKeyChestTileEntity)
         {
             EnderKeyChestTileEntity chest = (EnderKeyChestTileEntity) te;
@@ -134,13 +135,13 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
         if (!player.isCreative())
             stack.grow(-1);
 
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
-    private void setKeyChest(World worldIn, BlockPos pos, BlockState state, ItemStack stack)
+    private void setKeyChest(Level worldIn, BlockPos pos, BlockState state, ItemStack stack)
     {
-        worldIn.setBlockState(pos, Enderthing.KEY_CHEST.getDefaultState()
-                    .with(EnderKeyChestBlock.WATERLOGGED, state.get(EnderChestBlock.WATERLOGGED))
-                    .with(EnderKeyChestBlock.FACING, state.get(EnderChestBlock.FACING)));
+        worldIn.setBlockAndUpdate(pos, Enderthing.KEY_CHEST.defaultBlockState()
+                    .setValue(EnderKeyChestBlock.WATERLOGGED, state.getValue(EnderChestBlock.WATERLOGGED))
+                    .setValue(EnderKeyChestBlock.FACING, state.getValue(EnderChestBlock.FACING)));
     }
 }

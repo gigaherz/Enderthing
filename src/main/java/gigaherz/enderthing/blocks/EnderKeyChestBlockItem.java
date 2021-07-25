@@ -1,47 +1,57 @@
 package gigaherz.enderthing.blocks;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.client.ClientEvents;
 import gigaherz.enderthing.gui.Containers;
 import gigaherz.enderthing.util.ILongAccessor;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.IItemRenderProperties;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
+
+import net.minecraft.world.item.Item.Properties;
+import net.minecraftforge.common.util.NonNullLazy;
 
 public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBindableKeyHolder
 {
     public EnderKeyChestBlockItem(Block block, Properties properties)
     {
-        super(block, properties.setISTER(() -> ClientEvents::getKeyChestRenderer));
+        super(block, properties);
     }
 
     @Override
-    public Optional<CompoundNBT> findHolderTag(ItemStack stack)
+    public Optional<CompoundTag> findHolderTag(ItemStack stack)
     {
-        CompoundNBT tag = stack.getTag();
+        CompoundTag tag = stack.getTag();
         if (tag == null) return Optional.empty();
         if (!tag.contains("BlockEntityTag", Constants.NBT.TAG_COMPOUND))
             return Optional.empty();
@@ -49,13 +59,13 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
     }
 
     @Override
-    public CompoundNBT getOrCreateHolderTag(ItemStack stack)
+    public CompoundTag getOrCreateHolderTag(ItemStack stack)
     {
-        return stack.getOrCreateChildTag("BlockEntityTag");
+        return stack.getOrCreateTagElement("BlockEntityTag");
     }
 
     @Override
-    public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items)
+    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items)
     {
         // Don't show in creative menu
         //super.fillItemGroup(group, items);
@@ -63,16 +73,16 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
     {
-        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_key_chest.right_click").mergeStyle(TextFormatting.ITALIC));
+        tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_key_chest.right_click").withStyle(ChatFormatting.ITALIC));
 
         Enderthing.Client.addStandardInformation(stack, tooltip);
     }
 
-    private void openPasscodeScreen(PlayerEntity playerIn, ItemStack stack)
+    private void openPasscodeScreen(Player playerIn, ItemStack stack)
     {
-        Containers.openPasscodeScreen((ServerPlayerEntity) playerIn, new ILongAccessor()
+        Containers.openPasscodeScreen((ServerPlayer) playerIn, new ILongAccessor()
         {
             @Override
             public long get()
@@ -89,43 +99,75 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand hand)
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand hand)
     {
-        ItemStack stack = playerIn.getHeldItem(hand);
+        ItemStack stack = playerIn.getItemInHand(hand);
 
         long oldId = getKey(stack);
 
         if (oldId < 0)
         {
-            if (!worldIn.isRemote)
+            if (!worldIn.isClientSide)
                 openPasscodeScreen(playerIn, stack);
-            return ActionResult.resultSuccess(stack);
+            return InteractionResultHolder.success(stack);
         }
 
-        if (playerIn.isSneaking())
+        if (playerIn.isShiftKeyDown())
         {
             ItemStack oldStack = KeyUtils.getLock(oldId, isPrivate(stack));
 
-            if (!playerIn.inventory.addItemStackToInventory(oldStack))
+            if (!playerIn.getInventory().add(oldStack))
             {
-                playerIn.dropItem(oldStack, false);
+                playerIn.drop(oldStack, false);
             }
 
             if (stack.getCount() > 1)
             {
                 ItemStack newStack = new ItemStack(Blocks.ENDER_CHEST);
-                if (!playerIn.inventory.addItemStackToInventory(newStack))
+                if (!playerIn.getInventory().add(newStack))
                 {
-                    playerIn.dropItem(newStack, false);
+                    playerIn.drop(newStack, false);
                 }
 
                 stack.grow(-1);
-                return ActionResult.resultSuccess(stack);
+                return InteractionResultHolder.success(stack);
             }
 
-            return ActionResult.resultSuccess(new ItemStack(Blocks.ENDER_CHEST));
+            return InteractionResultHolder.success(new ItemStack(Blocks.ENDER_CHEST));
         }
 
-        return super.onItemRightClick(worldIn, playerIn, hand);
+        return super.use(worldIn, playerIn, hand);
+    }
+
+    @Override
+    public void initializeClient(Consumer<IItemRenderProperties> consumer)
+    {
+        if (Minecraft.getInstance() == null) return;
+
+        consumer.accept(new IItemRenderProperties()
+        {
+            static final NonNullLazy<BlockEntityWithoutLevelRenderer> renderer = NonNullLazy.of(() -> new BlockEntityWithoutLevelRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels()){
+                final EnderKeyChestTileEntity defaultChest = new EnderKeyChestTileEntity(BlockPos.ZERO, Enderthing.KEY_CHEST.defaultBlockState());
+                @Override
+                public void renderByItem(ItemStack itemStackIn, ItemTransforms.TransformType transformType, PoseStack matrixStackIn,
+                                         MultiBufferSource bufferIn, int combinedLightIn, int combinedOverlayIn)
+                {
+                    EnderKeyChestRenderer.INSTANCE.renderFromItem(itemStackIn, defaultChest, transformType, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn);
+                }
+            });
+
+            static BlockEntityWithoutLevelRenderer getKeyChestRenderer()
+            {
+                return renderer.get();
+            }
+
+            final BlockEntityWithoutLevelRenderer r = getKeyChestRenderer();
+
+            @Override
+            public BlockEntityWithoutLevelRenderer getItemStackRenderer()
+            {
+                return r;
+            }
+        });
     }
 }

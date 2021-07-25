@@ -1,21 +1,25 @@
 package gigaherz.enderthing.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
+import gigaherz.enderthing.blocks.EnderKeyChestBlock;
 import gigaherz.enderthing.blocks.EnderKeyChestRenderer;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.util.NonNullLazy;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fmlclient.registry.ClientRegistry;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid=Enderthing.MODID, bus= Mod.EventBusSubscriber.Bus.MOD)
 public class ClientEvents
@@ -23,7 +27,7 @@ public class ClientEvents
     @SubscribeEvent
     public static void modelRegistry(ModelRegistryEvent event)
     {
-        ClientRegistry.bindTileEntityRenderer(EnderKeyChestTileEntity.TYPE, EnderKeyChestRenderer::new);
+        BlockEntityRenderers.register(EnderKeyChestTileEntity.TYPE, EnderKeyChestRenderer::new);
     }
 
     @SubscribeEvent
@@ -44,20 +48,5 @@ public class ClientEvents
                     return (r << 16) | (g << 8) | (b);
                 },
                 Enderthing.KEY, Enderthing.LOCK, Enderthing.PACK);
-    }
-
-    private static final EnderKeyChestTileEntity defaultChest = new EnderKeyChestTileEntity();
-    private static final NonNullLazy<ItemStackTileEntityRenderer> renderer = NonNullLazy.of(() -> new ItemStackTileEntityRenderer(){
-        @Override
-        public void func_239207_a_(ItemStack itemStackIn, ItemCameraTransforms.TransformType transformType, MatrixStack matrixStackIn,
-                                   IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn)
-        {
-            EnderKeyChestRenderer.INSTANCE.renderFromItem(itemStackIn, defaultChest, transformType, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn);
-        }
-    });
-
-    public static ItemStackTileEntityRenderer getKeyChestRenderer()
-    {
-        return renderer.get();
     }
 }

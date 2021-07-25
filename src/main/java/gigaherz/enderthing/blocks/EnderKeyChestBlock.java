@@ -3,31 +3,27 @@ package gigaherz.enderthing.blocks;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.gui.Containers;
-import net.minecraft.block.*;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.*;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.ChestTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityMerger;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.entity.*;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.DoubleBlockCombiner;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -35,68 +31,79 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEntity> implements IWaterLoggable
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.AbstractChestBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.EnderChestBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.state.BlockState;
+
+public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEntity> implements SimpleWaterloggedBlock
 {
     public static final DirectionProperty FACING = EnderChestBlock.FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    protected static final VoxelShape SHAPE = Block.makeCuboidShape(1.0D, 0.0D, 1.0D, 15.0D, 14.0D, 15.0D);
+    protected static final VoxelShape SHAPE = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 14.0D, 15.0D);
 
     public EnderKeyChestBlock(Properties properties)
     {
         super(properties, () -> EnderKeyChestTileEntity.TYPE); // Material.ROCK
-        setDefaultState(this.getStateContainer().getBaseState()
-                .with(WATERLOGGED, false)
-                .with(FACING, Direction.NORTH));
+        registerDefaultState(this.getStateDefinition().any()
+                .setValue(WATERLOGGED, false)
+                .setValue(FACING, Direction.NORTH));
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public TileEntityMerger.ICallbackWrapper<? extends ChestTileEntity> combine(BlockState p_225536_1_, World p_225536_2_, BlockPos p_225536_3_, boolean p_225536_4_) {
-        return TileEntityMerger.ICallback::func_225537_b_;
+    public DoubleBlockCombiner.NeighborCombineResult<? extends ChestBlockEntity> combine(BlockState p_225536_1_, Level p_225536_2_, BlockPos p_225536_3_, boolean p_225536_4_) {
+        return DoubleBlockCombiner.Combiner::acceptNone;
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
     {
         builder.add(FACING, WATERLOGGED);
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context)
+    public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context)
     {
         return SHAPE;
     }
 
+    @Nullable
     @Override
-    public boolean hasTileEntity(BlockState state)
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType)
     {
-        return true;
+        return level.isClientSide ? createTickerHelper(blockEntityType, this.blockEntityType(), EnderKeyChestTileEntity::lidAnimationTick) : null;
+    }
+
+    public BlockEntityType<? extends EnderKeyChestTileEntity> blockEntityType() {
+        return this.blockEntityType.get();
     }
 
     @Nullable
     @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world)
+    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState)
     {
-        return new EnderKeyChestTileEntity();
-    }
-
-    @Nullable
-    @Override
-    public TileEntity createNewTileEntity(IBlockReader worldIn)
-    {
-        return new EnderKeyChestTileEntity();
+        return new EnderKeyChestTileEntity(blockPos, blockState);
     }
 
     @Deprecated
     @Override
-    public BlockRenderType getRenderType(BlockState state)
+    public RenderShape getRenderShape(BlockState state)
     {
-        return BlockRenderType.ENTITYBLOCK_ANIMATED;
+        return RenderShape.ENTITYBLOCK_ANIMATED;
     }
 
     @Override
-    public ItemStack getPickBlock(BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, PlayerEntity player)
+    public ItemStack getPickBlock(BlockState state, HitResult target, BlockGetter world, BlockPos pos, Player player)
     {
         return getItem(world, pos);
     }
@@ -104,58 +111,58 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEnti
     @Override
     public FluidState getFluidState(BlockState state)
     {
-        return state.get(WATERLOGGED) ? Fluids.WATER.getDefaultState() : Fluids.EMPTY.getDefaultState();
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.defaultFluidState() : Fluids.EMPTY.defaultFluidState();
     }
 
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit)
+    public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
+        BlockEntity te = worldIn.getBlockEntity(pos);
 
         if (!(te instanceof EnderKeyChestTileEntity))
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
 
-        if (worldIn.getBlockState(pos.up()).isNormalCube(worldIn, pos))
-            return ActionResultType.FAIL;
+        if (worldIn.getBlockState(pos.above()).isRedstoneConductor(worldIn, pos))
+            return InteractionResult.FAIL;
 
-        if (worldIn.isRemote)
-            return ActionResultType.SUCCESS;
+        if (worldIn.isClientSide)
+            return InteractionResult.SUCCESS;
 
-        if (player.isSneaking())
+        if (player.isShiftKeyDown())
         {
             ItemHandlerHelper.giveItemToPlayer(player, getItem(worldIn, pos));
-            worldIn.setBlockState(pos, Blocks.ENDER_CHEST.getDefaultState()
-                    .with(EnderKeyChestBlock.WATERLOGGED, state.get(EnderChestBlock.WATERLOGGED))
-                    .with(EnderKeyChestBlock.FACING, state.get(EnderChestBlock.FACING)));
-            return ActionResultType.SUCCESS;
+            worldIn.setBlockAndUpdate(pos, Blocks.ENDER_CHEST.defaultBlockState()
+                    .setValue(EnderKeyChestBlock.WATERLOGGED, state.getValue(EnderChestBlock.WATERLOGGED))
+                    .setValue(EnderKeyChestBlock.FACING, state.getValue(EnderChestBlock.FACING)));
+            return InteractionResult.SUCCESS;
         }
 
         EnderKeyChestTileEntity chest = (EnderKeyChestTileEntity) te;
 
-        if (player instanceof ServerPlayerEntity)
-            Containers.openBlockGui((ServerPlayerEntity) player, chest);
+        if (player instanceof ServerPlayer)
+            Containers.openBlockGui((ServerPlayer) player, chest);
 
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context)
+    public BlockState getStateForPlacement(BlockPlaceContext context)
     {
-        FluidState fluidState = context.getWorld().getFluidState(context.getPos());
-        return this.getDefaultState().with(FACING, context.getPlayer().getHorizontalFacing().getOpposite())
-                .with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
+        FluidState fluidState = context.getLevel().getFluidState(context.getClickedPos());
+        return this.defaultBlockState().setValue(FACING, context.getPlayer().getDirection().getOpposite())
+                .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
     }
 
     @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack)
+    public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack)
     {
-        worldIn.setBlockState(pos, state.with(FACING, placer.getHorizontalFacing().getOpposite()));
+        worldIn.setBlockAndUpdate(pos, state.setValue(FACING, placer.getDirection().getOpposite()));
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void animateTick(BlockState stateIn, World worldIn, BlockPos pos, Random rand)
+    public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, Random rand)
     {
         for (int i = 0; i < 3; ++i)
         {
@@ -173,31 +180,31 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEnti
 
     @Deprecated
     @Override
-    public BlockState updatePostPlacement(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn, BlockPos currentPos, BlockPos facingPos) {
-        if (stateIn.get(WATERLOGGED)) {
-            worldIn.getPendingFluidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickRate(worldIn));
+    public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn, BlockPos currentPos, BlockPos facingPos) {
+        if (stateIn.getValue(WATERLOGGED)) {
+            worldIn.getLiquidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(worldIn));
         }
 
-        return super.updatePostPlacement(stateIn, facing, facingState, worldIn, currentPos, facingPos);
+        return super.updateShape(stateIn, facing, facingState, worldIn, currentPos, facingPos);
     }
 
     @Deprecated
     @Override
-    public boolean allowsMovement(BlockState state, IBlockReader worldIn, BlockPos pos, PathType type) {
+    public boolean isPathfindable(BlockState state, BlockGetter worldIn, BlockPos pos, PathComputationType type) {
         return false;
     }
 
     @Deprecated
     @Override
-    public boolean eventReceived(BlockState state, World worldIn, BlockPos pos, int id, int param) {
-        super.eventReceived(state, worldIn, pos, id, param);
-        TileEntity tileentity = worldIn.getTileEntity(pos);
-        return tileentity != null && tileentity.receiveClientEvent(id, param);
+    public boolean triggerEvent(BlockState state, Level worldIn, BlockPos pos, int id, int param) {
+        super.triggerEvent(state, worldIn, pos, id, param);
+        BlockEntity tileentity = worldIn.getBlockEntity(pos);
+        return tileentity != null && tileentity.triggerEvent(id, param);
     }
 
-    private static ItemStack getItem(IBlockReader world, BlockPos pos)
+    private static ItemStack getItem(BlockGetter world, BlockPos pos)
     {
-        TileEntity te = world.getTileEntity(pos);
+        BlockEntity te = world.getBlockEntity(pos);
 
         if (te instanceof EnderKeyChestTileEntity)
         {

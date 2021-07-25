@@ -4,26 +4,26 @@ import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
 import joptsimple.internal.Strings;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.Constants;
@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import net.minecraft.world.item.Item.Properties;
+
 public class EnderCardItem extends Item implements KeyUtils.IBindable
 {
     public EnderCardItem(Properties properties)
@@ -41,13 +43,13 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
     }
 
     @Override
-    public Optional<CompoundNBT> findHolderTag(ItemStack stack)
+    public Optional<CompoundTag> findHolderTag(ItemStack stack)
     {
         return Optional.ofNullable(stack.getTag());
     }
 
     @Override
-    public CompoundNBT getOrCreateHolderTag(ItemStack stack)
+    public CompoundTag getOrCreateHolderTag(ItemStack stack)
     {
         return stack.getOrCreateTag();
     }
@@ -85,22 +87,22 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
             });
         else
         {
-            CompoundNBT tag = getOrCreateHolderTag(stack);
+            CompoundTag tag = getOrCreateHolderTag(stack);
             tag.putString("Bound", uuid.toString());
             tag.remove("PlayerName");
         }
     }
 
-    public void bindToPlayer(ItemStack stack, PlayerEntity player)
+    public void bindToPlayer(ItemStack stack, Player player)
     {
-        setBound(stack, player.getUniqueID());
+        setBound(stack, player.getUUID());
         stack.getOrCreateTag().putString("PlayerName", player.getName().getString());
     }
 
     @Nullable
     public String getBoundPlayerCachedName(ItemStack stack)
     {
-        CompoundNBT tag = stack.getTag();
+        CompoundTag tag = stack.getTag();
         if (tag == null)
             return null;
 
@@ -111,10 +113,10 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
 
     public void setBoundPlayerCachedName(ItemStack stack, String newName)
     {
-        CompoundNBT tag = stack.getTag();
+        CompoundTag tag = stack.getTag();
         if (tag == null)
         {
-            tag = new CompoundNBT();
+            tag = new CompoundTag();
             stack.setTag(tag);
         }
 
@@ -122,9 +124,9 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
     }
 
     @Override
-    public boolean hasEffect(ItemStack stack)
+    public boolean isFoil(ItemStack stack)
     {
-        return isBound(stack) || super.hasEffect(stack);
+        return isBound(stack) || super.isFoil(stack);
     }
 
     @Override
@@ -140,51 +142,51 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand hand)
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand hand)
     {
-        ItemStack stack = playerIn.getHeldItem(hand);
-        if (worldIn.isRemote)
-            return ActionResult.resultSuccess(stack);
+        ItemStack stack = playerIn.getItemInHand(hand);
+        if (worldIn.isClientSide)
+            return InteractionResultHolder.success(stack);
 
-        if (playerIn.isSneaking())
+        if (playerIn.isShiftKeyDown())
         {
             bindToPlayer(stack, playerIn);
 
-            playerIn.sendMessage(new TranslationTextComponent("text.enderthing.ender_card.bound"), Util.DUMMY_UUID);
+            playerIn.sendMessage(new TranslatableComponent("text.enderthing.ender_card.bound"), Util.NIL_UUID);
 
-            return ActionResult.resultSuccess(stack);
+            return InteractionResultHolder.success(stack);
         }
 
-        return ActionResult.resultPass(stack);
+        return InteractionResultHolder.pass(stack);
     }
 
     @Override
-    public ActionResultType onItemUse(ItemUseContext context)
+    public InteractionResult useOn(UseOnContext context)
     {
-        PlayerEntity player = context.getPlayer();
-        World world = context.getWorld();
-        BlockPos pos = context.getPos();
-        ItemStack stack = context.getItem();
+        Player player = context.getPlayer();
+        Level world = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        ItemStack stack = context.getItemInHand();
 
         UUID uuid = getBound(stack);
 
-        if (world.isRemote)
-            return ActionResultType.SUCCESS;
+        if (world.isClientSide)
+            return InteractionResult.SUCCESS;
 
         BlockState state = world.getBlockState(pos);
 
         if (state.getBlock() != Enderthing.KEY_CHEST)
         {
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
         }
 
-        TileEntity te = world.getTileEntity(pos);
+        BlockEntity te = world.getBlockEntity(pos);
         if (te instanceof EnderKeyChestTileEntity)
         {
             EnderKeyChestTileEntity chest = (EnderKeyChestTileEntity) te;
             if (!chest.isPrivate())
             {
-                return ActionResultType.PASS;
+                return InteractionResult.PASS;
             }
 
             chest.bindToPlayer(uuid);
@@ -194,24 +196,24 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
             if (player != null)
             {
                 if (name == null || name.length() == 0)
-                    player.sendMessage(new TranslationTextComponent("text.enderthing.ender_chest.bound1",
-                            new StringTextComponent(uuid.toString())), Util.DUMMY_UUID);
+                    player.sendMessage(new TranslatableComponent("text.enderthing.ender_chest.bound1",
+                            new TextComponent(uuid.toString())), Util.NIL_UUID);
                 else
-                    player.sendMessage(new TranslationTextComponent("text.enderthing.ender_chest.bound2",
-                            new StringTextComponent(uuid.toString()),
-                            new StringTextComponent(name)), Util.DUMMY_UUID);
+                    player.sendMessage(new TranslatableComponent("text.enderthing.ender_chest.bound2",
+                            new TextComponent(uuid.toString()),
+                            new TextComponent(name)), Util.NIL_UUID);
             }
 
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return ActionResultType.PASS;
+        return InteractionResult.PASS;
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected)
+    public void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected)
     {
-        if (!worldIn.isRemote && (stack.hashCode() % 120) == (worldIn.getGameTime() % 120))
+        if (!worldIn.isClientSide && (stack.hashCode() % 120) == (worldIn.getGameTime() % 120))
         {
             UUID uuid = getBound(stack);
             if (uuid != null)
@@ -228,23 +230,23 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
     {
-        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.right_click1").mergeStyle(TextFormatting.ITALIC));
-        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.right_click2").mergeStyle(TextFormatting.ITALIC));
+        tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_card.right_click1").withStyle(ChatFormatting.ITALIC));
+        tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_card.right_click2").withStyle(ChatFormatting.ITALIC));
 
         UUID uuid = getBound(stack);
 
         if (uuid == null)
         {
-            tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.unbound"));
+            tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_card.unbound"));
             return;
         }
 
         String name = getBoundPlayerCachedName(stack);
         String uuidText = uuid.toString();
 
-        if (flagIn == ITooltipFlag.TooltipFlags.NORMAL && !Screen.hasShiftDown())
+        if (flagIn == TooltipFlag.Default.NORMAL && !Screen.hasShiftDown())
         {
             String uuidBegin = uuidText.substring(0, 4);
             String uuidEnd = uuidText.substring(uuidText.length() - 4);
@@ -252,8 +254,8 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
         }
 
         if (name == null || name.length() == 0)
-            tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.bound1", uuidText));
+            tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_card.bound1", uuidText));
         else
-            tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_card.bound2", uuidText, name));
+            tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_card.bound2", uuidText, name));
     }
 }

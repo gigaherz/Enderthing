@@ -1,22 +1,22 @@
 package gigaherz.enderthing.recipes;
 
 import gigaherz.enderthing.KeyUtils;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.item.crafting.SpecialRecipe;
-import net.minecraft.item.crafting.SpecialRecipeSerializer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.crafting.IShapedRecipe;
 import net.minecraftforge.registries.ObjectHolder;
 
-public class MakePrivateRecipe extends SpecialRecipe implements IShapedRecipe<CraftingInventory>
+public class MakePrivateRecipe extends CustomRecipe implements IShapedRecipe<CraftingContainer>
 {
     @ObjectHolder("enderthing:make_private")
-    public static SpecialRecipeSerializer<MakePrivateRecipe> SERIALIZER = null;
+    public static SimpleRecipeSerializer<MakePrivateRecipe> SERIALIZER = null;
 
     public MakePrivateRecipe(ResourceLocation id)
     {
@@ -24,25 +24,25 @@ public class MakePrivateRecipe extends SpecialRecipe implements IShapedRecipe<Cr
     }
 
     @Override
-    public boolean matches(CraftingInventory inv, World worldIn)
+    public boolean matches(CraftingContainer inv, Level worldIn)
     {
-        ItemStack centerSlot = inv.getStackInSlot(4);
-        return inv.getStackInSlot(0).getCount() == 0
-                && inv.getStackInSlot(1).getItem() == Items.GOLD_NUGGET
-                && inv.getStackInSlot(2).getCount() == 0
-                && inv.getStackInSlot(3).getItem() == Items.GOLD_NUGGET
-                && inv.getStackInSlot(5).getItem() == Items.GOLD_NUGGET
-                && inv.getStackInSlot(6).getCount() == 0
-                && inv.getStackInSlot(7).getItem() == Items.GOLD_NUGGET
-                && inv.getStackInSlot(8).getCount() == 0
+        ItemStack centerSlot = inv.getItem(4);
+        return inv.getItem(0).getCount() == 0
+                && inv.getItem(1).getItem() == Items.GOLD_NUGGET
+                && inv.getItem(2).getCount() == 0
+                && inv.getItem(3).getItem() == Items.GOLD_NUGGET
+                && inv.getItem(5).getItem() == Items.GOLD_NUGGET
+                && inv.getItem(6).getCount() == 0
+                && inv.getItem(7).getItem() == Items.GOLD_NUGGET
+                && inv.getItem(8).getCount() == 0
                 && centerSlot.getItem() instanceof KeyUtils.IKeyHolder
                 && !KeyUtils.isPrivate(centerSlot);
     }
 
     @Override
-    public ItemStack getCraftingResult(CraftingInventory inv)
+    public ItemStack assemble(CraftingContainer inv)
     {
-        ItemStack output = inv.getStackInSlot(4).copy();
+        ItemStack output = inv.getItem(4).copy();
 
         KeyUtils.setPrivate(output, true);
 
@@ -50,21 +50,21 @@ public class MakePrivateRecipe extends SpecialRecipe implements IShapedRecipe<Cr
     }
 
     @Override
-    public boolean canFit(int width, int height)
+    public boolean canCraftInDimensions(int width, int height)
     {
         return width >= 3 && height >= 3;
     }
 
     @Override
-    public IRecipeSerializer<?> getSerializer()
+    public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
 
     @Override
-    public IRecipeType<?> getType()
+    public RecipeType<?> getType()
     {
-        return IRecipeType.CRAFTING;
+        return RecipeType.CRAFTING;
     }
 
     @Override

@@ -3,23 +3,25 @@ package gigaherz.enderthing.items;
 import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.gui.Containers;
 import gigaherz.enderthing.util.ILongAccessor;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.List;
+
+import net.minecraft.world.item.Item.Properties;
 
 public class EnderPackItem extends EnderthingItem
 {
@@ -30,71 +32,71 @@ public class EnderPackItem extends EnderthingItem
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
     {
-        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_pack.right_click").mergeStyle(TextFormatting.ITALIC));
+        tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_pack.right_click").withStyle(ChatFormatting.ITALIC));
 
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
     }
 
     @Override
-    public ActionResultType onItemUse(ItemUseContext context)
+    public InteractionResult useOn(UseOnContext context)
     {
-        if (context.getHand() != Hand.MAIN_HAND)
-            return ActionResultType.PASS;
+        if (context.getHand() != InteractionHand.MAIN_HAND)
+            return InteractionResult.PASS;
 
-        World world = context.getWorld();
-        PlayerEntity player = context.getPlayer();
-        ItemStack stack = context.getItem();
+        Level world = context.getLevel();
+        Player player = context.getPlayer();
+        ItemStack stack = context.getItemInHand();
 
-        if (world.isRemote)
-            return ActionResultType.SUCCESS;
+        if (world.isClientSide)
+            return InteractionResult.SUCCESS;
 
         long id = KeyUtils.getKey(stack);
 
         if (id < 0)
         {
             openPasscodeScreen(player, stack);
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         openPackGui(player, id, isPrivate(stack));
 
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand hand)
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand hand)
     {
-        ItemStack stack = playerIn.getHeldItem(hand);
+        ItemStack stack = playerIn.getItemInHand(hand);
 
-        if (hand != Hand.MAIN_HAND)
-            return ActionResult.resultPass(stack);
+        if (hand != InteractionHand.MAIN_HAND)
+            return InteractionResultHolder.pass(stack);
 
-        if (worldIn.isRemote)
-            return ActionResult.resultSuccess(stack);
+        if (worldIn.isClientSide)
+            return InteractionResultHolder.success(stack);
 
         long id = KeyUtils.getKey(stack);
 
         if (id < 0)
         {
             openPasscodeScreen(playerIn, stack);
-            return ActionResult.resultSuccess(stack);
+            return InteractionResultHolder.success(stack);
         }
 
         openPackGui(playerIn, id, isPrivate(stack));
 
-        return ActionResult.resultSuccess(stack);
+        return InteractionResultHolder.success(stack);
     }
 
-    public void openPackGui(PlayerEntity playerIn, long id, boolean priv)
+    public void openPackGui(Player playerIn, long id, boolean priv)
     {
-        if (playerIn instanceof ServerPlayerEntity)
+        if (playerIn instanceof ServerPlayer)
         {
             Containers.openItemGui(
-                    (ServerPlayerEntity) playerIn,
+                    (ServerPlayer) playerIn,
                     priv,
-                    playerIn.inventory.currentItem,
+                    playerIn.getInventory().selected,
                     id, null);
         }
     }

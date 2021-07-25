@@ -1,31 +1,30 @@
 package gigaherz.enderthing.blocks;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import gigaherz.enderthing.KeyUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.RenderMaterial;
-import net.minecraft.client.renderer.tileentity.ChestTileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.properties.ChestType;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.renderer.blockentity.ChestRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.ChestType;
+import com.mojang.math.Vector3f;
 
-import static net.minecraft.client.renderer.Atlases.ENDER_CHEST_MATERIAL;
-
-
-public class EnderKeyChestRenderer extends ChestTileEntityRenderer<EnderKeyChestTileEntity>
+public class EnderKeyChestRenderer extends ChestRenderer<EnderKeyChestTileEntity>
 {
     public static EnderKeyChestRenderer INSTANCE = null;
 
-    public EnderKeyChestRenderer(TileEntityRendererDispatcher dispatcher)
+    public EnderKeyChestRenderer(BlockEntityRendererProvider.Context ctx)
     {
-        super(dispatcher);
+        super(ctx);
         INSTANCE = this;
     }
 
-    public void renderFromItem(ItemStack stack, EnderKeyChestTileEntity te, ItemCameraTransforms.TransformType transformType, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn)
+    public void renderFromItem(ItemStack stack, EnderKeyChestTileEntity te, ItemTransforms.TransformType transformType, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightIn, int combinedOverlayIn)
     {
         // TODO: transformType?
         ItemStack lock = KeyUtils.getLock(KeyUtils.getKey(stack), KeyUtils.isPrivate(stack), KeyUtils.getBound(stack));
@@ -34,13 +33,13 @@ public class EnderKeyChestRenderer extends ChestTileEntityRenderer<EnderKeyChest
 
     @Override
     public void render(EnderKeyChestTileEntity te, float partialTicks,
-                       MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn,
+                       PoseStack matrixStackIn, MultiBufferSource bufferIn,
                        int combinedLightIn, int combinedOverlayIn)
     {
         int rotation = 0;
-        if (te.hasWorld())
+        if (te.hasLevel())
         {
-            switch (te.getBlockState().get(EnderKeyChestBlock.FACING))
+            switch (te.getBlockState().getValue(EnderKeyChestBlock.FACING))
             {
                 case NORTH:
                     rotation = 180;
@@ -62,31 +61,31 @@ public class EnderKeyChestRenderer extends ChestTileEntityRenderer<EnderKeyChest
     }
 
     public void renderInternal(EnderKeyChestTileEntity te, float partialTicks,
-                               MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn,
+                               PoseStack matrixStackIn, MultiBufferSource bufferIn,
                                int combinedLightIn, int combinedOverlayIn,
                                int rotation, ItemStack lock)
     {
-        matrixStackIn.push();
+        matrixStackIn.pushPose();
         super.render(te, partialTicks, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn);
-        matrixStackIn.pop();
+        matrixStackIn.popPose();
 
-        matrixStackIn.push();
+        matrixStackIn.pushPose();
         {
             matrixStackIn.translate(0.5, 0.5, 0.5);
-            matrixStackIn.rotate(Vector3f.YP.rotationDegrees(180-rotation));
+            matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(180-rotation));
             matrixStackIn.translate(-0.5, -0.5, -0.5);
 
             matrixStackIn.translate(0.5, 0.35, 0.6/16.0);
             float scale = 6/8.0f;
             matrixStackIn.scale(scale, scale, scale);
-            Minecraft.getInstance().getItemRenderer().renderItem(lock, ItemCameraTransforms.TransformType.FIXED, combinedLightIn, combinedOverlayIn, matrixStackIn, bufferIn);
+            Minecraft.getInstance().getItemRenderer().renderStatic(lock, ItemTransforms.TransformType.FIXED, combinedLightIn, combinedOverlayIn, matrixStackIn, bufferIn, 0);
         }
-        matrixStackIn.pop();
+        matrixStackIn.popPose();
     }
 
     @Override
-    protected RenderMaterial getMaterial(EnderKeyChestTileEntity tileEntity, ChestType chestType)
+    protected Material getMaterial(EnderKeyChestTileEntity tileEntity, ChestType chestType)
     {
-        return ENDER_CHEST_MATERIAL;
+        return Sheets.ENDER_CHEST_LOCATION;
     }
 }

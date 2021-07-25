@@ -1,38 +1,41 @@
 package gigaherz.enderthing.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 
-public class KeyScreen extends ContainerScreen<KeyContainer>
+public class KeyScreen extends AbstractContainerScreen<KeyContainer>
 {
     private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
 
-    public KeyScreen(KeyContainer container, PlayerInventory playerInventory, ITextComponent title)
+    public KeyScreen(KeyContainer container, Inventory playerInventory, Component title)
     {
         super(container, playerInventory, title);
-        this.ySize = 168;
-        this.playerInventoryTitleY = this.ySize - 94;
+        this.imageHeight = 168;
+        this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         this.renderBackground(matrixStack);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
-        this.renderHoveredTooltip(matrixStack, mouseX, mouseY);
+        this.renderTooltip(matrixStack, mouseX, mouseY);
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float p_230450_2_, int mouseX, int mouseY)
+    protected void renderBg(PoseStack matrixStack, float p_230450_2_, int mouseX, int mouseY)
     {
-        assert minecraft != null; // Shut up Intellij, it's not null.
-        minecraft.textureManager.bindTexture(CHEST_GUI_TEXTURE);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, CHEST_GUI_TEXTURE);
 
-        blit(matrixStack, guiLeft, guiTop, 0, 0, xSize, 3 * 18 + 17);
-        blit(matrixStack, guiLeft, guiTop + 3 * 18 + 17, 0, 126, xSize, 96);
+        blit(matrixStack, leftPos, topPos, 0, 0, imageWidth, 3 * 18 + 17);
+        blit(matrixStack, leftPos, topPos + 3 * 18 + 17, 0, 126, imageWidth, 96);
     }
 }

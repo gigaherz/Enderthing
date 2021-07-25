@@ -1,11 +1,10 @@
 package gigaherz.enderthing.network;
 
 import gigaherz.enderthing.gui.PasscodeContainer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -18,12 +17,12 @@ public class SetItemKey
         this.key = key;
     }
 
-    public SetItemKey(PacketBuffer buffer)
+    public SetItemKey(FriendlyByteBuf buffer)
     {
         this.key = buffer.readLong();
     }
 
-    public void encode(PacketBuffer buffer)
+    public void encode(FriendlyByteBuf buffer)
     {
         buffer.writeLong(key);
     }
@@ -33,12 +32,12 @@ public class SetItemKey
         if (key >= 0)
         {
             ctx.get().enqueueWork(() -> {
-                PlayerEntity sender = ctx.get().getSender();
-                if (sender != null && sender.openContainer instanceof PasscodeContainer)
+                Player sender = ctx.get().getSender();
+                if (sender != null && sender.containerMenu instanceof PasscodeContainer)
                 {
-                    ((PasscodeContainer) sender.openContainer).keyHolder.set(key);
-                    sender.closeScreen();
-                    sender.sendStatusMessage(new TranslationTextComponent("text.enderthing.key_change", key), true);
+                    ((PasscodeContainer) sender.containerMenu).keyHolder.set(key);
+                    sender.closeContainer();
+                    sender.displayClientMessage(new TranslatableComponent("text.enderthing.key_change", key), true);
                 }
             });
         }

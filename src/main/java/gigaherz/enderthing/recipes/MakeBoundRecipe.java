@@ -2,22 +2,20 @@ package gigaherz.enderthing.recipes;
 
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.item.crafting.SpecialRecipe;
-import net.minecraft.item.crafting.SpecialRecipeSerializer;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ObjectHolder;
 
-public class MakeBoundRecipe extends SpecialRecipe
+public class MakeBoundRecipe extends CustomRecipe
 {
     @ObjectHolder("enderthing:make_bound")
-    public static SpecialRecipeSerializer<MakeBoundRecipe> SERIALIZER = null;
+    public static SimpleRecipeSerializer<MakeBoundRecipe> SERIALIZER = null;
 
     public MakeBoundRecipe(ResourceLocation id)
     {
@@ -25,13 +23,13 @@ public class MakeBoundRecipe extends SpecialRecipe
     }
 
     @Override
-    public boolean matches(CraftingInventory inv, World worldIn)
+    public boolean matches(CraftingContainer inv, Level worldIn)
     {
         int holder = -1;
         int card = -1;
-        for(int i=0;i<inv.getSizeInventory();i++)
+        for(int i=0;i<inv.getContainerSize();i++)
         {
-            ItemStack st = inv.getStackInSlot(i);
+            ItemStack st = inv.getItem(i);
             if ((st.getItem() instanceof KeyUtils.IBindableKeyHolder) && KeyUtils.isPrivate(st))
             {
                 if (holder < 0)
@@ -52,14 +50,14 @@ public class MakeBoundRecipe extends SpecialRecipe
     }
 
     @Override
-    public ItemStack getCraftingResult(CraftingInventory inv)
+    public ItemStack assemble(CraftingContainer inv)
     {
         ItemStack holder = ItemStack.EMPTY;
         ItemStack card = ItemStack.EMPTY;
 
-        for(int i=0;i<inv.getSizeInventory();i++)
+        for(int i=0;i<inv.getContainerSize();i++)
         {
-            ItemStack st = inv.getStackInSlot(i);
+            ItemStack st = inv.getItem(i);
             if ((st.getItem() instanceof KeyUtils.IBindableKeyHolder) && KeyUtils.isPrivate(st))
             {
                 if (holder.getCount() == 0)
@@ -86,20 +84,20 @@ public class MakeBoundRecipe extends SpecialRecipe
     }
 
     @Override
-    public boolean canFit(int width, int height)
+    public boolean canCraftInDimensions(int width, int height)
     {
         return width*height >= 2;
     }
 
     @Override
-    public IRecipeSerializer<?> getSerializer()
+    public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
 
     @Override
-    public IRecipeType<?> getType()
+    public RecipeType<?> getType()
     {
-        return IRecipeType.CRAFTING;
+        return RecipeType.CRAFTING;
     }
 }

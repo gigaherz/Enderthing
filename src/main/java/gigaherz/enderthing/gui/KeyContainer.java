@@ -3,16 +3,16 @@ package gigaherz.enderthing.gui;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
 import gigaherz.enderthing.storage.IInventoryManager;
 import gigaherz.enderthing.storage.InventoryManager;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.EnderChestTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
@@ -21,46 +21,46 @@ import net.minecraftforge.registries.ObjectHolder;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class KeyContainer extends Container
+public class KeyContainer extends AbstractContainerMenu
 {
     public static final Runnable NOOP = () -> {};
 
     @ObjectHolder("enderthing:key")
-    public static ContainerType<KeyContainer> TYPE = null;
+    public static MenuType<KeyContainer> TYPE = null;
 
     private final IContainerInteraction interactionHandler;
 
-    private static boolean isUsableByPlayer(@Nullable TileEntity te, PlayerEntity p)
+    private static boolean isUsableByPlayer(@Nullable BlockEntity te, Player p)
     {
         if (te == null)
             return true;
-        return p.getDistanceSq(te.getPos().getX() + 0.5D, te.getPos().getY() + 0.5D, te.getPos().getZ() + 0.5D) <= 64.0;
+        return p.distanceToSqr(te.getBlockPos().getX() + 0.5D, te.getBlockPos().getY() + 0.5D, te.getBlockPos().getZ() + 0.5D) <= 64.0;
     }
 
-    private static IItemHandler getInventory(@Nullable World world, PlayerEntity user, boolean isPriv, long key, @Nullable UUID bound)
+    private static IItemHandler getInventory(@Nullable Level world, Player user, boolean isPriv, long key, @Nullable UUID bound)
     {
         if (world == null) return new ItemStackHandler(27);
         InventoryManager inventoryManager = InventoryManager.get(world);
-        IInventoryManager mgr = isPriv ? inventoryManager.getPrivate( bound != null ? bound : user.getUniqueID())  : inventoryManager;
+        IInventoryManager mgr = isPriv ? inventoryManager.getPrivate( bound != null ? bound : user.getUUID())  : inventoryManager;
         return mgr.getInventory(key);
     }
 
-    private static IItemHandler getInventory(EnderKeyChestTileEntity enderChest, PlayerEntity user)
+    private static IItemHandler getInventory(EnderKeyChestTileEntity enderChest, Player user)
     {
         boolean isPriv = enderChest.isPrivate();
-        World world = enderChest.getWorld();
+        Level world = enderChest.getLevel();
         UUID bound = enderChest.getPlayerBound();
         long key = enderChest.getKey();
         return getInventory(world, user, isPriv, key, bound);
     }
 
     // Client side shared container
-    public KeyContainer(int windowId, PlayerInventory playerInv, PacketBuffer extraData)
+    public KeyContainer(int windowId, Inventory playerInv, FriendlyByteBuf extraData)
     {
         this(windowId, playerInv, extraData.readInt(), new ItemStackHandler(27), new IContainerInteraction()
         {
             @Override
-            public boolean canBeUsed(PlayerEntity player)
+            public boolean canBeUsed(Player player)
             {
                 return true;
             }
@@ -78,56 +78,56 @@ public class KeyContainer extends Container
     }
 
     // Ender Locked chest
-    public KeyContainer(int windowId, PlayerInventory playerInventory, EnderKeyChestTileEntity keyChest)
+    public KeyContainer(int windowId, Inventory playerInventory, EnderKeyChestTileEntity keyChest)
     {
         this(windowId, playerInventory, -1, getInventory(keyChest, playerInventory.player), keyChest);
     }
 
     // Ender Key on chest
-    public KeyContainer(int windowId, PlayerInventory playerInventory, @Nullable EnderKeyChestTileEntity enderChest,
+    public KeyContainer(int windowId, Inventory playerInventory, @Nullable EnderKeyChestTileEntity enderChest,
                         boolean isPrivate, int slot, long id, @Nullable UUID bound)
     {
         this(windowId, playerInventory, slot,
-                getInventory(playerInventory.player.world, playerInventory.player, isPrivate, id, bound), enderChest);
+                getInventory(playerInventory.player.level, playerInventory.player, isPrivate, id, bound), enderChest);
     }
 
     // Ender Key on chest
-    public KeyContainer(int windowId, PlayerInventory playerInventory, @Nullable EnderChestTileEntity enderChest,
+    public KeyContainer(int windowId, Inventory playerInventory, @Nullable EnderChestBlockEntity enderChest,
                         boolean isPrivate, int slot, long id, @Nullable UUID bound)
     {
         this(windowId, playerInventory, slot,
-                getInventory(playerInventory.player.world, playerInventory.player, isPrivate, id, bound),
+                getInventory(playerInventory.player.level, playerInventory.player, isPrivate, id, bound),
                 new IContainerInteraction()
                 {
                     @Override
-                    public boolean canBeUsed(PlayerEntity player)
+                    public boolean canBeUsed(Player player)
                     {
-                        return enderChest.canBeUsed(player);
+                        return enderChest.stillValid(player);
                     }
 
                     @Override
                     public void openChest()
                     {
-                        enderChest.openChest();
+                        enderChest.startOpen(playerInventory.player);
                     }
 
                     @Override
                     public void closeChest()
                     {
-                        enderChest.closeChest();
+                        enderChest.stopOpen(playerInventory.player);
                     }
                 });
     }
 
     // Ender Pack
-    public KeyContainer(int windowId, PlayerInventory playerInventory, boolean isPrivate, int slot, long id, @Nullable UUID bound)
+    public KeyContainer(int windowId, Inventory playerInventory, boolean isPrivate, int slot, long id, @Nullable UUID bound)
     {
         this(windowId, playerInventory, slot,
-                getInventory(playerInventory.player.world, playerInventory.player, isPrivate, id, bound),
+                getInventory(playerInventory.player.level, playerInventory.player, isPrivate, id, bound),
                 new IContainerInteraction()
                 {
                     @Override
-                    public boolean canBeUsed(PlayerEntity player)
+                    public boolean canBeUsed(Player player)
                     {
                         return true;
                     }
@@ -144,7 +144,7 @@ public class KeyContainer extends Container
                 });
     }
 
-    public KeyContainer(int windowId, PlayerInventory playerInventory, int lockedSlot, IItemHandler inventory,
+    public KeyContainer(int windowId, Inventory playerInventory, int lockedSlot, IItemHandler inventory,
                         IContainerInteraction interactionHandler)
     {
         super(TYPE, windowId);
@@ -164,7 +164,7 @@ public class KeyContainer extends Container
         bindPlayerInventory(playerInventory, lockedSlot);
     }
 
-    private void bindPlayerInventory(PlayerInventory playerInventory, int lockedSlot)
+    private void bindPlayerInventory(Inventory playerInventory, int lockedSlot)
     {
         for (int py = 0; py < 3; ++py)
         {
@@ -188,48 +188,48 @@ public class KeyContainer extends Container
     }
 
     @Override
-    public void onContainerClosed(PlayerEntity playerIn)
+    public void removed(Player playerIn)
     {
-        super.onContainerClosed(playerIn);
+        super.removed(playerIn);
         interactionHandler.closeChest();
     }
 
     @Override
-    public boolean canInteractWith(PlayerEntity playerIn)
+    public boolean stillValid(Player playerIn)
     {
         return interactionHandler.canBeUsed(playerIn);
     }
 
     @Override
-    public ItemStack transferStackInSlot(PlayerEntity playerIn, int index)
+    public ItemStack quickMoveStack(Player playerIn, int index)
     {
-        Slot slot = this.inventorySlots.get(index);
+        Slot slot = this.slots.get(index);
 
-        if (slot == null || !slot.getHasStack())
+        if (slot == null || !slot.hasItem())
             return ItemStack.EMPTY;
 
-        ItemStack stack = slot.getStack();
+        ItemStack stack = slot.getItem();
         ItemStack stackCopy = stack.copy();
 
         if (index < 3 * 9)
         {
-            if (!this.mergeItemStack(stack, 3 * 9, this.inventorySlots.size(), true))
+            if (!this.moveItemStackTo(stack, 3 * 9, this.slots.size(), true))
             {
                 return ItemStack.EMPTY;
             }
         }
-        else if (!this.mergeItemStack(stack, 0, 3 * 9, false))
+        else if (!this.moveItemStackTo(stack, 0, 3 * 9, false))
         {
             return ItemStack.EMPTY;
         }
 
         if (stack.getCount() == 0)
         {
-            slot.putStack(ItemStack.EMPTY);
+            slot.set(ItemStack.EMPTY);
         }
         else
         {
-            slot.onSlotChanged();
+            slot.setChanged();
         }
 
         return stackCopy;

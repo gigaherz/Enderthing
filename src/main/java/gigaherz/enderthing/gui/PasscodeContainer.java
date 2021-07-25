@@ -2,30 +2,30 @@ package gigaherz.enderthing.gui;
 
 import gigaherz.enderthing.util.ILongAccessor;
 import gigaherz.enderthing.util.LongMutable;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.IIntArray;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraftforge.registries.ObjectHolder;
 
-public class PasscodeContainer extends Container
+public class PasscodeContainer extends AbstractContainerMenu
 {
     @ObjectHolder("enderthing:passcode")
-    public static ContainerType<PasscodeContainer> TYPE = null;
+    public static MenuType<PasscodeContainer> TYPE = null;
 
     public final ILongAccessor keyHolder;
     public final ItemStack previewBase;
 
-    public PasscodeContainer(int windowId, PlayerInventory playerInventory, PacketBuffer packetData)
+    public PasscodeContainer(int windowId, Inventory playerInventory, FriendlyByteBuf packetData)
     {
-        this(windowId, playerInventory, new LongMutable(packetData.readLong()), packetData.readItemStack());
+        this(windowId, playerInventory, new LongMutable(packetData.readLong()), packetData.readItem());
     }
 
-    public PasscodeContainer(int windowId, PlayerInventory playerInventory, ILongAccessor keyHolder, ItemStack previewBase)
+    public PasscodeContainer(int windowId, Inventory playerInventory, ILongAccessor keyHolder, ItemStack previewBase)
     {
         super(TYPE, windowId);
 
@@ -34,7 +34,7 @@ public class PasscodeContainer extends Container
 
         bindPlayerInventory(playerInventory);
 
-        trackIntArray(new IIntArray()
+        addDataSlots(new ContainerData()
         {
             @Override
             public int get(int index)
@@ -52,14 +52,14 @@ public class PasscodeContainer extends Container
             }
 
             @Override
-            public int size()
+            public int getCount()
             {
                 return 64/16;
             }
         });
     }
 
-    private void bindPlayerInventory(PlayerInventory playerInventory)
+    private void bindPlayerInventory(Inventory playerInventory)
     {
         int xOffset = 18 + 8;
         int yOffset = 126+22+6;
@@ -79,41 +79,41 @@ public class PasscodeContainer extends Container
     }
 
     @Override
-    public boolean canInteractWith(PlayerEntity playerIn)
+    public boolean stillValid(Player playerIn)
     {
         return true;
     }
 
     @Override
-    public ItemStack transferStackInSlot(PlayerEntity playerIn, int index)
+    public ItemStack quickMoveStack(Player playerIn, int index)
     {
-        Slot slot = this.inventorySlots.get(index);
+        Slot slot = this.slots.get(index);
 
-        if (slot == null || !slot.getHasStack())
+        if (slot == null || !slot.hasItem())
             return ItemStack.EMPTY;
 
-        ItemStack stack = slot.getStack();
+        ItemStack stack = slot.getItem();
         ItemStack stackCopy = stack.copy();
 
         if (index < 9)
         {
-            if (!this.mergeItemStack(stack, 9, this.inventorySlots.size(), true))
+            if (!this.moveItemStackTo(stack, 9, this.slots.size(), true))
             {
                 return ItemStack.EMPTY;
             }
         }
-        else if (!this.mergeItemStack(stack, 0, 9, false))
+        else if (!this.moveItemStackTo(stack, 0, 9, false))
         {
             return ItemStack.EMPTY;
         }
 
         if (stack.getCount() == 0)
         {
-            slot.putStack(ItemStack.EMPTY);
+            slot.set(ItemStack.EMPTY);
         }
         else
         {
-            slot.onSlotChanged();
+            slot.setChanged();
         }
 
         return stackCopy;

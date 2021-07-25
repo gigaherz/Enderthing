@@ -1,55 +1,57 @@
 package gigaherz.enderthing.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.network.SetItemKey;
 import joptsimple.internal.Strings;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Button;
+import com.mojang.blaze3d.platform.Lighting;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
+public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
 {
     private static final ResourceLocation CHEST_GUI_TEXTURE = Enderthing.location("textures/container/passcode.png");
 
     private final NonNullList<ItemStack> itemPasscode = NonNullList.create();
     private Button setButton;
-    private TextFieldWidget textPasscode;
+    private EditBox textPasscode;
     public long currentCode = -1;
     @Nullable
     public ItemStack preview = null;
 
-    public PasscodeScreen(PasscodeContainer screenContainer, PlayerInventory inv, ITextComponent titleIn)
+    public PasscodeScreen(PasscodeContainer screenContainer, Inventory inv, Component titleIn)
     {
         super(screenContainer, inv, titleIn);
-        xSize = 212;
-        ySize = 218;
-        this.playerInventoryTitleY = this.ySize - 94;
+        imageWidth = 212;
+        imageHeight = 218;
+        this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
     protected void init()
     {
         super.init();
-        long cc = container.keyHolder.get();
+        long cc = menu.keyHolder.get();
         String startKey = cc >= 0 ? String.format("%d", cc) : "";
-        addButton(setButton = new Button(guiLeft + (xSize-30-10), guiTop + 95, 30, 20, new StringTextComponent("Set"), this::setButtonPressed));
-        addButton(textPasscode = new TextFieldWidget(font, guiLeft + 12, guiTop + 78, xSize-24, 12, new StringTextComponent(startKey))
+        addRenderableWidget(setButton = new Button(leftPos + (imageWidth-30-10), topPos + 95, 30, 20, new TextComponent("Set"), this::setButtonPressed));
+        addRenderableWidget(textPasscode = new EditBox(font, leftPos + 12, topPos + 78, imageWidth-24, 12, new TextComponent(startKey))
         {
             @Override
             public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
@@ -57,9 +59,9 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
                 if (mouseX >= (double) this.x && mouseX < (double) (this.x + this.width)
                         && mouseY >= (double) this.y && mouseY < (double) (this.y + this.height))
                 {
-                    if (mouseButton == 1 && !Strings.isNullOrEmpty(getText()) && getText().length() > 0)
+                    if (mouseButton == 1 && !Strings.isNullOrEmpty(getValue()) && getValue().length() > 0)
                     {
-                        setText("");
+                        setValue("");
                         return true;
                     }
                 }
@@ -68,10 +70,10 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
             }
         });
         textPasscode.setVisible(true);
-        textPasscode.setEnabled(true);
-        textPasscode.setEnableBackgroundDrawing(true);
-        textPasscode.setMaxStringLength(32767);
-        textPasscode.setValidator(this::textPasscodeChanging);
+        textPasscode.setEditable(true);
+        textPasscode.setBordered(true);
+        textPasscode.setMaxLength(32767);
+        textPasscode.setFilter(this::textPasscodeChanging);
         if (cc >= 0) updateCodeText(startKey);
         setButton.active = currentCode >= 0;
     }
@@ -84,7 +86,7 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
 
     private boolean textPasscodeChanging(String text)
     {
-        if (Strings.isNullOrEmpty(textPasscode.getText()) && !Strings.isNullOrEmpty(text))
+        if (Strings.isNullOrEmpty(textPasscode.getValue()) && !Strings.isNullOrEmpty(text))
         {
             itemPasscode.clear();
         }
@@ -98,7 +100,7 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
         if (textPasscode.isFocused() && textPasscode.charTyped(p_charTyped_1_, p_charTyped_2_))
             return true;
 
-        return this.getListener() != null && this.getListener().charTyped(p_charTyped_1_, p_charTyped_2_);
+        return this.getFocused() != null && this.getFocused().charTyped(p_charTyped_1_, p_charTyped_2_);
     }
 
     @Override
@@ -120,14 +122,14 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
     {
         if(btn == 0)
         {
-            double xx = x - guiLeft;
-            double yy = y - guiTop;
-            for (Slot s : container.inventorySlots)
+            double xx = x - leftPos;
+            double yy = y - topPos;
+            for (Slot s : menu.slots)
             {
-                if (s.getStack().getCount() > 0 && xx >= s.xPos && xx < (s.xPos + 16) && yy >= s.yPos && yy < (s.yPos + 16))
+                if (s.getItem().getCount() > 0 && xx >= s.x && xx < (s.x + 16) && yy >= s.y && yy < (s.y + 16))
                 {
-                    textPasscode.setText("");
-                    ItemStack st = s.getStack().copy();
+                    textPasscode.setValue("");
+                    ItemStack st = s.getItem().copy();
                     st.setCount(1);
                     itemPasscode.add(st);
                     updateCodeItems();
@@ -137,9 +139,9 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
         }
         else if(btn == 1)
         {
-            double xx = x - guiLeft;
-            double yy = y - guiTop;
-            if (xx >= 12 && xx < (xSize-24) && yy >= 46 && yy < (46+16))
+            double xx = x - leftPos;
+            double yy = y - topPos;
+            if (xx >= 12 && xx < (imageWidth-24) && yy >= 46 && yy < (46+16))
             {
                 itemPasscode.clear();
                 updateCodeItems();
@@ -166,7 +168,7 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
         setButton.active = currentCode >= 0;
         if (currentCode >= 0)
         {
-            preview = container.previewBase.copy();
+            preview = menu.previewBase.copy();
             KeyUtils.setKey(preview, currentCode);
         }
         else
@@ -178,62 +180,63 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
     @Override
     public void resize(@Nonnull Minecraft minecraft, int scaledWidth, int scaledHeight)
     {
-        String s = textPasscode.getText();
+        String s = textPasscode.getValue();
         super.resize(minecraft, scaledWidth, scaledHeight);
-        textPasscode.setText(s);
+        textPasscode.setValue(s);
     }
 
     @Override // render
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         this.renderBackground(matrixStack); // draw background
         super.render(matrixStack, mouseX, mouseY, partialTicks);
 
-        RenderHelper.enableStandardItemLighting();
+        //Lighting.turnBackOn();
         for (int i = 0; i < itemPasscode.size(); i++)
         {
             ItemStack st = itemPasscode.get(i);
-            itemRenderer.renderItemAndEffectIntoGUI(st,guiLeft + 12 + i*16, guiTop + 46);
+            itemRenderer.renderAndDecorateItem(st,leftPos + 12 + i*16, topPos + 46);
         }
         if (preview != null)
-            itemRenderer.renderItemAndEffectIntoGUI(preview, guiLeft+xSize-58, guiTop+97);
-        RenderHelper.disableStandardItemLighting();
+            itemRenderer.renderAndDecorateItem(preview, leftPos+imageWidth-58, topPos+97);
+        //Lighting.turnOff();
 
-        this.renderHoveredTooltip(matrixStack, mouseX, mouseY); // draw tooltips
+        this.renderTooltip(matrixStack, mouseX, mouseY); // draw tooltips
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float p_230450_2_, int mouseX, int mouseY)
+    protected void renderBg(PoseStack matrixStack, float p_230450_2_, int mouseX, int mouseY)
     {
-        assert minecraft != null; // Shut up Intellij, it's not null.
-        minecraft.textureManager.bindTexture(CHEST_GUI_TEXTURE);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, CHEST_GUI_TEXTURE);
 
-        blit(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize);
+        blit(matrixStack, leftPos, topPos, 0, 0, imageWidth, imageHeight);
     }
 
     @Override // background
-    protected void renderHoveredTooltip(MatrixStack p_230459_1_, int p_230459_2_, int p_230459_3_)
+    protected void renderTooltip(PoseStack p_230459_1_, int p_230459_2_, int p_230459_3_)
     {
-        super.renderHoveredTooltip(p_230459_1_, p_230459_2_, p_230459_3_);
+        super.renderTooltip(p_230459_1_, p_230459_2_, p_230459_3_);
     }
 
     @Override // foreground
-    protected void drawGuiContainerForegroundLayer(MatrixStack p_230451_1_, int p_230451_2_, int p_230451_3_)
+    protected void renderLabels(PoseStack p_230451_1_, int p_230451_2_, int p_230451_3_)
     {
-        super.drawGuiContainerForegroundLayer(p_230451_1_, p_230451_2_, p_230451_3_);
+        super.renderLabels(p_230451_1_, p_230451_2_, p_230451_3_);
 
-        font.func_243246_a(p_230451_1_, getKeyFormatted("Current key", container.keyHolder.get(), "<not set>"), 10, 22, 0xd8d8d8);
+        font.drawShadow(p_230451_1_, getKeyFormatted("Current key", menu.keyHolder.get(), "<not set>"), 10, 22, 0xd8d8d8);
 
-        font.func_243246_a(p_230451_1_, new StringTextComponent("Click on some items to set a key... "), 10, 35, 0xd8d8d8);
-        font.func_243246_a(p_230451_1_, new StringTextComponent("...or enter a key manually"), 10, 66, 0xd8d8d8);
-        font.func_243246_a(p_230451_1_, getKeyFormatted("Key", currentCode, "<invalid>"), 10, 100, 0xd8d8d8);
+        font.drawShadow(p_230451_1_, new TextComponent("Click on some items to set a key... "), 10, 35, 0xd8d8d8);
+        font.drawShadow(p_230451_1_, new TextComponent("...or enter a key manually"), 10, 66, 0xd8d8d8);
+        font.drawShadow(p_230451_1_, getKeyFormatted("Key", currentCode, "<invalid>"), 10, 100, 0xd8d8d8);
     }
 
-    private ITextComponent getKeyFormatted(String s1, long currentCode, String s2)
+    private Component getKeyFormatted(String s1, long currentCode, String s2)
     {
         if (currentCode >= 0)
-            return new StringTextComponent(String.format("%s: %d", s1, currentCode));
+            return new TextComponent(String.format("%s: %d", s1, currentCode));
         else
-            return new StringTextComponent(String.format("%s: %s", s1, s2));
+            return new TextComponent(String.format("%s: %s", s1, s2));
     }
 }

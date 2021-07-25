@@ -4,29 +4,31 @@ import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
 import gigaherz.enderthing.gui.Containers;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.tileentity.EnderChestTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.List;
+
+import net.minecraft.world.item.Item.Properties;
 
 public class EnderKeyItem extends EnderthingItem
 {
@@ -37,64 +39,64 @@ public class EnderKeyItem extends EnderthingItem
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
     {
-        tooltip.add(new TranslationTextComponent("tooltip.enderthing.ender_key.right_click").mergeStyle(TextFormatting.ITALIC));
+        tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_key.right_click").withStyle(ChatFormatting.ITALIC));
 
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn)
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn)
     {
-        ItemStack stack = playerIn.getHeldItem(handIn);
+        ItemStack stack = playerIn.getItemInHand(handIn);
 
         long id = KeyUtils.getKey(stack);
 
         if (id < 0)
         {
-            if (!worldIn.isRemote)
+            if (!worldIn.isClientSide)
                 openPasscodeScreen(playerIn, stack);
-            return ActionResult.resultSuccess(stack);
+            return InteractionResultHolder.success(stack);
         }
 
-        return ActionResult.resultPass(stack);
+        return InteractionResultHolder.pass(stack);
     }
 
     @Override
-    public ActionResultType onItemUse(ItemUseContext context)
+    public InteractionResult useOn(UseOnContext context)
     {
-        World world = context.getWorld();
-        BlockPos pos = context.getPos();
-        PlayerEntity player = context.getPlayer();
-        ItemStack stack = context.getItem();
+        Level world = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        Player player = context.getPlayer();
+        ItemStack stack = context.getItemInHand();
 
-        if (world.isRemote)
-            return ActionResultType.SUCCESS;
+        if (world.isClientSide)
+            return InteractionResult.SUCCESS;
 
         long id = KeyUtils.getKey(stack);
 
         if (id < 0)
         {
             openPasscodeScreen(player, stack);
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         BlockState state = world.getBlockState(pos);
 
         Block b = state.getBlock();
         if (b != Blocks.ENDER_CHEST && b != Enderthing.KEY_CHEST)
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
 
-        if (player instanceof ServerPlayerEntity)
+        if (player instanceof ServerPlayer)
         {
-            TileEntity te = world.getTileEntity(pos);
+            BlockEntity te = world.getBlockEntity(pos);
             if (te instanceof EnderKeyChestTileEntity)
-                Containers.openItemGui((ServerPlayerEntity) player, isPrivate(stack), -1, id, null, (EnderKeyChestTileEntity)te);
-            else if (te instanceof EnderChestTileEntity)
-                Containers.openItemGui((ServerPlayerEntity) player, isPrivate(stack), -1, id, null, (EnderChestTileEntity)te);
+                Containers.openItemGui((ServerPlayer) player, isPrivate(stack), -1, id, null, (EnderKeyChestTileEntity)te);
+            else if (te instanceof EnderChestBlockEntity)
+                Containers.openItemGui((ServerPlayer) player, isPrivate(stack), -1, id, null, (EnderChestBlockEntity)te);
         }
 
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 }

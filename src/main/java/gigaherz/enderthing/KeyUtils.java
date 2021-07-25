@@ -4,28 +4,16 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Longs;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
 import joptsimple.internal.Strings;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifierMap;
-import net.minecraft.entity.boss.WitherEntity;
-import net.minecraft.entity.boss.dragon.EnderDragonEntity;
-import net.minecraft.entity.merchant.villager.VillagerEntity;
-import net.minecraft.entity.monster.*;
-import net.minecraft.entity.monster.piglin.PiglinEntity;
-import net.minecraft.entity.passive.*;
-import net.minecraft.entity.passive.fish.AbstractFishEntity;
-import net.minecraft.entity.passive.horse.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.PlayerList;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IItemProvider;
+import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
 import java.security.MessageDigest;
@@ -39,8 +27,8 @@ public class KeyUtils
 {
     public interface IKeyHolder
     {
-        Optional<CompoundNBT> findHolderTag(ItemStack stack);
-        CompoundNBT getOrCreateHolderTag(ItemStack stack);
+        Optional<CompoundTag> findHolderTag(ItemStack stack);
+        CompoundTag getOrCreateHolderTag(ItemStack stack);
 
         default boolean isPrivate(ItemStack stack)
         {
@@ -65,8 +53,8 @@ public class KeyUtils
 
     public interface IBindable
     {
-        Optional<CompoundNBT> findHolderTag(ItemStack stack);
-        CompoundNBT getOrCreateHolderTag(ItemStack stack);
+        Optional<CompoundTag> findHolderTag(ItemStack stack);
+        CompoundTag getOrCreateHolderTag(ItemStack stack);
 
         boolean isBound(ItemStack stack);
 
@@ -179,7 +167,7 @@ public class KeyUtils
         return stack;
     }
 
-    public static long getKey(TileEntity te)
+    public static long getKey(BlockEntity te)
     {
         if (te instanceof EnderKeyChestTileEntity)
         {
@@ -189,7 +177,7 @@ public class KeyUtils
         return -1;
     }
 
-    public static ItemStack getItem(IItemProvider itemProvider, long key, boolean priv)
+    public static ItemStack getItem(ItemLike itemProvider, long key, boolean priv)
     {
         ItemStack stack = new ItemStack(itemProvider);
 
@@ -229,7 +217,7 @@ public class KeyUtils
         PlayerList playerList = svr.getPlayerList();
         if (playerList == null)
             return null;
-        PlayerEntity player = playerList.getPlayerByUUID(uuid);
+        Player player = playerList.getPlayer(uuid);
         if (player != null)
             return player.getName().getString();
         return null;
@@ -275,8 +263,8 @@ public class KeyUtils
             for(ItemStack st : passcode)
             {
                 md.update(st.getItem().getRegistryName().toString().getBytes());
-                if (st.hasDisplayName())
-                    md.update(st.getDisplayName().getUnformattedComponentText().getBytes());
+                if (st.hasCustomHoverName())
+                    md.update(st.getHoverName().getContents().getBytes());
             }
             return Longs.fromByteArray(md.digest())&0x7fffffffffffffffL;
         }

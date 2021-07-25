@@ -2,11 +2,10 @@ package gigaherz.enderthing.storage;
 
 import com.google.common.collect.Lists;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.items.ItemStackHandler;
 
 import java.lang.ref.Reference;
-import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.List;
@@ -55,9 +54,9 @@ public class EnderInventory extends ItemStackHandler
             }
         }
 
-        dirty.forEach(TileEntity::markDirty);
+        dirty.forEach(BlockEntity::setChanged);
 
-        manager.setDirty();
+        manager.makeDirty();
     }
 
     EnderInventory(IInventoryManager manager)
