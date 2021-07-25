@@ -32,7 +32,7 @@ repositories {
     }
 }
 
-version = '1.0.4'
+version = '1.1.0'
 group = 'gigaherz.enderthing'
 archivesBaseName = "Enderthing-UNKNOWN"
 
