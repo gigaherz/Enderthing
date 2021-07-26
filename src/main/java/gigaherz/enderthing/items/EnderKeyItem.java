@@ -74,7 +74,7 @@ public class EnderKeyItem extends EnderthingItem
 
         long id = KeyUtils.getKey(stack);
 
-        if (id < 0)
+        if (player != null && (id < 0 || player.isShiftKeyDown()))
         {
             openPasscodeScreen(player, stack);
             return InteractionResult.SUCCESS;

@@ -1,5 +1,6 @@
 package gigaherz.enderthing.gui;
 
+import com.google.common.primitives.Longs;
 import gigaherz.enderthing.util.ILongAccessor;
 import gigaherz.enderthing.util.LongMutable;
 import net.minecraft.network.FriendlyByteBuf;
@@ -39,22 +40,22 @@ public class PasscodeContainer extends AbstractContainerMenu
             @Override
             public int get(int index)
             {
-                return (int) ((keyHolder.get() >> (16 * index)) & 0xFFFF);
+                byte[] bytes = Longs.toByteArray(keyHolder.get());
+                return bytes[index];
             }
 
             @Override
             public void set(int index, int value)
             {
-                long v = keyHolder.get();
-                long m = ~(0xFFFFL << (16 * index));
-                long r = (v & m) | (value << (16 * index));
-                keyHolder.set(r);
+                byte[] bytes = Longs.toByteArray(keyHolder.get());
+                bytes[index] = (byte) value;
+                keyHolder.set(Longs.fromByteArray(bytes));
             }
 
             @Override
             public int getCount()
             {
-                return 64 / 16;
+                return 64 / 8;
             }
         });
     }

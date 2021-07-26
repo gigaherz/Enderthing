@@ -55,7 +55,7 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
 
         long id = KeyUtils.getKey(stack);
 
-        if (id < 0)
+        if (id < 0 || playerIn.isShiftKeyDown())
         {
             if (!worldIn.isClientSide)
                 openPasscodeScreen(playerIn, stack);

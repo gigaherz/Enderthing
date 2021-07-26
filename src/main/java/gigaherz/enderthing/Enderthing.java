@@ -57,6 +57,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
+import net.minecraftforge.common.ToolType;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -143,7 +144,7 @@ public class Enderthing
     public void registerBlocks(RegistryEvent.Register<Block> event)
     {
         event.getRegistry().registerAll(
-                new EnderKeyChestBlock(Block.Properties.copy(Blocks.ENDER_CHEST)).setRegistryName("key_chest")
+                new EnderKeyChestBlock(Block.Properties.copy(Blocks.ENDER_CHEST).harvestTool(ToolType.PICKAXE).harvestLevel(3)).setRegistryName("key_chest")
         );
     }
 
