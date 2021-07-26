@@ -2,24 +2,22 @@ package gigaherz.enderthing.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.platform.GlStateManager;
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
 import gigaherz.enderthing.network.SetItemKey;
 import joptsimple.internal.Strings;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Button;
-import com.mojang.blaze3d.platform.Lighting;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.NonNullList;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
@@ -50,8 +48,8 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
         super.init();
         long cc = menu.keyHolder.get();
         String startKey = cc >= 0 ? String.format("%d", cc) : "";
-        addRenderableWidget(setButton = new Button(leftPos + (imageWidth-30-10), topPos + 95, 30, 20, new TextComponent("Set"), this::setButtonPressed));
-        addRenderableWidget(textPasscode = new EditBox(font, leftPos + 12, topPos + 78, imageWidth-24, 12, new TextComponent(startKey))
+        addRenderableWidget(setButton = new Button(leftPos + (imageWidth - 30 - 10), topPos + 95, 30, 20, new TextComponent("Set"), this::setButtonPressed));
+        addRenderableWidget(textPasscode = new EditBox(font, leftPos + 12, topPos + 78, imageWidth - 24, 12, new TextComponent(startKey))
         {
             @Override
             public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
@@ -120,7 +118,7 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
     @Override
     public boolean mouseClicked(double x, double y, int btn)
     {
-        if(btn == 0)
+        if (btn == 0)
         {
             double xx = x - leftPos;
             double yy = y - topPos;
@@ -137,11 +135,11 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
                 }
             }
         }
-        else if(btn == 1)
+        else if (btn == 1)
         {
             double xx = x - leftPos;
             double yy = y - topPos;
-            if (xx >= 12 && xx < (imageWidth-24) && yy >= 46 && yy < (46+16))
+            if (xx >= 12 && xx < (imageWidth - 24) && yy >= 46 && yy < (46 + 16))
             {
                 itemPasscode.clear();
                 updateCodeItems();
@@ -195,10 +193,10 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
         for (int i = 0; i < itemPasscode.size(); i++)
         {
             ItemStack st = itemPasscode.get(i);
-            itemRenderer.renderAndDecorateItem(st,leftPos + 12 + i*16, topPos + 46);
+            itemRenderer.renderAndDecorateItem(st, leftPos + 12 + i * 16, topPos + 46);
         }
         if (preview != null)
-            itemRenderer.renderAndDecorateItem(preview, leftPos+imageWidth-58, topPos+97);
+            itemRenderer.renderAndDecorateItem(preview, leftPos + imageWidth - 58, topPos + 97);
         //Lighting.turnOff();
 
         this.renderTooltip(matrixStack, mouseX, mouseY); // draw tooltips

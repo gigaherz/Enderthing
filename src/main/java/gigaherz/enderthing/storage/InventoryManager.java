@@ -1,13 +1,13 @@
 package gigaherz.enderthing.storage;
 
 import com.google.common.collect.Maps;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.storage.DimensionDataStorage;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 import org.apache.logging.log4j.LogManager;
@@ -57,7 +57,8 @@ public class InventoryManager extends SavedData implements IInventoryManager
 
     private static InventoryManager DUMMY_CLIENT = new InventoryManager()
     {
-        private final EnderInventory inv = new EnderInventory(this) {
+        private final EnderInventory inv = new EnderInventory(this)
+        {
             @Nonnull
             @Override
             public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate)

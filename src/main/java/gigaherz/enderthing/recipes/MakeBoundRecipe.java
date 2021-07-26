@@ -2,13 +2,13 @@ package gigaherz.enderthing.recipes;
 
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ObjectHolder;
 
@@ -27,7 +27,7 @@ public class MakeBoundRecipe extends CustomRecipe
     {
         int holder = -1;
         int card = -1;
-        for(int i=0;i<inv.getContainerSize();i++)
+        for (int i = 0; i < inv.getContainerSize(); i++)
         {
             ItemStack st = inv.getItem(i);
             if ((st.getItem() instanceof KeyUtils.IBindableKeyHolder) && KeyUtils.isPrivate(st))
@@ -36,13 +36,13 @@ public class MakeBoundRecipe extends CustomRecipe
                     holder = i;
                 else return false;
             }
-            else if(st.getItem() == Enderthing.CARD)
+            else if (st.getItem() == Enderthing.CARD)
             {
                 if (card < 0)
                     card = i;
                 else return false;
             }
-            else if(st.getCount() > 0)
+            else if (st.getCount() > 0)
                 return false;
         }
         // Make sure we found both.
@@ -55,7 +55,7 @@ public class MakeBoundRecipe extends CustomRecipe
         ItemStack holder = ItemStack.EMPTY;
         ItemStack card = ItemStack.EMPTY;
 
-        for(int i=0;i<inv.getContainerSize();i++)
+        for (int i = 0; i < inv.getContainerSize(); i++)
         {
             ItemStack st = inv.getItem(i);
             if ((st.getItem() instanceof KeyUtils.IBindableKeyHolder) && KeyUtils.isPrivate(st))
@@ -64,13 +64,13 @@ public class MakeBoundRecipe extends CustomRecipe
                     holder = st;
                 else return ItemStack.EMPTY;
             }
-            else if(st.getItem() == Enderthing.CARD)
+            else if (st.getItem() == Enderthing.CARD)
             {
                 if (card.getCount() == 0)
                     card = st;
                 else return ItemStack.EMPTY;
             }
-            else if(st.getCount() > 0)
+            else if (st.getCount() > 0)
                 return ItemStack.EMPTY;
         }
 
@@ -86,7 +86,7 @@ public class MakeBoundRecipe extends CustomRecipe
     @Override
     public boolean canCraftInDimensions(int width, int height)
     {
-        return width*height >= 2;
+        return width * height >= 2;
     }
 
     @Override

@@ -2,14 +2,14 @@ package gigaherz.enderthing.gui;
 
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
 import gigaherz.enderthing.util.ILongAccessor;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.inventory.MenuConstructor;
-import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.stats.Stats;
-import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.inventory.MenuConstructor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
 import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 import javax.annotation.Nullable;

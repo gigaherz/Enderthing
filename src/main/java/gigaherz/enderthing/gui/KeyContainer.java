@@ -3,16 +3,16 @@ package gigaherz.enderthing.gui;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
 import gigaherz.enderthing.storage.IInventoryManager;
 import gigaherz.enderthing.storage.InventoryManager;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
@@ -23,7 +23,8 @@ import java.util.UUID;
 
 public class KeyContainer extends AbstractContainerMenu
 {
-    public static final Runnable NOOP = () -> {};
+    public static final Runnable NOOP = () -> {
+    };
 
     @ObjectHolder("enderthing:key")
     public static MenuType<KeyContainer> TYPE = null;
@@ -41,7 +42,7 @@ public class KeyContainer extends AbstractContainerMenu
     {
         if (world == null) return new ItemStackHandler(27);
         InventoryManager inventoryManager = InventoryManager.get(world);
-        IInventoryManager mgr = isPriv ? inventoryManager.getPrivate( bound != null ? bound : user.getUUID())  : inventoryManager;
+        IInventoryManager mgr = isPriv ? inventoryManager.getPrivate(bound != null ? bound : user.getUUID()) : inventoryManager;
         return mgr.getInventory(key);
     }
 

@@ -2,14 +2,14 @@ package gigaherz.enderthing.gui;
 
 import gigaherz.enderthing.util.ILongAccessor;
 import gigaherz.enderthing.util.LongMutable;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.inventory.ContainerData;
 import net.minecraftforge.registries.ObjectHolder;
 
 public class PasscodeContainer extends AbstractContainerMenu
@@ -39,22 +39,22 @@ public class PasscodeContainer extends AbstractContainerMenu
             @Override
             public int get(int index)
             {
-                return (int) ((keyHolder.get() >> (16*index))&0xFFFF);
+                return (int) ((keyHolder.get() >> (16 * index)) & 0xFFFF);
             }
 
             @Override
             public void set(int index, int value)
             {
                 long v = keyHolder.get();
-                long m = ~ (0xFFFFL << (16*index));
-                long r = (v&m) | (value << (16*index));
+                long m = ~(0xFFFFL << (16 * index));
+                long r = (v & m) | (value << (16 * index));
                 keyHolder.set(r);
             }
 
             @Override
             public int getCount()
             {
-                return 64/16;
+                return 64 / 16;
             }
         });
     }
@@ -62,7 +62,7 @@ public class PasscodeContainer extends AbstractContainerMenu
     private void bindPlayerInventory(Inventory playerInventory)
     {
         int xOffset = 18 + 8;
-        int yOffset = 126+22+6;
+        int yOffset = 126 + 22 + 6;
         for (int py = 0; py < 3; ++py)
         {
             for (int px = 0; px < 9; ++px)
@@ -74,7 +74,7 @@ public class PasscodeContainer extends AbstractContainerMenu
 
         for (int slot = 0; slot < 9; ++slot)
         {
-            this.addSlot(new LockedSlot(playerInventory, slot, xOffset + slot * 18, yOffset+40));
+            this.addSlot(new LockedSlot(playerInventory, slot, xOffset + slot * 18, yOffset + 40));
         }
     }
 

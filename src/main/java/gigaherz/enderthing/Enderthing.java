@@ -42,7 +42,10 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.storage.loot.*;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.LootTables;
+import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
@@ -224,7 +227,6 @@ public class Enderthing
                 tooltip.add(new TranslatableComponent("tooltip.enderthing.key_missing").withStyle(ChatFormatting.ITALIC));
             }
         }
-
     }
 
     public void gatherData(GatherDataEvent event)
@@ -282,7 +284,8 @@ public class Enderthing
                 this.add(KEY_CHEST, BlockTables::droppingWithContents);
             }
 
-            protected static LootTable.Builder dropping(Block block, LootItemCondition.Builder condition, LootPoolEntryContainer.Builder<?> alternativeEntry) {
+            protected static LootTable.Builder dropping(Block block, LootItemCondition.Builder condition, LootPoolEntryContainer.Builder<?> alternativeEntry)
+            {
                 return LootTable.lootTable()
                         .withPool(LootPool.lootPool()
                                 .setRolls(ConstantValue.exactly(1))
@@ -291,7 +294,8 @@ public class Enderthing
                                         .otherwise(alternativeEntry)));
             }
 
-            protected static LootTable.Builder droppingWithContents(Block block) {
+            protected static LootTable.Builder droppingWithContents(Block block)
+            {
                 return LootTable.lootTable()
                         .withPool(applyExplosionCondition(block,
                                 LootPool.lootPool()
@@ -317,7 +321,8 @@ public class Enderthing
                         );
             }
 
-            protected static LootPoolEntryContainer.Builder<?> withNoSilkTouchRandomly(Block block, ItemLike item, NumberProvider range) {
+            protected static LootPoolEntryContainer.Builder<?> withNoSilkTouchRandomly(Block block, ItemLike item, NumberProvider range)
+            {
                 return applyExplosionDecay(block, LootItem.lootTableItem(item).apply(SetItemCountFunction.setCount(range))).when(HAS_NO_SILK_TOUCH);
             }
 

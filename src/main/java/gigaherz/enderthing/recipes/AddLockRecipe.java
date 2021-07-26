@@ -2,17 +2,16 @@ package gigaherz.enderthing.recipes;
 
 import gigaherz.enderthing.Enderthing;
 import gigaherz.enderthing.KeyUtils;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
-import net.minecraft.core.NonNullList;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.crafting.IShapedRecipe;
 import net.minecraftforge.registries.ObjectHolder;
 
 public class AddLockRecipe extends CustomRecipe
@@ -30,7 +29,7 @@ public class AddLockRecipe extends CustomRecipe
     {
         int chest = -1;
         int lock = -1;
-        for(int i=0;i<inv.getContainerSize();i++)
+        for (int i = 0; i < inv.getContainerSize(); i++)
         {
             ItemStack st = inv.getItem(i);
             if (st.getItem() == Items.ENDER_CHEST || st.getItem() == Enderthing.KEY_CHEST_ITEM)
@@ -39,13 +38,13 @@ public class AddLockRecipe extends CustomRecipe
                     chest = i;
                 else return false;
             }
-            else if(st.getItem() == Enderthing.LOCK)
+            else if (st.getItem() == Enderthing.LOCK)
             {
                 if (lock < 0)
                     lock = i;
                 else return false;
             }
-            else if(st.getCount() > 0)
+            else if (st.getCount() > 0)
                 return false;
         }
         // Make sure we found both.
@@ -58,7 +57,7 @@ public class AddLockRecipe extends CustomRecipe
         ItemStack chest = ItemStack.EMPTY;
         ItemStack lock = ItemStack.EMPTY;
 
-        for(int i=0;i<inv.getContainerSize();i++)
+        for (int i = 0; i < inv.getContainerSize(); i++)
         {
             ItemStack st = inv.getItem(i);
             if (st.getItem() == Items.ENDER_CHEST || st.getItem() == Enderthing.KEY_CHEST_ITEM)
@@ -67,13 +66,13 @@ public class AddLockRecipe extends CustomRecipe
                     chest = st;
                 else return ItemStack.EMPTY;
             }
-            else if(st.getItem() == Enderthing.LOCK)
+            else if (st.getItem() == Enderthing.LOCK)
             {
                 if (lock.getCount() == 0)
                     lock = st;
                 else return ItemStack.EMPTY;
             }
-            else if(st.getCount() > 0)
+            else if (st.getCount() > 0)
                 return ItemStack.EMPTY;
         }
 
@@ -91,7 +90,8 @@ public class AddLockRecipe extends CustomRecipe
     {
         NonNullList<ItemStack> remaining = NonNullList.withSize(inv.getContainerSize(), ItemStack.EMPTY);
 
-        for(int i = 0; i < remaining.size(); ++i) {
+        for (int i = 0; i < remaining.size(); ++i)
+        {
             ItemStack st = inv.getItem(i);
             if (st.getItem() == Enderthing.KEY_CHEST_ITEM)
             {
@@ -109,7 +109,7 @@ public class AddLockRecipe extends CustomRecipe
     @Override
     public boolean canCraftInDimensions(int width, int height)
     {
-        return width*height >= 2;
+        return width * height >= 2;
     }
 
     @Override

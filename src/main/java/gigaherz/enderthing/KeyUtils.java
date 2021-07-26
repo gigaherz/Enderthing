@@ -1,17 +1,16 @@
 package gigaherz.enderthing;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Longs;
 import gigaherz.enderthing.blocks.EnderKeyChestTileEntity;
 import joptsimple.internal.Strings;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.PlayerList;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 
@@ -19,7 +18,6 @@ import javax.annotation.Nullable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +26,7 @@ public class KeyUtils
     public interface IKeyHolder
     {
         Optional<CompoundTag> findHolderTag(ItemStack stack);
+
         CompoundTag getOrCreateHolderTag(ItemStack stack);
 
         default boolean isPrivate(ItemStack stack)
@@ -54,6 +53,7 @@ public class KeyUtils
     public interface IBindable
     {
         Optional<CompoundTag> findHolderTag(ItemStack stack);
+
         CompoundTag getOrCreateHolderTag(ItemStack stack);
 
         boolean isBound(ItemStack stack);
@@ -93,7 +93,7 @@ public class KeyUtils
                 {
                     return UUID.fromString(tag.getString("Bound"));
                 }
-                catch(IllegalArgumentException e)
+                catch (IllegalArgumentException e)
                 {
                     Enderthing.LOGGER.warn("Stack contained wrong UUID", e);
                     return null;
@@ -244,7 +244,7 @@ public class KeyUtils
         {
             MessageDigest md = MessageDigest.getInstance("MD5");
             md.update(passcode.getBytes());
-            return Longs.fromByteArray(md.digest())&0x7fffffffffffffffL;
+            return Longs.fromByteArray(md.digest()) & 0x7fffffffffffffffL;
         }
         catch (NoSuchAlgorithmException noSuchAlgorithmException)
         {
@@ -260,18 +260,17 @@ public class KeyUtils
         try
         {
             MessageDigest md = MessageDigest.getInstance("MD5");
-            for(ItemStack st : passcode)
+            for (ItemStack st : passcode)
             {
                 md.update(st.getItem().getRegistryName().toString().getBytes());
                 if (st.hasCustomHoverName())
                     md.update(st.getHoverName().getContents().getBytes());
             }
-            return Longs.fromByteArray(md.digest())&0x7fffffffffffffffL;
+            return Longs.fromByteArray(md.digest()) & 0x7fffffffffffffffL;
         }
         catch (NoSuchAlgorithmException e)
         {
             throw new RuntimeException(e);
         }
     }
-
 }
