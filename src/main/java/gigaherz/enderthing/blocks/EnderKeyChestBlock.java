@@ -35,6 +35,8 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import javax.annotation.Nullable;
 import java.util.Random;
 
+import net.minecraft.block.AbstractBlock.Properties;
+
 public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEntity> implements IWaterLoggable
 {
     public static final DirectionProperty FACING = EnderChestBlock.FACING;
@@ -52,7 +54,7 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestTileEnti
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public TileEntityMerger.ICallbackWrapper<? extends ChestTileEntity> combine(BlockState p_225536_1_, World p_225536_2_, BlockPos p_225536_3_, boolean p_225536_4_) {
+    public TileEntityMerger.ICallbackWrapper<? extends ChestTileEntity> combine(BlockState state, World world, BlockPos pos, boolean override) {
         return TileEntityMerger.ICallback::func_225537_b_;
     }
 

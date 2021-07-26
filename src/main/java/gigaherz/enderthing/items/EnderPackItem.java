@@ -21,6 +21,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import net.minecraft.item.Item.Properties;
+
 public class EnderPackItem extends EnderthingItem
 {
     public EnderPackItem(Properties properties)
@@ -76,7 +78,7 @@ public class EnderPackItem extends EnderthingItem
 
         long id = KeyUtils.getKey(stack);
 
-        if (id < 0)
+        if (id < 0 || playerIn.isSneaking())
         {
             openPasscodeScreen(playerIn, stack);
             return ActionResult.resultSuccess(stack);

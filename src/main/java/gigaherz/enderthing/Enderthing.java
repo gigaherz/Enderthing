@@ -63,6 +63,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import net.minecraft.block.AbstractBlock;
+
 @Mod.EventBusSubscriber
 @Mod(Enderthing.MODID)
 public class Enderthing
@@ -126,7 +128,7 @@ public class Enderthing
     public void registerBlocks(RegistryEvent.Register<Block> event)
     {
         event.getRegistry().registerAll(
-                new EnderKeyChestBlock(Block.Properties.from(Blocks.ENDER_CHEST)).setRegistryName("key_chest")
+                new EnderKeyChestBlock(AbstractBlock.Properties.from(Blocks.ENDER_CHEST)).setRegistryName("key_chest")
         );
     }
 
@@ -178,12 +180,12 @@ public class Enderthing
         ScreenManager.registerFactory(KeyContainer.TYPE, KeyScreen::new);
         ScreenManager.registerFactory(PasscodeContainer.TYPE, PasscodeScreen::new);
 
-        ItemModelsProperties.func_239418_a_(KEY, new ResourceLocation("private"), (stack, world, entity) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-        ItemModelsProperties.func_239418_a_(LOCK, new ResourceLocation("private"), (stack, world, entity) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-        ItemModelsProperties.func_239418_a_(PACK, new ResourceLocation("private"), (stack, world, entity) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-        ItemModelsProperties.func_239418_a_(KEY_CHEST_ITEM, new ResourceLocation("private"), (stack, world, entity) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+        ItemModelsProperties.registerProperty(KEY, new ResourceLocation("private"), (stack, world, entity) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+        ItemModelsProperties.registerProperty(LOCK, new ResourceLocation("private"), (stack, world, entity) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+        ItemModelsProperties.registerProperty(PACK, new ResourceLocation("private"), (stack, world, entity) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+        ItemModelsProperties.registerProperty(KEY_CHEST_ITEM, new ResourceLocation("private"), (stack, world, entity) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
 
-        ItemModelsProperties.func_239418_a_(LOCK, new ResourceLocation("bound"), (stack, world, entity) -> KeyUtils.isPrivate(stack) && KeyUtils.isBound(stack) ? 1.0f : 0.0f);
+        ItemModelsProperties.registerProperty(LOCK, new ResourceLocation("bound"), (stack, world, entity) -> KeyUtils.isPrivate(stack) && KeyUtils.isBound(stack) ? 1.0f : 0.0f);
     }
 
     public static ResourceLocation location(String path)
@@ -255,7 +257,7 @@ public class Enderthing
         protected void validate(Map<ResourceLocation, LootTable> map, ValidationTracker validationtracker)
         {
             map.forEach((p_218436_2_, p_218436_3_) -> {
-                LootTableManager.func_227508_a_(validationtracker, p_218436_2_, p_218436_3_);
+                LootTableManager.validateLootTable(validationtracker, p_218436_2_, p_218436_3_);
             });
         }
 

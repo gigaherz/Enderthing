@@ -30,6 +30,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.item.Item.Properties;
+
 public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableKeyHolder
 {
     public EnderLockItem(Properties properties)
@@ -56,7 +58,7 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
 
         long id = KeyUtils.getKey(stack);
 
-        if (id < 0)
+        if (id < 0 || playerIn.isSneaking())
         {
             if (!worldIn.isRemote)
                 openPasscodeScreen(playerIn, stack);

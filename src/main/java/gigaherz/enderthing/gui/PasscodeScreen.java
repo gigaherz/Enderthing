@@ -203,7 +203,7 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float p_230450_2_, int mouseX, int mouseY)
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY)
     {
         assert minecraft != null; // Shut up Intellij, it's not null.
         minecraft.textureManager.bindTexture(CHEST_GUI_TEXTURE);
@@ -212,21 +212,21 @@ public class PasscodeScreen extends ContainerScreen<PasscodeContainer>
     }
 
     @Override // background
-    protected void renderHoveredTooltip(MatrixStack p_230459_1_, int p_230459_2_, int p_230459_3_)
+    protected void renderHoveredTooltip(MatrixStack matrixStack, int x, int y)
     {
-        super.renderHoveredTooltip(p_230459_1_, p_230459_2_, p_230459_3_);
+        super.renderHoveredTooltip(matrixStack, x, y);
     }
 
     @Override // foreground
-    protected void drawGuiContainerForegroundLayer(MatrixStack p_230451_1_, int p_230451_2_, int p_230451_3_)
+    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y)
     {
-        super.drawGuiContainerForegroundLayer(p_230451_1_, p_230451_2_, p_230451_3_);
+        super.drawGuiContainerForegroundLayer(matrixStack, x, y);
 
-        font.func_243246_a(p_230451_1_, getKeyFormatted("Current key", container.keyHolder.get(), "<not set>"), 10, 22, 0xd8d8d8);
+        font.drawTextWithShadow(matrixStack, getKeyFormatted("Current key", container.keyHolder.get(), "<not set>"), 10, 22, 0xd8d8d8);
 
-        font.func_243246_a(p_230451_1_, new StringTextComponent("Click on some items to set a key... "), 10, 35, 0xd8d8d8);
-        font.func_243246_a(p_230451_1_, new StringTextComponent("...or enter a key manually"), 10, 66, 0xd8d8d8);
-        font.func_243246_a(p_230451_1_, getKeyFormatted("Key", currentCode, "<invalid>"), 10, 100, 0xd8d8d8);
+        font.drawTextWithShadow(matrixStack, new StringTextComponent("Click on some items to set a key... "), 10, 35, 0xd8d8d8);
+        font.drawTextWithShadow(matrixStack, new StringTextComponent("...or enter a key manually"), 10, 66, 0xd8d8d8);
+        font.drawTextWithShadow(matrixStack, getKeyFormatted("Key", currentCode, "<invalid>"), 10, 100, 0xd8d8d8);
     }
 
     private ITextComponent getKeyFormatted(String s1, long currentCode, String s2)

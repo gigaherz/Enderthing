@@ -23,6 +23,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
+import net.minecraft.item.Item.Properties;
+
 public class EnderthingItem extends Item implements KeyUtils.IKeyHolder
 {
     public EnderthingItem(Properties properties)

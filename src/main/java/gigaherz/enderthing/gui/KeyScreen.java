@@ -27,7 +27,7 @@ public class KeyScreen extends ContainerScreen<KeyContainer>
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float p_230450_2_, int mouseX, int mouseY)
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY)
     {
         assert minecraft != null; // Shut up Intellij, it's not null.
         minecraft.textureManager.bindTexture(CHEST_GUI_TEXTURE);

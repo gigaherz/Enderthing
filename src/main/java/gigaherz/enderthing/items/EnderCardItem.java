@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import net.minecraft.item.Item.Properties;
+
 public class EnderCardItem extends Item implements KeyUtils.IBindable
 {
     public EnderCardItem(Properties properties)

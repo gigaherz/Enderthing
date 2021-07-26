@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import net.minecraft.item.Item.Properties;
+
 public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBindableKeyHolder
 {
     public EnderKeyChestBlockItem(Block block, Properties properties)
