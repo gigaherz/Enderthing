@@ -10,3 +10,6 @@ ab66e19eef39b0826c31a7f606b235e55e166d27 data/enderthing/recipes/card.json
 947f8a6499e2114fc5c9211801fcdf161bde2b51 data/enderthing/recipes/make_bound.json
 e30f2f098cd3ff968f7ad170f3ca8dd0f7c2461b data/enderthing/recipes/make_private.json
 6067d07110294182d5ac809e7e220443312eae2e data/enderthing/recipes/pack.json
+f7a518c03988b2a5a8bceec8d39ce282c98162c4 data/forge/tags/blocks/chests/ender.json
+f7a518c03988b2a5a8bceec8d39ce282c98162c4 data/forge/tags/items/chests/ender.json
+f7a518c03988b2a5a8bceec8d39ce282c98162c4 data/minecraft/tags/blocks/mineable/pickaxe.json

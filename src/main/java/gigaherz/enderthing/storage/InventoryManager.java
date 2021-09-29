@@ -23,8 +23,8 @@ public class InventoryManager extends SavedData implements IInventoryManager
     private static final Logger LOGGER = LogManager.getLogger();
     private static final String DATA_NAME = "enderthing_InventoryStorageManager";
 
-    private Container global = new Container();
-    private Map<UUID, Container> perPlayer = Maps.newHashMap();
+    private final Container global = new Container();
+    private final Map<UUID, Container> perPlayer = Maps.newHashMap();
 
     public InventoryManager()
     {
@@ -37,8 +37,6 @@ public class InventoryManager extends SavedData implements IInventoryManager
         if (nbt.contains("Private", Constants.NBT.TAG_LIST))
         {
             ListTag list = nbt.getList("Private", Constants.NBT.TAG_COMPOUND);
-
-            perPlayer.clear();
 
             for (int i = 0; i < list.size(); ++i)
             {
@@ -55,7 +53,7 @@ public class InventoryManager extends SavedData implements IInventoryManager
 
     private static boolean errorLogged = false;
 
-    private static InventoryManager DUMMY_CLIENT = new InventoryManager()
+    private static final InventoryManager DUMMY_CLIENT = new InventoryManager()
     {
         private final EnderInventory inv = new EnderInventory(this)
         {
@@ -95,6 +93,7 @@ public class InventoryManager extends SavedData implements IInventoryManager
                 RuntimeException exc = new RuntimeException("Attempted to get the data from a client world. This is wrong.");
 
                 LOGGER.error("Some mod attempted to get the inventory contents of an Ender Key from the client. This is not supported.", exc);
+                errorLogged = true;
             }
             return DUMMY_CLIENT;
         }

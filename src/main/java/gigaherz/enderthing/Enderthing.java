@@ -28,9 +28,14 @@ import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
+import net.minecraft.data.tags.BlockTagsProvider;
+import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -57,7 +62,8 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
-import net.minecraftforge.common.ToolType;
+import net.minecraftforge.common.Tags;
+import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -74,6 +80,7 @@ import net.minecraftforge.registries.ObjectHolder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -144,7 +151,7 @@ public class Enderthing
     public void registerBlocks(RegistryEvent.Register<Block> event)
     {
         event.getRegistry().registerAll(
-                new EnderKeyChestBlock(Block.Properties.copy(Blocks.ENDER_CHEST).harvestTool(ToolType.PICKAXE).harvestLevel(3)).setRegistryName("key_chest")
+                new EnderKeyChestBlock(Block.Properties.copy(Blocks.ENDER_CHEST)).setRegistryName("key_chest")
         );
     }
 
@@ -238,12 +245,55 @@ public class Enderthing
         {
             gen.addProvider(new Recipes(gen));
             gen.addProvider(new Loot(gen));
-            //gen.addProvider(new ItemTagGens(gen));
-            //gen.addProvider(new BlockTagGens(gen));
+
+            var existingFileHelper = event.getExistingFileHelper();
+            var blockTags = new BlockTagGens(gen, existingFileHelper);
+            var itemTags = new ItemTagGens(gen, blockTags, existingFileHelper);
+            gen.addProvider(blockTags);
+            gen.addProvider(itemTags);
+
         }
         if (event.includeClient())
         {
             //gen.addProvider(new BlockStates(gen, event));
+        }
+    }
+
+    private static class ItemTagGens extends ItemTagsProvider implements DataProvider
+    {
+        public ItemTagGens(DataGenerator gen, BlockTagsProvider blockTags, ExistingFileHelper existingFileHelper)
+        {
+            super(gen, blockTags, MODID, existingFileHelper);
+        }
+
+        @Nullable
+        public Tag.Builder getTagByName(ResourceLocation tag)
+        {
+            return this.builders.get(tag);
+        }
+
+        @Override
+        protected void addTags()
+        {
+            tag(Tags.Items.CHESTS_ENDER)
+                    .add(Enderthing.KEY_CHEST_ITEM);
+        }
+    }
+
+    private static class BlockTagGens extends BlockTagsProvider implements DataProvider
+    {
+        public BlockTagGens(DataGenerator gen, ExistingFileHelper existingFileHelper)
+        {
+            super(gen, MODID, existingFileHelper);
+        }
+
+        @Override
+        protected void addTags()
+        {
+            tag(Tags.Blocks.CHESTS_ENDER)
+                    .add(Enderthing.KEY_CHEST);
+            tag(BlockTags.MINEABLE_WITH_PICKAXE)
+                    .add(Enderthing.KEY_CHEST);
         }
     }
 

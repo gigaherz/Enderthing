@@ -32,7 +32,7 @@ repositories {
     }
 }
 
-version = '1.1.0'
+version = '1.1.2'
 group = 'gigaherz.enderthing'
 archivesBaseName = "Enderthing-UNKNOWN"
 
@@ -99,7 +99,7 @@ minecraft {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.17.1-37.0.9'
+    minecraft 'net.minecraftforge:forge:1.17.1-37.0.73'
 }
 
 jar {

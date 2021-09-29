@@ -154,17 +154,10 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
                 }
             });
 
-            static BlockEntityWithoutLevelRenderer getKeyChestRenderer()
-            {
-                return renderer.get();
-            }
-
-            final BlockEntityWithoutLevelRenderer r = getKeyChestRenderer();
-
             @Override
             public BlockEntityWithoutLevelRenderer getItemStackRenderer()
             {
-                return r;
+                return renderer.get();
             }
         });
     }
