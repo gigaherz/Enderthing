@@ -1,10 +1,5 @@
 modLoader="javafml" #mandatory
-loaderVersion="[37,)" #mandatory
-issueTrackerURL="https://github.com/gigaherz/Enderthing/issues" #optional
-displayURL="https://github.com/gigaherz/Enderthing" #optional
-logoFile="logo.png" #optional
-credits="Thanks for this example mod goes to Java" #optional
-authors="gigaherz" #optional
+loaderVersion="[38,)" #mandatory
 license="BSD (3 clause)"
 
 [[mods]] #mandatory
@@ -15,16 +10,21 @@ displayName="Enderthing" #mandatory
 description='''
 Shared inventories with chests and keys
 '''
+issueTrackerURL="https://github.com/gigaherz/Enderthing/issues" #optional
+displayURL="https://github.com/gigaherz/Enderthing" #optional
+logoFile="logo.png" #optional
+credits="Thanks for this example mod goes to Java" #optional
+authors="gigaherz" #optional
 
 [[dependencies.enderthing]] #optional
     modId="forge" #mandatory
     mandatory=true #mandatory
-    versionRange="[37.0.8,)" #mandatory
+    versionRange="[38.0.10,)" #mandatory
     ordering="NONE"
     side="BOTH"
 [[dependencies.enderthing]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.17.1,1.18)"
+    versionRange="[1.18,1.19)"
     ordering="NONE"
     side="BOTH"
