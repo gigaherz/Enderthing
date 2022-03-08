@@ -2,6 +2,8 @@ package dev.gigaherz.enderthing.storage;
 
 import com.google.common.collect.Lists;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.items.ItemStackHandler;
 
@@ -18,9 +20,20 @@ public class EnderInventory extends ItemStackHandler
 
     private final List<Reference<? extends EnderKeyChestBlockEntity>> listeners = Lists.newArrayList();
 
+    private long created = 0;
+    private long lastLoaded = 0;
+    private long lastModified = 0;
+
     public void addWeakListener(EnderKeyChestBlockEntity e)
     {
         listeners.add(new WeakReference<>(e));
+        lastLoaded = getTimestamp();
+        manager.makeDirty();
+    }
+
+    private long getTimestamp()
+    {
+        return System.currentTimeMillis() / 1000;
     }
 
     public void removeWeakListener(EnderKeyChestBlockEntity e)
@@ -56,6 +69,10 @@ public class EnderInventory extends ItemStackHandler
 
         dirty.forEach(BlockEntity::setChanged);
 
+        if (dirty.size() > 0)
+            lastLoaded = getTimestamp();
+        lastModified = getTimestamp();
+
         manager.makeDirty();
     }
 
@@ -64,5 +81,49 @@ public class EnderInventory extends ItemStackHandler
         super(SLOT_COUNT);
         setSize(SLOT_COUNT); // FIXME: HACK -- Remove me
         this.manager = manager;
+        created = getTimestamp();
+    }
+
+    @Override
+    public CompoundTag serializeNBT()
+    {
+        var tag = super.serializeNBT();
+        tag.putLong("created", created);
+        tag.putLong("lastLoaded", lastLoaded);
+        tag.putLong("lastModified", lastModified);
+        return tag;
+    }
+
+    @Override
+    public void deserializeNBT(CompoundTag nbt)
+    {
+        super.deserializeNBT(nbt);
+        if(nbt.contains("created", Tag.TAG_ANY_NUMERIC))
+            created = nbt.getLong("created");
+        else
+            created = getTimestamp();
+        if(nbt.contains("lastLoaded", Tag.TAG_ANY_NUMERIC))
+            lastLoaded = nbt.getLong("lastLoaded");
+        else
+            lastLoaded = getTimestamp();
+        if(nbt.contains("lastModified", Tag.TAG_ANY_NUMERIC))
+            lastModified = nbt.getLong("lastModified");
+        else
+            lastModified = lastLoaded;
+    }
+
+    public long getCreationTimestamp()
+    {
+        return created;
+    }
+
+    public long getLastLoadedTimestamp()
+    {
+        return lastLoaded;
+    }
+
+    public long getLastModifiedTimestamp()
+    {
+        return lastModified;
     }
 }
