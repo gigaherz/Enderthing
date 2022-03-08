@@ -31,7 +31,7 @@ repositories {
     }
 }
 
-version = '1.2.0'
+version = '1.2.2'
 group = 'dev.gigaherz.enderthing'
 archivesBaseName = "Enderthing-UNKNOWN"
 
@@ -46,7 +46,7 @@ sourceSets {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.18'
+    mappings channel: 'official', version: '1.18.2'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -98,7 +98,7 @@ minecraft {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18-38.0.14'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.0.2'
 }
 
 jar {

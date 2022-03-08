@@ -7,10 +7,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -35,7 +38,9 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.wrapper.RecipeWrapper;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -202,6 +207,55 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
         super.triggerEvent(state, worldIn, pos, id, param);
         BlockEntity tileentity = worldIn.getBlockEntity(pos);
         return tileentity != null && tileentity.triggerEvent(id, param);
+    }
+
+    @Deprecated
+    @Override
+    public boolean hasAnalogOutputSignal(BlockState state)
+    {
+        return true;
+    }
+
+    @Deprecated
+    @Override
+    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos)
+    {
+        if (level.getBlockEntity(pos) instanceof EnderKeyChestBlockEntity be && be.hasInventory())
+            return getRedstoneSignalFromContainer(be.getInventory());
+        return 0;
+    }
+
+    public static int getRedstoneSignalFromContainer(@Nullable IItemHandler handler) {
+        if (handler == null) {
+            return 0;
+        }
+
+        int nonEmptyStacks = 0;
+        float fullness = 0.0F;
+
+        for(int j = 0; j < handler.getSlots(); ++j) {
+            ItemStack itemstack = handler.getStackInSlot(j);
+            if (!itemstack.isEmpty())
+            {
+                fullness += (float)itemstack.getCount() / (float)Math.min(handler.getSlotLimit(j), itemstack.getMaxStackSize());
+                ++nonEmptyStacks;
+            }
+        }
+
+        fullness /= (float)handler.getSlots();
+        return Mth.floor(fullness * 14.0F) + (nonEmptyStacks > 0 ? 1 : 0);
+    }
+
+    @Deprecated
+    @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @Deprecated
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
     private static ItemStack getItem(BlockGetter world, BlockPos pos)
