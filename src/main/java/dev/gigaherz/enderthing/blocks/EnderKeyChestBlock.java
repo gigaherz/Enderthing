@@ -1,19 +1,18 @@
 package dev.gigaherz.enderthing.blocks;
 
-import dev.gigaherz.enderthing.gui.Containers;
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
+import dev.gigaherz.enderthing.gui.Containers;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -40,7 +39,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.wrapper.RecipeWrapper;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -108,7 +106,7 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
     @Override
     public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter world, BlockPos pos, Player player)
     {
-        return getItem(world, pos);
+        return getItem(world, pos, Screen.hasShiftDown() || (player.getAbilities().instabuild && Screen.hasControlDown()));
     }
 
     @Override
@@ -133,7 +131,7 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
 
         if (player.isShiftKeyDown())
         {
-            ItemHandlerHelper.giveItemToPlayer(player, getItem(worldIn, pos));
+            ItemHandlerHelper.giveItemToPlayer(player, getItem(worldIn, pos, false));
             worldIn.setBlockAndUpdate(pos, Blocks.ENDER_CHEST.defaultBlockState()
                     .setValue(EnderKeyChestBlock.WATERLOGGED, state.getValue(EnderChestBlock.WATERLOGGED))
                     .setValue(EnderKeyChestBlock.FACING, state.getValue(EnderChestBlock.FACING)));
@@ -258,18 +256,18 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
-    private static ItemStack getItem(BlockGetter world, BlockPos pos)
+    private static ItemStack getItem(BlockGetter world, BlockPos pos, boolean asChest)
     {
         BlockEntity te = world.getBlockEntity(pos);
 
-        if (te instanceof EnderKeyChestBlockEntity)
+        if (te instanceof EnderKeyChestBlockEntity te1)
         {
-            long id = ((EnderKeyChestBlockEntity) te).getKey();
-            boolean priv = ((EnderKeyChestBlockEntity) te).isPrivate();
+            long id = te1.getKey();
+            boolean priv = te1.isPrivate();
 
-            return KeyUtils.getLock(id, priv);
+            return asChest ? KeyUtils.getKeyChest(id, priv, te1.getPlayerBound()) : KeyUtils.getLock(id, priv);
         }
 
-        return new ItemStack(Enderthing.KEY_CHEST);
+        return asChest ? new ItemStack(Enderthing.KEY_CHEST) : new ItemStack(Enderthing.LOCK);
     }
 }

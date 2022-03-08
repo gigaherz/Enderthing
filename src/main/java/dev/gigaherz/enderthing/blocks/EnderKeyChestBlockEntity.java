@@ -116,14 +116,18 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
 
     private void invalidateInventory()
     {
+        releasePreviousInventory();
+
         inventoryLazy.invalidate();
         inventoryLazy = LazyOptional.of(this::getInventory);
 
-        releasePreviousInventory();
         setChanged();
 
-        BlockState state = level.getBlockState(worldPosition);
-        level.sendBlockUpdated(worldPosition, state, state, 3);
+        if (level != null)
+        {
+            BlockState state = level.getBlockState(worldPosition);
+            level.sendBlockUpdated(worldPosition, state, state, 3);
+        }
     }
 
     public boolean isBoundToPlayer()
