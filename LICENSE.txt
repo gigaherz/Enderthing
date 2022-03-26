@@ -1,4 +1,4 @@
-Copyright (c) 2016, David Quintana
+Copyright (c) 2022, David Quintana
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
