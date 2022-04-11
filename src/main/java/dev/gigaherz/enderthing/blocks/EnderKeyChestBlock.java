@@ -7,6 +7,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -19,10 +20,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -200,11 +198,12 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
 
     @Deprecated
     @Override
-    public boolean triggerEvent(BlockState state, Level worldIn, BlockPos pos, int id, int param)
-    {
-        super.triggerEvent(state, worldIn, pos, id, param);
-        BlockEntity tileentity = worldIn.getBlockEntity(pos);
-        return tileentity != null && tileentity.triggerEvent(id, param);
+    public void tick(BlockState p_153203_, ServerLevel p_153204_, BlockPos p_153205_, Random p_153206_) {
+        BlockEntity blockentity = p_153204_.getBlockEntity(p_153205_);
+        if (blockentity instanceof EnderChestBlockEntity chestBE)
+        {
+            chestBE.recheckOpen();
+        }
     }
 
     @Deprecated

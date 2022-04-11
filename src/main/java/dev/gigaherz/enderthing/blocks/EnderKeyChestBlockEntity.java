@@ -1,7 +1,7 @@
 package dev.gigaherz.enderthing.blocks;
 
-import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.gui.IContainerInteraction;
+import dev.gigaherz.enderthing.gui.KeyContainer;
 import dev.gigaherz.enderthing.storage.EnderInventory;
 import dev.gigaherz.enderthing.storage.InventoryManager;
 import net.minecraft.core.BlockPos;
@@ -14,13 +14,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.LidBlockEntity;
+import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -32,10 +27,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-@OnlyIn(
-        value = Dist.CLIENT,
-        _interface = LidBlockEntity.class
-)
 public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEntity, IContainerInteraction
 {
     @ObjectHolder("enderthing:key_chest")
@@ -51,15 +42,31 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
         super(TYPE, blockPos, blockState);
     }
 
-    public float lidAngle;
-    public float prevLidAngle;
-    public int numPlayersUsing;
-    private int ticksSinceSync;
+    private final ChestLidController chestLidController = new ChestLidController();
+    private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
+        protected void onOpen(Level level, BlockPos pos, BlockState state) {
+            level.playSound(null, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D,
+                    SoundEvents.ENDER_CHEST_OPEN, SoundSource.BLOCKS, 0.5F, level.random.nextFloat() * 0.1F + 0.9F);
+        }
 
+        protected void onClose(Level level, BlockPos pos, BlockState state) {
+            level.playSound(null, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D,
+                    SoundEvents.ENDER_CHEST_CLOSE, SoundSource.BLOCKS, 0.5F, level.random.nextFloat() * 0.1F + 0.9F);
+        }
+
+        protected void openerCountChanged(Level level, BlockPos pos, BlockState state, int unknown1, int unknown2) {
+            level.blockEvent(pos, state.getBlock(), 1, unknown2);
+        }
+
+        protected boolean isOwnContainer(Player player) {
+            return player.containerMenu instanceof KeyContainer m && m.interactionHandler == EnderKeyChestBlockEntity.this;
+        }
+    };
+
+    private boolean priv;
     private long key = -1;
     private UUID boundToPlayer;
     private EnderInventory inventory;
-    private boolean priv;
     private LazyOptional<IItemHandler> inventoryLazy = LazyOptional.of(this::getInventory);
 
     public boolean isPrivate()
@@ -112,6 +119,13 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
 
             invalidateInventory();
         }
+    }
+
+    @Override
+    public void setRemoved()
+    {
+        inventoryLazy.invalidate();
+        super.setRemoved();
     }
 
     private void invalidateInventory()
@@ -217,7 +231,6 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
     @Override
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet)
     {
-        super.onDataPacket(net, packet);
         handleUpdateTag(packet.getTag());
 
         BlockState state = level.getBlockState(worldPosition);
@@ -231,54 +244,7 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
 
     public void tick()
     {
-        if (++this.ticksSinceSync % 20 * 4 == 0)
-        {
-            this.level.blockEvent(this.worldPosition, Blocks.ENDER_CHEST, 1, this.numPlayersUsing);
-        }
-
-
-        this.prevLidAngle = this.lidAngle;
-        int i = this.worldPosition.getX();
-        int j = this.worldPosition.getY();
-        int k = this.worldPosition.getZ();
-        float f = 0.1F;
-        if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F)
-        {
-            double d0 = (double) i + 0.5D;
-            double d1 = (double) k + 0.5D;
-            this.level.playSound(null, d0, (double) j + 0.5D, d1, SoundEvents.ENDER_CHEST_OPEN, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F);
-        }
-
-        if (this.numPlayersUsing == 0 && this.lidAngle > 0.0F || this.numPlayersUsing > 0 && this.lidAngle < 1.0F)
-        {
-            float f2 = this.lidAngle;
-            if (this.numPlayersUsing > 0)
-            {
-                this.lidAngle += 0.1F;
-            }
-            else
-            {
-                this.lidAngle -= 0.1F;
-            }
-
-            if (this.lidAngle > 1.0F)
-            {
-                this.lidAngle = 1.0F;
-            }
-
-            float f1 = 0.5F;
-            if (this.lidAngle < 0.5F && f2 >= 0.5F)
-            {
-                double d3 = (double) i + 0.5D;
-                double d2 = (double) k + 0.5D;
-                this.level.playSound((Player) null, d3, (double) j + 0.5D, d2, SoundEvents.ENDER_CHEST_CLOSE, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F);
-            }
-
-            if (this.lidAngle < 0.0F)
-            {
-                this.lidAngle = 0.0F;
-            }
-        }
+        this.chestLidController.tickLid();
     }
 
     @Override
@@ -286,7 +252,7 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
     {
         if (id == 1)
         {
-            this.numPlayersUsing = type;
+            this.chestLidController.shouldBeOpen(type > 0);
             return true;
         }
         else
@@ -295,16 +261,18 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
         }
     }
 
-    public void openChest()
-    {
-        ++this.numPlayersUsing;
-        this.level.blockEvent(this.worldPosition, Enderthing.KEY_CHEST, 1, this.numPlayersUsing);
+    public void openChest(Player player) {
+        if (!this.remove && !player.isSpectator()) {
+            this.openersCounter.incrementOpeners(player, this.getLevel(), this.getBlockPos(), this.getBlockState());
+        }
+
     }
 
-    public void closeChest()
-    {
-        --this.numPlayersUsing;
-        this.level.blockEvent(this.worldPosition, Enderthing.KEY_CHEST, 1, this.numPlayersUsing);
+    public void closeChest(Player player) {
+        if (!this.remove && !player.isSpectator()) {
+            this.openersCounter.decrementOpeners(player, this.getLevel(), this.getBlockPos(), this.getBlockState());
+        }
+
     }
 
     public boolean canBeUsed(Player player)
@@ -319,10 +287,16 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
         }
     }
 
+    public void recheckOpen()
+    {
+        if (!this.remove) {
+            this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
+        }
+    }
+
     @Override
-    @OnlyIn(Dist.CLIENT)
     public float getOpenNess(float partialTicks)
     {
-        return this.prevLidAngle + (this.lidAngle - this.prevLidAngle) * partialTicks;
+        return this.chestLidController.getOpenness(partialTicks);
     }
 }

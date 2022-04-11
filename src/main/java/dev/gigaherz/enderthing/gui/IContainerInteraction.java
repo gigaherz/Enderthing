@@ -6,7 +6,7 @@ public interface IContainerInteraction
 {
     boolean canBeUsed(Player player);
 
-    void openChest();
+    void openChest(Player player);
 
-    void closeChest();
+    void closeChest(Player player);
 }

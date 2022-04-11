@@ -29,7 +29,7 @@ public class KeyContainer extends AbstractContainerMenu
     @ObjectHolder("enderthing:key")
     public static MenuType<KeyContainer> TYPE = null;
 
-    private final IContainerInteraction interactionHandler;
+    public final IContainerInteraction interactionHandler;
 
     private static boolean isUsableByPlayer(@Nullable BlockEntity te, Player p)
     {
@@ -67,13 +67,15 @@ public class KeyContainer extends AbstractContainerMenu
             }
 
             @Override
-            public void openChest()
+            public void openChest(Player player)
             {
+
             }
 
             @Override
-            public void closeChest()
+            public void closeChest(Player player)
             {
+
             }
         });
     }
@@ -107,15 +109,15 @@ public class KeyContainer extends AbstractContainerMenu
                     }
 
                     @Override
-                    public void openChest()
+                    public void openChest(Player player)
                     {
-                        enderChest.startOpen(playerInventory.player);
+                        enderChest.startOpen(player);
                     }
 
                     @Override
-                    public void closeChest()
+                    public void closeChest(Player player)
                     {
-                        enderChest.stopOpen(playerInventory.player);
+                        enderChest.stopOpen(player);
                     }
                 });
     }
@@ -134,12 +136,12 @@ public class KeyContainer extends AbstractContainerMenu
                     }
 
                     @Override
-                    public void openChest()
+                    public void openChest(Player player)
                     {
                     }
 
                     @Override
-                    public void closeChest()
+                    public void closeChest(Player player)
                     {
                     }
                 });
@@ -152,7 +154,7 @@ public class KeyContainer extends AbstractContainerMenu
 
         this.interactionHandler = interactionHandler;
 
-        interactionHandler.openChest();
+        interactionHandler.openChest(playerInventory.player);
 
         for (int j = 0; j < 3; ++j)
         {
@@ -189,10 +191,10 @@ public class KeyContainer extends AbstractContainerMenu
     }
 
     @Override
-    public void removed(Player playerIn)
+    public void removed(Player player)
     {
-        super.removed(playerIn);
-        interactionHandler.closeChest();
+        super.removed(player);
+        interactionHandler.closeChest(player);
     }
 
     @Override
