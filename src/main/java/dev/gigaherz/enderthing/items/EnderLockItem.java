@@ -42,10 +42,11 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
     {
         tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_lock.right_click").withStyle(ChatFormatting.ITALIC));
 
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+
         if (isBound(stack))
             tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_lock.bound", getBoundStr(stack)));
 
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
     }
 
     @Override

@@ -6,6 +6,7 @@ import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.gui.Containers;
 import dev.gigaherz.enderthing.util.ILongAccessor;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -63,8 +64,15 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
     @Override
     public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items)
     {
-        // Don't show in creative menu
-        //super.fillItemGroup(group, items);
+        if (allowdedIn(group))
+        {
+            items.add(new ItemStack(this));
+            items.add(KeyUtils.setPrivate(new ItemStack(this), true));
+        }
+        if (this.getItemCategory() != null && group == CreativeModeTab.TAB_SEARCH)
+        {
+            items.add(KeyUtils.setBound(KeyUtils.setPrivate(new ItemStack(this), true), Util.NIL_UUID));
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -74,6 +82,10 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
         tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_key_chest.right_click").withStyle(ChatFormatting.ITALIC));
 
         Enderthing.Client.addStandardInformation(stack, tooltip);
+
+        if (isBound(stack))
+            tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_lock.bound", getBoundStr(stack)));
+
     }
 
     private void openPasscodeScreen(Player playerIn, ItemStack stack)

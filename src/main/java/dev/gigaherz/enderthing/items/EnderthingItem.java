@@ -4,6 +4,7 @@ import dev.gigaherz.enderthing.gui.Containers;
 import dev.gigaherz.enderthing.util.ILongAccessor;
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
+import net.minecraft.Util;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -35,6 +36,10 @@ public class EnderthingItem extends Item implements KeyUtils.IKeyHolder
         {
             items.add(new ItemStack(this));
             items.add(KeyUtils.setPrivate(new ItemStack(this), true));
+        }
+        if (this.getItemCategory() != null && group == CreativeModeTab.TAB_SEARCH && this instanceof KeyUtils.IBindable)
+        {
+            items.add(KeyUtils.setBound(KeyUtils.setPrivate(new ItemStack(this), true), Util.NIL_UUID));
         }
     }
 

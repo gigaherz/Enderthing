@@ -25,6 +25,8 @@ public class KeyUtils
 {
     public interface IKeyHolder
     {
+        private Item self() { return (Item)this; }
+
         Optional<CompoundTag> findHolderTag(ItemStack stack);
 
         CompoundTag getOrCreateHolderTag(ItemStack stack);
@@ -47,6 +49,21 @@ public class KeyUtils
         default void setKey(ItemStack stack, long key)
         {
             getOrCreateHolderTag(stack).putLong("Key", key);
+        }
+
+        default ItemStack makeStack(boolean isPrivate)
+        {
+            var stack = self().getDefaultInstance();
+            if (isPrivate) setPrivate(stack, true);
+            return stack;
+        }
+
+        default ItemStack makeStack(boolean isPrivate, long key)
+        {
+            var stack = self().getDefaultInstance();
+            if (isPrivate) setPrivate(stack, true);
+            if (key != -1) setKey(stack, key);
+            return stack;
         }
     }
 

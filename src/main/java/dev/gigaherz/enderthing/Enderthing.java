@@ -157,7 +157,7 @@ public class Enderthing
     public void registerItems(RegistryEvent.Register<Item> event)
     {
         event.getRegistry().registerAll(
-                new EnderKeyChestBlockItem(KEY_CHEST, new Item.Properties())
+                new EnderKeyChestBlockItem(KEY_CHEST, new Item.Properties().tab(ENDERTHING_GROUP))
                         .setRegistryName(KEY_CHEST.getRegistryName()),
                 new EnderKeyItem(new Item.Properties().tab(ENDERTHING_GROUP)).setRegistryName("key"),
                 new EnderLockItem(new Item.Properties().tab(ENDERTHING_GROUP)).setRegistryName("lock"),

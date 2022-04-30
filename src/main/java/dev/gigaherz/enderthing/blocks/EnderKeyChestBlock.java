@@ -200,7 +200,7 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
     @Override
     public void tick(BlockState p_153203_, ServerLevel p_153204_, BlockPos p_153205_, Random p_153206_) {
         BlockEntity blockentity = p_153204_.getBlockEntity(p_153205_);
-        if (blockentity instanceof EnderChestBlockEntity chestBE)
+        if (blockentity instanceof EnderKeyChestBlockEntity chestBE)
         {
             chestBE.recheckOpen();
         }
