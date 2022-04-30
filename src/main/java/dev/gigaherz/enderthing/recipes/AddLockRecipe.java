@@ -27,28 +27,36 @@ public class AddLockRecipe extends CustomRecipe
     @Override
     public boolean matches(CraftingContainer inv, Level worldIn)
     {
+        boolean chestHasLock = false;
         int chest = -1;
         int lock = -1;
         for (int i = 0; i < inv.getContainerSize(); i++)
         {
             ItemStack st = inv.getItem(i);
-            if (st.getItem() == Items.ENDER_CHEST || st.getItem() == Enderthing.KEY_CHEST_ITEM)
+            if (st.getItem() == Items.ENDER_CHEST)
             {
-                if (chest < 0)
-                    chest = i;
-                else return false;
+                if (chest >= 0)
+                    return false;
+                chest = i;
+            }
+            else if (st.getItem() == Enderthing.KEY_CHEST_ITEM)
+            {
+                if (chest >= 0)
+                    return false;
+                chest = i;
+                chestHasLock = true;
             }
             else if (st.getItem() == Enderthing.LOCK)
             {
-                if (lock < 0)
-                    lock = i;
-                else return false;
+                if (lock >= 0)
+                    return false;
+                lock = i;
             }
             else if (st.getCount() > 0)
                 return false;
         }
-        // Make sure we found both.
-        return chest >= 0 && lock >= 0;
+        // Make sure we found either both, or a chest with lock.
+        return chest >= 0 && (chestHasLock || lock >= 0);
     }
 
     @Override
@@ -62,24 +70,27 @@ public class AddLockRecipe extends CustomRecipe
             ItemStack st = inv.getItem(i);
             if (st.getItem() == Items.ENDER_CHEST || st.getItem() == Enderthing.KEY_CHEST_ITEM)
             {
-                if (chest.getCount() == 0)
-                    chest = st;
-                else return ItemStack.EMPTY;
+                if (chest.getCount() > 0)
+                    return ItemStack.EMPTY;
+                chest = st;
             }
             else if (st.getItem() == Enderthing.LOCK)
             {
-                if (lock.getCount() == 0)
-                    lock = st;
-                else return ItemStack.EMPTY;
+                if (lock.getCount() > 0)
+                    return ItemStack.EMPTY;
+                lock = st;
             }
             else if (st.getCount() > 0)
                 return ItemStack.EMPTY;
         }
 
         // Make sure we found both.
-        if (chest.getCount() > 0 && lock.getCount() > 0)
+        if (chest.getCount() > 0)
         {
-            return KeyUtils.getKeyChest(KeyUtils.getKey(lock), KeyUtils.isPrivate(lock), KeyUtils.getBound(lock));
+            if (lock.getCount() > 0)
+                return KeyUtils.getKeyChest(KeyUtils.getKey(lock), KeyUtils.isPrivate(lock), KeyUtils.getBound(lock));
+            else
+                return new ItemStack(Items.ENDER_CHEST);
         }
 
         return ItemStack.EMPTY;

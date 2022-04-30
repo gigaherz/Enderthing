@@ -3,6 +3,7 @@ package dev.gigaherz.enderthing.blocks;
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.gui.Containers;
+import dev.gigaherz.enderthing.util.ILongAccessor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,6 +38,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -116,9 +118,7 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
     @Override
     public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit)
     {
-        BlockEntity te = worldIn.getBlockEntity(pos);
-
-        if (!(te instanceof EnderKeyChestBlockEntity))
+        if (!(worldIn.getBlockEntity(pos) instanceof EnderKeyChestBlockEntity chest))
             return InteractionResult.PASS;
 
         if (worldIn.getBlockState(pos.above()).isRedstoneConductor(worldIn, pos))
@@ -129,19 +129,46 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
 
         if (player.isShiftKeyDown())
         {
-            ItemHandlerHelper.giveItemToPlayer(player, getItem(worldIn, pos, false));
+            ItemStack stack = getItem(worldIn, pos, false);
+            ItemHandlerHelper.giveItemToPlayer(player, stack);
             worldIn.setBlockAndUpdate(pos, Blocks.ENDER_CHEST.defaultBlockState()
                     .setValue(EnderKeyChestBlock.WATERLOGGED, state.getValue(EnderChestBlock.WATERLOGGED))
                     .setValue(EnderKeyChestBlock.FACING, state.getValue(EnderChestBlock.FACING)));
             return InteractionResult.SUCCESS;
         }
 
-        EnderKeyChestBlockEntity chest = (EnderKeyChestBlockEntity) te;
-
         if (player instanceof ServerPlayer)
+        {
+            var id = chest.getKey();
+            if (id < 0)
+            {
+                openPasscodeScreen(player, chest);
+                return InteractionResult.SUCCESS;
+            }
+
             Containers.openBlockGui((ServerPlayer) player, chest);
 
+        }
+
         return InteractionResult.SUCCESS;
+    }
+
+    public void openPasscodeScreen(Player playerIn, EnderKeyChestBlockEntity chest)
+    {
+        Containers.openPasscodeScreen((ServerPlayer) playerIn, new ILongAccessor()
+        {
+            @Override
+            public long get()
+            {
+                return chest.getKey();
+            }
+
+            @Override
+            public void set(long value)
+            {
+                chest.setKey(value);
+            }
+        }, getItem(chest, false));
     }
 
     @Nullable
@@ -257,16 +284,20 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
 
     private static ItemStack getItem(BlockGetter world, BlockPos pos, boolean asChest)
     {
-        BlockEntity te = world.getBlockEntity(pos);
-
-        if (te instanceof EnderKeyChestBlockEntity te1)
+        if (world.getBlockEntity(pos) instanceof EnderKeyChestBlockEntity chest)
         {
-            long id = te1.getKey();
-            boolean priv = te1.isPrivate();
-
-            return asChest ? KeyUtils.getKeyChest(id, priv, te1.getPlayerBound()) : KeyUtils.getLock(id, priv);
+            return getItem(chest, asChest);
         }
 
         return asChest ? new ItemStack(Enderthing.KEY_CHEST) : new ItemStack(Enderthing.LOCK);
+    }
+
+    @NotNull
+    private static ItemStack getItem(EnderKeyChestBlockEntity chest, boolean asChest)
+    {
+        long id = chest.getKey();
+        boolean priv = chest.isPrivate();
+
+        return asChest ? KeyUtils.getKeyChest(id, priv, chest.getPlayerBound()) : KeyUtils.getLock(id, priv, chest.getPlayerBound());
     }
 }

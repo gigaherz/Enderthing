@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -79,65 +80,63 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
 
         BlockState state = worldIn.getBlockState(pos);
 
-        long id = KeyUtils.getKey(stack);
-
-        if (id < 0)
-        {
-            openPasscodeScreen(player, stack);
-            return InteractionResult.SUCCESS;
-        }
-
         Block b = state.getBlock();
-
-        BlockEntity te = worldIn.getBlockEntity(pos);
 
         if (b == Blocks.ENDER_CHEST)
         {
-            return replaceWithKeyChest(worldIn, pos, stack, state, id, true, player);
+            return replaceWithKeyChest(worldIn, pos, stack, state, true, player);
         }
-
-        if (b instanceof EnderKeyChestBlock)
+        else if (b instanceof EnderKeyChestBlock)
         {
             boolean oldPrivate = false;
-            if (te instanceof EnderKeyChestBlockEntity)
+            if (worldIn.getBlockEntity(pos) instanceof EnderKeyChestBlockEntity chest)
             {
-                EnderKeyChestBlockEntity chest = (EnderKeyChestBlockEntity) te;
                 long oldId = chest.getKey();
                 oldPrivate = chest.isPrivate();
                 UUID bound = chest.getPlayerBound();
                 ItemStack oldStack = KeyUtils.getLock(oldId, oldPrivate, bound);
 
-                Containers.dropItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
+                if (player != null)
+                    ItemHandlerHelper.giveItemToPlayer(player, oldStack);
+                else
+                    Containers.dropItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
             }
 
             boolean newPrivate = isPrivate(stack);
-            return replaceWithKeyChest(worldIn, pos, stack, state, id, oldPrivate != newPrivate, player);
+            return replaceWithKeyChest(worldIn, pos, stack, state, oldPrivate != newPrivate, player);
         }
 
         return InteractionResult.PASS;
     }
 
-    private InteractionResult replaceWithKeyChest(Level worldIn, BlockPos pos, ItemStack stack, BlockState state, long id, boolean replace, Player player)
+    private InteractionResult replaceWithKeyChest(Level worldIn, BlockPos pos, ItemStack stack, BlockState state, boolean replace, @Nullable Player player)
     {
-        if (replace) setKeyChest(worldIn, pos, state, stack);
+        if (replace) setKeyChest(worldIn, pos, state);
 
-        BlockEntity te = worldIn.getBlockEntity(pos);
-        if (te instanceof EnderKeyChestBlockEntity)
+        if (worldIn.getBlockEntity(pos) instanceof EnderKeyChestBlockEntity chest)
         {
-            EnderKeyChestBlockEntity chest = (EnderKeyChestBlockEntity) te;
-            chest.setKey(id);
+            chest.setKey(getKey(stack));
             chest.setPrivate(isPrivate(stack));
             if (isPrivate(stack) && isBound(stack))
                 chest.bindToPlayer(getBound(stack));
+
+            long id = chest.getKey();
+            if (player != null && id < 0)
+            {
+                if (worldIn.getBlockState(pos).getBlock() instanceof EnderKeyChestBlock block)
+                {
+                    block.openPasscodeScreen(player, chest);
+                }
+            }
         }
 
-        if (!player.isCreative())
+        if (player != null && !player.isCreative())
             stack.grow(-1);
 
         return InteractionResult.SUCCESS;
     }
 
-    private void setKeyChest(Level worldIn, BlockPos pos, BlockState state, ItemStack stack)
+    private void setKeyChest(Level worldIn, BlockPos pos, BlockState state)
     {
         worldIn.setBlockAndUpdate(pos, Enderthing.KEY_CHEST.defaultBlockState()
                 .setValue(EnderKeyChestBlock.WATERLOGGED, state.getValue(EnderChestBlock.WATERLOGGED))

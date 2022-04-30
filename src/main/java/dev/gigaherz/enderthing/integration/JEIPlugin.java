@@ -5,9 +5,6 @@ import dev.gigaherz.enderthing.KeyUtils;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
-import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.registration.IModIngredientRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import net.minecraft.Util;
@@ -46,25 +43,38 @@ public class JEIPlugin implements IModPlugin
                 dummyBoundRecipe(Enderthing.KEY_CHEST_ITEM, Enderthing.location("dummy_makebound_key_chest")),
                 dummyBoundRecipe(Enderthing.LOCK, Enderthing.location("dummy_makebound_lock")),
 
-                dummyAddLockRecipe(Items.ENDER_CHEST, false, Enderthing.location("dummy_addlock")),
-                dummyAddLockRecipe(Ingredient.of(
+                dummyAddLockRecipe(false, Enderthing.location("dummy_addlock")),
+                dummyAddLockRecipe(true, Enderthing.location("dummy_addlock_private")),
+                dummySwapLockRecipe(Ingredient.of(
                         Enderthing.KEY_CHEST_ITEM.makeStack(false),
                         Enderthing.KEY_CHEST_ITEM.makeStack(true)
                 ), false, Enderthing.location("dummy_swaplock")),
-                dummyAddLockRecipe(Items.ENDER_CHEST, true, Enderthing.location("dummy_addlock")),
-                dummyAddLockRecipe(Ingredient.of(
+                dummySwapLockRecipe(Ingredient.of(
                         Enderthing.KEY_CHEST_ITEM.makeStack(false),
                         Enderthing.KEY_CHEST_ITEM.makeStack(true)
-                ), true, Enderthing.location("dummy_swaplock"))
+                ), true, Enderthing.location("dummy_swaplock_private")),
+                dummyRemoveLockRecipe(Enderthing.location("dummy_removelock"))
         ));
     }
 
-    private <T extends Item> CraftingRecipe dummyAddLockRecipe(T item, boolean isPrivate, ResourceLocation id)
+    private <T extends Item> CraftingRecipe dummyRemoveLockRecipe(ResourceLocation id)
     {
-        return dummyAddLockRecipe(Ingredient.of(item), isPrivate, id);
+        NonNullList<Ingredient> inputs = NonNullList.of(Ingredient.EMPTY, Ingredient.of(
+                Enderthing.KEY_CHEST_ITEM.makeStack(false),
+                Enderthing.KEY_CHEST_ITEM.makeStack(true)
+        ));
+
+        ItemStack result = new ItemStack(Items.ENDER_CHEST);
+
+        return new ShapelessRecipe(id, id.getNamespace() + "." + id.getPath().replace("/", "."), result, inputs);
     }
 
-    private <T extends Item> CraftingRecipe dummyAddLockRecipe(Ingredient inputIngredient, boolean isPrivate, ResourceLocation id)
+    private <T extends Item> CraftingRecipe dummyAddLockRecipe(boolean isPrivate, ResourceLocation id)
+    {
+        return dummySwapLockRecipe(Ingredient.of(Items.ENDER_CHEST), isPrivate, id);
+    }
+
+    private <T extends Item> CraftingRecipe dummySwapLockRecipe(Ingredient inputIngredient, boolean isPrivate, ResourceLocation id)
     {
         Ingredient lock = Ingredient.of(Enderthing.LOCK.makeStack(isPrivate));
 

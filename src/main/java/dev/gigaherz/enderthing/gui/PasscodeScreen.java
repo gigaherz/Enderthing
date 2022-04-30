@@ -74,6 +74,9 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
         textPasscode.setFilter(this::textPasscodeChanging);
         if (cc >= 0) updateCodeText(startKey);
         setButton.active = currentCode >= 0;
+
+        setFocused(textPasscode);
+        textPasscode.setFocus(true);
     }
 
     private void setButtonPressed(Button button)
