@@ -14,9 +14,6 @@ import net.minecraftforge.registries.ObjectHolder;
 
 public class MakeBoundRecipe extends CustomRecipe
 {
-    @ObjectHolder("enderthing:make_bound")
-    public static SimpleRecipeSerializer<MakeBoundRecipe> SERIALIZER = null;
-
     public MakeBoundRecipe(ResourceLocation id)
     {
         super(id);
@@ -36,7 +33,7 @@ public class MakeBoundRecipe extends CustomRecipe
                     holder = i;
                 else return false;
             }
-            else if (st.getItem() == Enderthing.CARD)
+            else if (st.getItem() == Enderthing.CARD.get())
             {
                 if (card < 0)
                     card = i;
@@ -64,7 +61,7 @@ public class MakeBoundRecipe extends CustomRecipe
                     holder = st;
                 else return ItemStack.EMPTY;
             }
-            else if (st.getItem() == Enderthing.CARD)
+            else if (st.getItem() == Enderthing.CARD.get())
             {
                 if (card.getCount() == 0)
                     card = st;
@@ -92,7 +89,7 @@ public class MakeBoundRecipe extends CustomRecipe
     @Override
     public RecipeSerializer<?> getSerializer()
     {
-        return SERIALIZER;
+        return Enderthing.MAKE_BOUND.get();
     }
 
     @Override

@@ -7,6 +7,7 @@ import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -15,9 +16,9 @@ import net.minecraftforge.fml.common.Mod;
 public class ClientEvents
 {
     @SubscribeEvent
-    public static void modelRegistry(ModelRegistryEvent event)
+    public static void modelRegistry(EntityRenderersEvent.RegisterRenderers event)
     {
-        BlockEntityRenderers.register(EnderKeyChestBlockEntity.TYPE, EnderKeyChestRenderer::new);
+        event.registerBlockEntityRenderer(Enderthing.KEY_CHEST_BLOCK_ENTITY.get(), EnderKeyChestRenderer::new);
     }
 
     @SubscribeEvent
@@ -37,6 +38,6 @@ public class ClientEvents
 
                     return (r << 16) | (g << 8) | (b);
                 },
-                Enderthing.KEY, Enderthing.LOCK, Enderthing.PACK);
+                Enderthing.KEY.get(), Enderthing.LOCK.get(), Enderthing.PACK.get());
     }
 }

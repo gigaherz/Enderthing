@@ -1,6 +1,7 @@
 package dev.gigaherz.enderthing.storage;
 
 import com.google.common.collect.Maps;
+import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
@@ -11,7 +12,7 @@ import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.nbt.Tag;
 import net.minecraftforge.common.util.INBTSerializable;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,7 +21,7 @@ import java.util.UUID;
 
 public class InventoryManager extends SavedData implements IInventoryManager
 {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final String DATA_NAME = "enderthing_InventoryStorageManager";
 
     private final Container global = new Container();

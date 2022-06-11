@@ -2,7 +2,7 @@ package dev.gigaherz.enderthing.network;
 
 import dev.gigaherz.enderthing.gui.PasscodeContainer;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -37,7 +37,7 @@ public class SetItemKey
                 {
                     ((PasscodeContainer) sender.containerMenu).keyHolder.set(key);
                     sender.closeContainer();
-                    sender.displayClientMessage(new TranslatableComponent("text.enderthing.key_change", key), true);
+                    sender.displayClientMessage(Component.translatable("text.enderthing.key_change", key), true);
                 }
             });
         }

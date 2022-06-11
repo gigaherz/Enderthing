@@ -32,7 +32,7 @@ public class EnderthingItem extends Item implements KeyUtils.IKeyHolder
     @Override
     public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items)
     {
-        if (allowdedIn(group))
+        if (allowedIn(group))
         {
             items.add(new ItemStack(this));
             items.add(KeyUtils.setPrivate(new ItemStack(this), true));

@@ -7,7 +7,6 @@ import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -39,7 +38,7 @@ public class EnderKeyItem extends EnderthingItem
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
     {
-        tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_key.right_click").withStyle(ChatFormatting.ITALIC));
+        tooltip.add(Component.translatable("tooltip.enderthing.ender_key.right_click").withStyle(ChatFormatting.ITALIC));
 
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
     }
@@ -83,7 +82,7 @@ public class EnderKeyItem extends EnderthingItem
         BlockState state = world.getBlockState(pos);
 
         Block b = state.getBlock();
-        if (b != Blocks.ENDER_CHEST && b != Enderthing.KEY_CHEST)
+        if (b != Blocks.ENDER_CHEST && b != Enderthing.KEY_CHEST.get())
             return InteractionResult.PASS;
 
         if (player instanceof ServerPlayer)

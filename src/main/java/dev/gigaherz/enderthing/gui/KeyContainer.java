@@ -1,5 +1,6 @@
 package dev.gigaherz.enderthing.gui;
 
+import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.storage.IInventoryManager;
 import dev.gigaherz.enderthing.storage.InventoryManager;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
@@ -23,12 +24,6 @@ import java.util.UUID;
 
 public class KeyContainer extends AbstractContainerMenu
 {
-    public static final Runnable NOOP = () -> {
-    };
-
-    @ObjectHolder("enderthing:key")
-    public static MenuType<KeyContainer> TYPE = null;
-
     public final IContainerInteraction interactionHandler;
 
     private static boolean isUsableByPlayer(@Nullable BlockEntity te, Player p)
@@ -150,7 +145,7 @@ public class KeyContainer extends AbstractContainerMenu
     public KeyContainer(int windowId, Inventory playerInventory, int lockedSlot, IItemHandler inventory,
                         IContainerInteraction interactionHandler)
     {
-        super(TYPE, windowId);
+        super(Enderthing.KEY_CONTAINER.get(), windowId);
 
         this.interactionHandler = interactionHandler;
 

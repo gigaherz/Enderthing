@@ -11,6 +11,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -52,7 +53,7 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
 
     public EnderKeyChestBlock(Properties properties)
     {
-        super(properties, () -> EnderKeyChestBlockEntity.TYPE); // Material.ROCK
+        super(properties, Enderthing.KEY_CHEST_BLOCK_ENTITY::get); // Material.ROCK
         registerDefaultState(this.getStateDefinition().any()
                 .setValue(WATERLOGGED, false)
                 .setValue(FACING, Direction.NORTH));
@@ -188,7 +189,7 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, Random rand)
+    public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, RandomSource rand)
     {
         for (int i = 0; i < 3; ++i)
         {
@@ -225,7 +226,7 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
 
     @Deprecated
     @Override
-    public void tick(BlockState p_153203_, ServerLevel p_153204_, BlockPos p_153205_, Random p_153206_) {
+    public void tick(BlockState p_153203_, ServerLevel p_153204_, BlockPos p_153205_, RandomSource p_153206_) {
         BlockEntity blockentity = p_153204_.getBlockEntity(p_153205_);
         if (blockentity instanceof EnderKeyChestBlockEntity chestBE)
         {
@@ -289,7 +290,7 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
             return getItem(chest, asChest);
         }
 
-        return asChest ? new ItemStack(Enderthing.KEY_CHEST) : new ItemStack(Enderthing.LOCK);
+        return asChest ? new ItemStack(Enderthing.KEY_CHEST.get()) : new ItemStack(Enderthing.LOCK.get());
     }
 
     @NotNull

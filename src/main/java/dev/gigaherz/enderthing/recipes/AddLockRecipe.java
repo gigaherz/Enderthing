@@ -16,9 +16,6 @@ import net.minecraftforge.registries.ObjectHolder;
 
 public class AddLockRecipe extends CustomRecipe
 {
-    @ObjectHolder("enderthing:add_lock")
-    public static SimpleRecipeSerializer<AddLockRecipe> SERIALIZER = null;
-
     public AddLockRecipe(ResourceLocation id)
     {
         super(id);
@@ -39,14 +36,14 @@ public class AddLockRecipe extends CustomRecipe
                     return false;
                 chest = i;
             }
-            else if (st.getItem() == Enderthing.KEY_CHEST_ITEM)
+            else if (st.getItem() == Enderthing.KEY_CHEST_ITEM.get())
             {
                 if (chest >= 0)
                     return false;
                 chest = i;
                 chestHasLock = true;
             }
-            else if (st.getItem() == Enderthing.LOCK)
+            else if (st.getItem() == Enderthing.LOCK.get())
             {
                 if (lock >= 0)
                     return false;
@@ -68,13 +65,13 @@ public class AddLockRecipe extends CustomRecipe
         for (int i = 0; i < inv.getContainerSize(); i++)
         {
             ItemStack st = inv.getItem(i);
-            if (st.getItem() == Items.ENDER_CHEST || st.getItem() == Enderthing.KEY_CHEST_ITEM)
+            if (st.getItem() == Items.ENDER_CHEST || st.getItem() == Enderthing.KEY_CHEST_ITEM.get())
             {
                 if (chest.getCount() > 0)
                     return ItemStack.EMPTY;
                 chest = st;
             }
-            else if (st.getItem() == Enderthing.LOCK)
+            else if (st.getItem() == Enderthing.LOCK.get())
             {
                 if (lock.getCount() > 0)
                     return ItemStack.EMPTY;
@@ -104,7 +101,7 @@ public class AddLockRecipe extends CustomRecipe
         for (int i = 0; i < remaining.size(); ++i)
         {
             ItemStack st = inv.getItem(i);
-            if (st.getItem() == Enderthing.KEY_CHEST_ITEM)
+            if (st.getItem() == Enderthing.KEY_CHEST_ITEM.get())
             {
                 remaining.set(i, KeyUtils.getLock(
                         KeyUtils.getKey(st),
@@ -126,7 +123,7 @@ public class AddLockRecipe extends CustomRecipe
     @Override
     public RecipeSerializer<?> getSerializer()
     {
-        return SERIALIZER;
+        return Enderthing.ADD_LOCK.get();
     }
 
     @Override

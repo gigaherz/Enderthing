@@ -7,7 +7,6 @@ import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -41,12 +40,12 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
     {
-        tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_lock.right_click").withStyle(ChatFormatting.ITALIC));
+        tooltip.add(Component.translatable("tooltip.enderthing.ender_lock.right_click").withStyle(ChatFormatting.ITALIC));
 
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
 
         if (isBound(stack))
-            tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_lock.bound", getBoundStr(stack)));
+            tooltip.add(Component.translatable("tooltip.enderthing.ender_lock.bound", getBoundStr(stack)));
 
     }
 
@@ -138,7 +137,7 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
 
     private void setKeyChest(Level worldIn, BlockPos pos, BlockState state)
     {
-        worldIn.setBlockAndUpdate(pos, Enderthing.KEY_CHEST.defaultBlockState()
+        worldIn.setBlockAndUpdate(pos, Enderthing.KEY_CHEST.get().defaultBlockState()
                 .setValue(EnderKeyChestBlock.WATERLOGGED, state.getValue(EnderChestBlock.WATERLOGGED))
                 .setValue(EnderKeyChestBlock.FACING, state.getValue(EnderChestBlock.FACING)));
     }

@@ -13,7 +13,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
@@ -48,8 +47,8 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
         super.init();
         long cc = menu.keyHolder.get();
         String startKey = cc >= 0 ? String.format("%d", cc) : "";
-        addRenderableWidget(setButton = new Button(leftPos + (imageWidth - 30 - 10), topPos + 95, 30, 20, new TextComponent("Set"), this::setButtonPressed));
-        addRenderableWidget(textPasscode = new EditBox(font, leftPos + 12, topPos + 78, imageWidth - 24, 12, new TextComponent(startKey))
+        addRenderableWidget(setButton = new Button(leftPos + (imageWidth - 30 - 10), topPos + 95, 30, 20, Component.literal("Set"), this::setButtonPressed));
+        addRenderableWidget(textPasscode = new EditBox(font, leftPos + 12, topPos + 78, imageWidth - 24, 12, Component.literal(startKey))
         {
             @Override
             public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
@@ -228,16 +227,16 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
 
         font.drawShadow(p_230451_1_, getKeyFormatted("Current key", menu.keyHolder.get(), "<not set>"), 10, 22, 0xd8d8d8);
 
-        font.drawShadow(p_230451_1_, new TextComponent("Click on some items to set a key... "), 10, 35, 0xd8d8d8);
-        font.drawShadow(p_230451_1_, new TextComponent("...or enter a key manually"), 10, 66, 0xd8d8d8);
+        font.drawShadow(p_230451_1_, Component.literal("Click on some items to set a key... "), 10, 35, 0xd8d8d8);
+        font.drawShadow(p_230451_1_, Component.literal("...or enter a key manually"), 10, 66, 0xd8d8d8);
         font.drawShadow(p_230451_1_, getKeyFormatted("Key", currentCode, "<invalid>"), 10, 100, 0xd8d8d8);
     }
 
     private Component getKeyFormatted(String s1, long currentCode, String s2)
     {
         if (currentCode >= 0)
-            return new TextComponent(String.format("%s: %d", s1, currentCode));
+            return Component.literal(String.format("%s: %d", s1, currentCode));
         else
-            return new TextComponent(String.format("%s: %s", s1, s2));
+            return Component.literal(String.format("%s: %s", s1, s2));
     }
 }

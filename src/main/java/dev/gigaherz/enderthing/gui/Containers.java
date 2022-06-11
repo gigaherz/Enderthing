@@ -3,7 +3,6 @@ package dev.gigaherz.enderthing.gui;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import dev.gigaherz.enderthing.util.ILongAccessor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.SimpleMenuProvider;
@@ -23,7 +22,7 @@ public class Containers
 
     private static Component getDisplayName(boolean priv)
     {
-        return new TranslatableComponent(priv ? PRIVATE_TITLE : GLOBAL_TITLE);
+        return Component.translatable(priv ? PRIVATE_TITLE : GLOBAL_TITLE);
     }
 
     public static void openBlockGui(ServerPlayer player, EnderKeyChestBlockEntity chest)
@@ -59,7 +58,7 @@ public class Containers
     {
         NetworkHooks.openGui(player, new SimpleMenuProvider(
                 (id, inv, p) -> new PasscodeContainer(id, inv, code, previewBase),
-                new TranslatableComponent(CODE_TITLE)
+                Component.translatable(CODE_TITLE)
         ), packet -> {
             packet.writeLong(code.get());
             packet.writeItem(previewBase);

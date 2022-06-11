@@ -1,6 +1,7 @@
 package dev.gigaherz.enderthing.gui;
 
 import com.google.common.primitives.Longs;
+import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.util.ILongAccessor;
 import dev.gigaherz.enderthing.util.LongMutable;
 import net.minecraft.network.FriendlyByteBuf;
@@ -15,9 +16,6 @@ import net.minecraftforge.registries.ObjectHolder;
 
 public class PasscodeContainer extends AbstractContainerMenu
 {
-    @ObjectHolder("enderthing:passcode")
-    public static MenuType<PasscodeContainer> TYPE = null;
-
     public final ILongAccessor keyHolder;
     public final ItemStack previewBase;
 
@@ -28,7 +26,7 @@ public class PasscodeContainer extends AbstractContainerMenu
 
     public PasscodeContainer(int windowId, Inventory playerInventory, ILongAccessor keyHolder, ItemStack previewBase)
     {
-        super(TYPE, windowId);
+        super(Enderthing.PASSCODE_CONTAINER.get(), windowId);
 
         this.keyHolder = keyHolder;
         this.previewBase = previewBase;

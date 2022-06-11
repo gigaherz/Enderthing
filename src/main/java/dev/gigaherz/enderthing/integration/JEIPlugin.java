@@ -1,5 +1,5 @@
 package dev.gigaherz.enderthing.integration;
-
+/*
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
 import mezz.jei.api.IModPlugin;
@@ -151,4 +151,4 @@ public class JEIPlugin implements IModPlugin
             return key;
         });
     }
-}
+}*/

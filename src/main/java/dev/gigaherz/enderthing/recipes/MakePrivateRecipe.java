@@ -1,5 +1,6 @@
 package dev.gigaherz.enderthing.recipes;
 
+import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -15,9 +16,6 @@ import net.minecraftforge.registries.ObjectHolder;
 
 public class MakePrivateRecipe extends CustomRecipe implements IShapedRecipe<CraftingContainer>
 {
-    @ObjectHolder("enderthing:make_private")
-    public static SimpleRecipeSerializer<MakePrivateRecipe> SERIALIZER = null;
-
     public MakePrivateRecipe(ResourceLocation id)
     {
         super(id);
@@ -58,7 +56,7 @@ public class MakePrivateRecipe extends CustomRecipe implements IShapedRecipe<Cra
     @Override
     public RecipeSerializer<?> getSerializer()
     {
-        return SERIALIZER;
+        return Enderthing.MAKE_PRIVATE.get();
     }
 
     @Override

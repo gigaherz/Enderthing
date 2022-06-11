@@ -1,6 +1,7 @@
 package dev.gigaherz.enderthing;
 
 import com.google.common.primitives.Longs;
+import com.mojang.logging.LogUtils;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import joptsimple.internal.Strings;
 import net.minecraft.nbt.CompoundTag;
@@ -12,7 +13,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.security.MessageDigest;
@@ -23,6 +26,8 @@ import java.util.UUID;
 
 public class KeyUtils
 {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     public interface IKeyHolder
     {
         private Item self() { return (Item)this; }
@@ -112,7 +117,7 @@ public class KeyUtils
                 }
                 catch (IllegalArgumentException e)
                 {
-                    Enderthing.LOGGER.warn("Stack contained wrong UUID", e);
+                    LOGGER.warn("Stack contained wrong UUID", e);
                     return null;
                 }
             }).orElse(null);
@@ -206,12 +211,12 @@ public class KeyUtils
 
     public static ItemStack getLock(long key, boolean priv)
     {
-        return getItem(Enderthing.LOCK, key, priv);
+        return getItem(Enderthing.LOCK.get(), key, priv);
     }
 
     public static ItemStack getLock(long key, boolean priv, @Nullable UUID bound)
     {
-        ItemStack stack = getItem(Enderthing.LOCK, key, priv);
+        ItemStack stack = getItem(Enderthing.LOCK.get(), key, priv);
         if (bound != null)
             setBound(stack, bound);
         return stack;
@@ -219,7 +224,7 @@ public class KeyUtils
 
     public static ItemStack getKeyChest(long key, boolean priv, @Nullable UUID bound)
     {
-        ItemStack stack = getItem(Enderthing.KEY_CHEST_ITEM, key, priv);
+        ItemStack stack = getItem(Enderthing.KEY_CHEST_ITEM.get(), key, priv);
         if (bound != null)
             setBound(stack, bound);
         return stack;
@@ -279,9 +284,9 @@ public class KeyUtils
             MessageDigest md = MessageDigest.getInstance("MD5");
             for (ItemStack st : passcode)
             {
-                md.update(st.getItem().getRegistryName().toString().getBytes());
+                md.update(ForgeRegistries.ITEMS.getKey(st.getItem()).toString().getBytes());
                 if (st.hasCustomHoverName())
-                    md.update(st.getHoverName().getContents().getBytes());
+                    md.update(st.getHoverName().getString().getBytes());
             }
             return Longs.fromByteArray(md.digest()) & 0x7fffffffffffffffL;
         }

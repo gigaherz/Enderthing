@@ -1,5 +1,6 @@
 package dev.gigaherz.enderthing.items;
 
+import com.mojang.logging.LogUtils;
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
@@ -10,8 +11,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -27,6 +26,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraft.nbt.Tag;
+import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -35,6 +36,8 @@ import java.util.UUID;
 
 public class EnderCardItem extends Item implements KeyUtils.IBindable
 {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    
     public EnderCardItem(Properties properties)
     {
         super(properties);
@@ -69,7 +72,7 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
             }
             catch (IllegalArgumentException e)
             {
-                Enderthing.LOGGER.warn("Stack contained wrong UUID", e);
+                LOGGER.warn("Stack contained wrong UUID", e);
                 return null;
             }
         }).orElse(null);
@@ -150,7 +153,7 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
         {
             bindToPlayer(stack, playerIn);
 
-            playerIn.sendMessage(new TranslatableComponent("text.enderthing.ender_card.bound"), Util.NIL_UUID);
+            playerIn.sendSystemMessage(Component.translatable("text.enderthing.ender_card.bound"));
 
             return InteractionResultHolder.success(stack);
         }
@@ -173,7 +176,7 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
 
         BlockState state = world.getBlockState(pos);
 
-        if (state.getBlock() != Enderthing.KEY_CHEST)
+        if (state.getBlock() != Enderthing.KEY_CHEST.get())
         {
             return InteractionResult.PASS;
         }
@@ -191,15 +194,15 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
 
             String name = getBoundPlayerCachedName(stack);
 
-            if (player != null)
+            if (player != null && uuid != null)
             {
                 if (name == null || name.length() == 0)
-                    player.sendMessage(new TranslatableComponent("text.enderthing.ender_chest.bound1",
-                            new TextComponent(uuid.toString())), Util.NIL_UUID);
+                    player.sendSystemMessage(Component.translatable("text.enderthing.ender_chest.bound1",
+                            Component.literal(uuid.toString())));
                 else
-                    player.sendMessage(new TranslatableComponent("text.enderthing.ender_chest.bound2",
-                            new TextComponent(uuid.toString()),
-                            new TextComponent(name)), Util.NIL_UUID);
+                    player.sendSystemMessage(Component.translatable("text.enderthing.ender_chest.bound2",
+                            Component.literal(uuid.toString()),
+                            Component.literal(name)));
             }
 
             return InteractionResult.SUCCESS;
@@ -230,14 +233,14 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
     {
-        tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_card.right_click1").withStyle(ChatFormatting.ITALIC));
-        tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_card.right_click2").withStyle(ChatFormatting.ITALIC));
+        tooltip.add(Component.translatable("tooltip.enderthing.ender_card.right_click1").withStyle(ChatFormatting.ITALIC));
+        tooltip.add(Component.translatable("tooltip.enderthing.ender_card.right_click2").withStyle(ChatFormatting.ITALIC));
 
         UUID uuid = getBound(stack);
 
         if (uuid == null)
         {
-            tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_card.unbound"));
+            tooltip.add(Component.translatable("tooltip.enderthing.ender_card.unbound"));
             return;
         }
 
@@ -252,8 +255,8 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
         }
 
         if (name == null || name.length() == 0)
-            tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_card.bound1", uuidText));
+            tooltip.add(Component.translatable("tooltip.enderthing.ender_card.bound1", uuidText));
         else
-            tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_card.bound2", uuidText, name));
+            tooltip.add(Component.translatable("tooltip.enderthing.ender_card.bound2", uuidText, name));
     }
 }

@@ -15,7 +15,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -64,7 +63,7 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
     @Override
     public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items)
     {
-        if (allowdedIn(group))
+        if (allowedIn(group))
         {
             items.add(new ItemStack(this));
             items.add(KeyUtils.setPrivate(new ItemStack(this), true));
@@ -79,12 +78,12 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
     {
-        tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_key_chest.right_click").withStyle(ChatFormatting.ITALIC));
+        tooltip.add(Component.translatable("tooltip.enderthing.ender_key_chest.right_click").withStyle(ChatFormatting.ITALIC));
 
         Enderthing.Client.addStandardInformation(stack, tooltip);
 
         if (isBound(stack))
-            tooltip.add(new TranslatableComponent("tooltip.enderthing.ender_lock.bound", getBoundStr(stack)));
+            tooltip.add(Component.translatable("tooltip.enderthing.ender_lock.bound", getBoundStr(stack)));
 
     }
 
@@ -150,13 +149,11 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
     @Override
     public void initializeClient(Consumer<IItemRenderProperties> consumer)
     {
-        if (Minecraft.getInstance() == null) return;
-
         consumer.accept(new IItemRenderProperties()
         {
             static final NonNullLazy<BlockEntityWithoutLevelRenderer> renderer = NonNullLazy.of(() -> new BlockEntityWithoutLevelRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels())
             {
-                final EnderKeyChestBlockEntity defaultChest = new EnderKeyChestBlockEntity(BlockPos.ZERO, Enderthing.KEY_CHEST.defaultBlockState());
+                final EnderKeyChestBlockEntity defaultChest = new EnderKeyChestBlockEntity(BlockPos.ZERO, Enderthing.KEY_CHEST.get().defaultBlockState());
 
                 @Override
                 public void renderByItem(ItemStack itemStackIn, ItemTransforms.TransformType transformType, PoseStack matrixStackIn,

@@ -1,5 +1,6 @@
 package dev.gigaherz.enderthing.blocks;
 
+import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.gui.IContainerInteraction;
 import dev.gigaherz.enderthing.gui.KeyContainer;
 import dev.gigaherz.enderthing.storage.EnderInventory;
@@ -21,7 +22,6 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.registries.ObjectHolder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,9 +29,6 @@ import java.util.UUID;
 
 public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEntity, IContainerInteraction
 {
-    @ObjectHolder("enderthing:key_chest")
-    public static BlockEntityType<EnderKeyChestBlockEntity> TYPE;
-
     protected EnderKeyChestBlockEntity(BlockEntityType<?> tileEntityTypeIn, BlockPos blockPos, BlockState blockState)
     {
         super(tileEntityTypeIn, blockPos, blockState);
@@ -39,7 +36,7 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
 
     public EnderKeyChestBlockEntity(BlockPos blockPos, BlockState blockState)
     {
-        super(TYPE, blockPos, blockState);
+        super(Enderthing.KEY_CHEST_BLOCK_ENTITY.get(), blockPos, blockState);
     }
 
     private final ChestLidController chestLidController = new ChestLidController();
