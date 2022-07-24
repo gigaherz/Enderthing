@@ -150,8 +150,6 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
     @Override
     public void initializeClient(Consumer<IItemRenderProperties> consumer)
     {
-        if (Minecraft.getInstance() == null) return;
-
         consumer.accept(new IItemRenderProperties()
         {
             static final NonNullLazy<BlockEntityWithoutLevelRenderer> renderer = NonNullLazy.of(() -> new BlockEntityWithoutLevelRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels())
