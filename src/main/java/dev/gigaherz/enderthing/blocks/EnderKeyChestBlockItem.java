@@ -28,8 +28,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.IItemRenderProperties;
 import net.minecraft.nbt.Tag;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.common.util.NonNullLazy;
 
 import javax.annotation.Nullable;
@@ -147,9 +147,9 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
     }
 
     @Override
-    public void initializeClient(Consumer<IItemRenderProperties> consumer)
+    public void initializeClient(Consumer<IClientItemExtensions> consumer)
     {
-        consumer.accept(new IItemRenderProperties()
+        consumer.accept(new IClientItemExtensions()
         {
             static final NonNullLazy<BlockEntityWithoutLevelRenderer> renderer = NonNullLazy.of(() -> new BlockEntityWithoutLevelRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels())
             {
@@ -164,7 +164,7 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
             });
 
             @Override
-            public BlockEntityWithoutLevelRenderer getItemStackRenderer()
+            public BlockEntityWithoutLevelRenderer getCustomRenderer()
             {
                 return renderer.get();
             }

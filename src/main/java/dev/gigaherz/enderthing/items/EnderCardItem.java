@@ -131,13 +131,13 @@ public class EnderCardItem extends Item implements KeyUtils.IBindable
     }
 
     @Override
-    public boolean hasContainerItem(ItemStack stack)
+    public boolean hasCraftingRemainingItem(ItemStack stack)
     {
         return true;
     }
 
     @Override
-    public ItemStack getContainerItem(ItemStack itemStack)
+    public ItemStack getCraftingRemainingItem(ItemStack itemStack)
     {
         return itemStack.copy();
     }

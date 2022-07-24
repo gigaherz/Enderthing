@@ -47,7 +47,7 @@ public class Containers
 
     private static void openGui(ServerPlayer player, boolean isPrivate, int slot, MenuConstructor provider)
     {
-        NetworkHooks.openGui(player, new SimpleMenuProvider(
+        NetworkHooks.openScreen(player, new SimpleMenuProvider(
                 provider,
                 getDisplayName(isPrivate)
         ), packet -> packet.writeInt(slot));
@@ -56,7 +56,7 @@ public class Containers
 
     public static void openPasscodeScreen(ServerPlayer player, ILongAccessor code, ItemStack previewBase)
     {
-        NetworkHooks.openGui(player, new SimpleMenuProvider(
+        NetworkHooks.openScreen(player, new SimpleMenuProvider(
                 (id, inv, p) -> new PasscodeContainer(id, inv, code, previewBase),
                 Component.translatable(CODE_TITLE)
         ), packet -> {

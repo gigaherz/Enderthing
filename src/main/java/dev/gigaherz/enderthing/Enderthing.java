@@ -63,12 +63,12 @@ import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.extensions.IForgeMenuType;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -103,9 +103,9 @@ public class Enderthing
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
     private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
-    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, MODID);
+    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, MODID);
     private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
-    private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.CONTAINERS, MODID);
+    private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, MODID);
 
     public static final RegistryObject<EnderKeyChestBlock> KEY_CHEST = BLOCKS.register("key_chest", () -> new EnderKeyChestBlock(Block.Properties.copy(Blocks.ENDER_CHEST)));
     public static final RegistryObject<EnderKeyChestBlockItem> KEY_CHEST_ITEM = ITEMS.register("key_chest", () -> new EnderKeyChestBlockItem(KEY_CHEST.get(), new Item.Properties().tab(ENDERTHING_GROUP)));
@@ -150,7 +150,7 @@ public class Enderthing
     public void commonSetup(FMLCommonSetupEvent event)
     {
         int messageNumber = 0;
-        CHANNEL.messageBuilder(SetItemKey.class, messageNumber++, NetworkDirection.PLAY_TO_SERVER).encoder(SetItemKey::encode).decoder(SetItemKey::new).consumer(SetItemKey::handle).add();
+        CHANNEL.messageBuilder(SetItemKey.class, messageNumber++, NetworkDirection.PLAY_TO_SERVER).encoder(SetItemKey::encode).decoder(SetItemKey::new).consumerNetworkThread(SetItemKey::handle).add();
         LOGGER.debug("Final message number: " + messageNumber);
     }
 

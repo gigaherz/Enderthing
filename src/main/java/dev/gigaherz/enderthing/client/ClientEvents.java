@@ -3,12 +3,9 @@ package dev.gigaherz.enderthing.client;
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestRenderer;
-import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -22,7 +19,7 @@ public class ClientEvents
     }
 
     @SubscribeEvent
-    public static void itemColors(ColorHandlerEvent.Item event)
+    public static void itemColors(RegisterColorHandlersEvent.Item event)
     {
         event.getItemColors().register((stack, layer) -> {
                     if (layer < 1 || layer > 3)

@@ -17,7 +17,7 @@ authors="gigaherz"
 [[dependencies.enderthing]]
     modId="forge"
     mandatory=true
-    versionRange="[41.0.17,)"
+    versionRange="[41.0.94,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.enderthing]]
