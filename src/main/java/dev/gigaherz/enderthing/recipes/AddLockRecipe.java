@@ -3,6 +3,7 @@ package dev.gigaherz.enderthing.recipes;
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
@@ -56,7 +57,7 @@ public class AddLockRecipe extends CustomRecipe
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inv)
+    public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess)
     {
         ItemStack chest = ItemStack.EMPTY;
         ItemStack lock = ItemStack.EMPTY;

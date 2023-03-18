@@ -1,15 +1,17 @@
 buildscript {
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://maven.parchmentmc.org' }
         mavenCentral()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath 'org.parchmentmc:librarian:1.+'
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
-// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
-apply plugin: 'eclipse'
+apply plugin: 'org.parchmentmc.librarian.forgegradle'
+apply plugin: 'maven-publish'
 
 repositories {
     mavenLocal()
@@ -46,7 +48,8 @@ sourceSets {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.19.3'
+    //mappings channel: 'official', version: '1.19.4'
+    mappings channel: 'parchment', version: '1.19.3-2023.03.12-1.19.4'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -97,7 +100,7 @@ minecraft {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.3-44.0.6'
+    minecraft 'net.minecraftforge:forge:1.19.4-45.0.9'
 
     /*compileOnly fg.deobf("mezz.jei:jei-1.19-common-api:11.0.0.206")
     runtimeOnly fg.deobf("mezz.jei:jei-1.19-common:11.0.0.206")

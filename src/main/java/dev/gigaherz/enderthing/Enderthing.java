@@ -31,12 +31,10 @@ import net.minecraft.data.recipes.*;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
@@ -147,7 +145,7 @@ public class Enderthing
         ENDERTHING_GROUP = event.registerCreativeModeTab(location("enderthing_things"), builder -> builder
                 .icon(() -> new ItemStack(KEY.get()))
                 .title(Component.translatable("tab.enderthing.things"))
-                .displayItems((featureFlags, output, hasOp) -> {
+                .displayItems((featureFlags, output) -> {
                     KEY_CHEST_ITEM.get().fillItemCategory(output);
                     KEY.get().fillItemCategory(output);
                     LOCK.get().fillItemCategory(output);
@@ -221,7 +219,7 @@ public class Enderthing
 
         var existingFileHelper = event.getExistingFileHelper();
         var blockTags = new BlockTagGens(gen, existingFileHelper);
-        var itemTags = new ItemTagGens(gen, blockTags, existingFileHelper);
+        var itemTags = new ItemTagGens(gen, blockTags.contentsGetter(), existingFileHelper);
         gen.addProvider(event.includeServer(), blockTags);
         gen.addProvider(event.includeServer(), itemTags);
 
@@ -229,7 +227,7 @@ public class Enderthing
 
     private static class ItemTagGens extends ItemTagsProvider implements DataProvider
     {
-        public ItemTagGens(DataGenerator gen, BlockTagsProvider blockTags, ExistingFileHelper existingFileHelper)
+        public ItemTagGens(DataGenerator gen, CompletableFuture<TagLookup<Block>> blockTags, ExistingFileHelper existingFileHelper)
         {
             super(gen.getPackOutput(), CompletableFuture.supplyAsync(VanillaRegistries::createLookup, Util.backgroundExecutor()),
                     blockTags, MODID, existingFileHelper);

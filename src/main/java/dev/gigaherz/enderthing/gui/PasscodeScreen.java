@@ -75,7 +75,7 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
         setButton.active = currentCode >= 0;
 
         setFocused(textPasscode);
-        textPasscode.setFocus(true);
+        textPasscode.setFocused(true);
     }
 
     private void setButtonPressed(Button button)
@@ -195,10 +195,10 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
         for (int i = 0; i < itemPasscode.size(); i++)
         {
             ItemStack st = itemPasscode.get(i);
-            itemRenderer.renderAndDecorateItem(st, leftPos + 12 + i * 16, topPos + 46);
+            itemRenderer.renderAndDecorateItem(matrixStack, st, leftPos + 12 + i * 16, topPos + 46);
         }
         if (preview != null)
-            itemRenderer.renderAndDecorateItem(preview, leftPos + imageWidth - 58, topPos + 97);
+            itemRenderer.renderAndDecorateItem(matrixStack, preview, leftPos + imageWidth - 58, topPos + 97);
         //Lighting.turnOff();
 
         this.renderTooltip(matrixStack, mouseX, mouseY); // draw tooltips
