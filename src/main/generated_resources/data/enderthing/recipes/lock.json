@@ -1,21 +1,22 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    " g ",
-    "geg",
-    "nnn"
-  ],
+  "category": "misc",
   "key": {
-    "g": {
-      "item": "minecraft:gold_ingot"
-    },
     "e": {
       "item": "minecraft:ender_eye"
+    },
+    "g": {
+      "item": "minecraft:gold_ingot"
     },
     "n": {
       "item": "minecraft:iron_nugget"
     }
   },
+  "pattern": [
+    " g ",
+    "geg",
+    "nnn"
+  ],
   "result": {
     "item": "enderthing:lock"
   }

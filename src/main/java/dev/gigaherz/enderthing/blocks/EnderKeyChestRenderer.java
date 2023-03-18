@@ -1,7 +1,7 @@
 package dev.gigaherz.enderthing.blocks;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import dev.gigaherz.enderthing.KeyUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -71,7 +71,7 @@ public class EnderKeyChestRenderer extends ChestRenderer<EnderKeyChestBlockEntit
         matrixStackIn.pushPose();
         {
             matrixStackIn.translate(0.5, 0.5, 0.5);
-            matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(180 - rotation));
+            matrixStackIn.mulPose(Axis.YP.rotationDegrees(180 - rotation));
             matrixStackIn.translate(-0.5, -0.5, -0.5);
 
             matrixStackIn.translate(0.5, 0.35, 0.6 / 16.0);

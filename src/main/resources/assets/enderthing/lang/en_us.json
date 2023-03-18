@@ -10,7 +10,7 @@
     "item.enderthing.pack_private": "Private Ender Pack",
     "item.enderthing.card": "Ender Security Card",
 
-    "itemGroup.enderthing.things": "Enderthing... Things",
+    "tab.enderthing.things": "Enderthing... Things",
 
     "container.enderthing.global": "Global Ender Inventory",
     "container.enderthing.private": "Private Ender Inventory",

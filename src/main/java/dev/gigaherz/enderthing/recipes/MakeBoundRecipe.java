@@ -5,18 +5,17 @@ import dev.gigaherz.enderthing.KeyUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.registries.ObjectHolder;
 
 public class MakeBoundRecipe extends CustomRecipe
 {
-    public MakeBoundRecipe(ResourceLocation id)
+    public MakeBoundRecipe(ResourceLocation id, CraftingBookCategory cat)
     {
-        super(id);
+        super(id, cat);
     }
 
     @Override

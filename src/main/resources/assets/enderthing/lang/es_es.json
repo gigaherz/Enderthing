@@ -8,7 +8,8 @@
     "item.enderthing.ender_lock": "Cerradura de Ender",
     "item.enderthing.ender_pack": "Mochila de Ender",
     "item.enderthing.ender_card": "Tarjeta de Seguridad",
-    "itemGroup.enderthing.things": "Cosas de Enderthing",
+
+    "tab.enderthing.things": "Cosas de Enderthing",
 
     "tooltip.enderthing.colors": "Colores: %s, %s, %s",
     "tooltip.enderthing.private": "Privado",

@@ -1,3 +1,4 @@
 {
-  "type": "enderthing:add_lock"
+  "type": "enderthing:add_lock",
+  "category": "misc"
 }

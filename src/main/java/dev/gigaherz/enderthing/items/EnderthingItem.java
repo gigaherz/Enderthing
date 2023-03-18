@@ -21,6 +21,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class EnderthingItem extends Item implements KeyUtils.IKeyHolder
 {
@@ -29,18 +30,11 @@ public class EnderthingItem extends Item implements KeyUtils.IKeyHolder
         super(properties);
     }
 
-    @Override
-    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items)
+    public void fillItemCategory(CreativeModeTab.Output output)
     {
-        if (allowedIn(group))
-        {
-            items.add(new ItemStack(this));
-            items.add(KeyUtils.setPrivate(new ItemStack(this), true));
-        }
-        if (this.getItemCategory() != null && group == CreativeModeTab.TAB_SEARCH && this instanceof KeyUtils.IBindable)
-        {
-            items.add(KeyUtils.setBound(KeyUtils.setPrivate(new ItemStack(this), true), Util.NIL_UUID));
-        }
+        output.accept(new ItemStack(this), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        output.accept(KeyUtils.setPrivate(new ItemStack(this), true), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        output.accept(KeyUtils.setBound(KeyUtils.setPrivate(new ItemStack(this), true), Util.NIL_UUID), CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY);
     }
 
     @Override

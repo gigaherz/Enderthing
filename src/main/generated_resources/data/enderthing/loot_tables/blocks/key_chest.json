@@ -2,8 +2,12 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "rolls": 1.0,
       "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
       "entries": [
         {
           "type": "minecraft:alternatives",
@@ -32,24 +36,24 @@
                 },
                 {
                   "function": "minecraft:copy_nbt",
-                  "source": "block_entity",
                   "ops": [
                     {
+                      "op": "replace",
                       "source": "Key",
-                      "target": "BlockEntityTag.Key",
-                      "op": "replace"
+                      "target": "BlockEntityTag.Key"
                     },
                     {
+                      "op": "replace",
                       "source": "IsPrivate",
-                      "target": "BlockEntityTag.IsPrivate",
-                      "op": "replace"
+                      "target": "BlockEntityTag.IsPrivate"
                     },
                     {
+                      "op": "replace",
                       "source": "Bound",
-                      "target": "BlockEntityTag.Bound",
-                      "op": "replace"
+                      "target": "BlockEntityTag.Bound"
                     }
-                  ]
+                  ],
+                  "source": "block_entity"
                 }
               ],
               "name": "enderthing:key_chest"
@@ -59,24 +63,24 @@
               "functions": [
                 {
                   "function": "minecraft:copy_nbt",
-                  "source": "block_entity",
                   "ops": [
                     {
+                      "op": "replace",
                       "source": "Key",
-                      "target": "Key",
-                      "op": "replace"
+                      "target": "Key"
                     },
                     {
+                      "op": "replace",
                       "source": "IsPrivate",
-                      "target": "IsPrivate",
-                      "op": "replace"
+                      "target": "IsPrivate"
                     },
                     {
+                      "op": "replace",
                       "source": "Bound",
-                      "target": "Bound",
-                      "op": "replace"
+                      "target": "Bound"
                     }
-                  ]
+                  ],
+                  "source": "block_entity"
                 }
               ],
               "name": "enderthing:lock"
@@ -84,14 +88,9 @@
           ]
         }
       ],
-      "conditions": [
-        {
-          "condition": "minecraft:survives_explosion"
-        }
-      ]
+      "rolls": 1.0
     },
     {
-      "rolls": 1.0,
       "bonus_rolls": 0.0,
       "entries": [
         {
@@ -116,9 +115,9 @@
           ],
           "functions": [
             {
-              "function": "minecraft:set_count",
+              "add": false,
               "count": 8.0,
-              "add": false
+              "function": "minecraft:set_count"
             },
             {
               "function": "minecraft:explosion_decay"
@@ -126,7 +125,8 @@
           ],
           "name": "minecraft:obsidian"
         }
-      ]
+      ],
+      "rolls": 1.0
     }
   ]
 }

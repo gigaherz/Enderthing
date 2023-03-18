@@ -134,66 +134,59 @@ public class KeyUtils
 
     public static long getKey(ItemStack stack)
     {
-        Item item = stack.getItem();
-        if (item instanceof IKeyHolder)
-            return ((IKeyHolder) item).getKey(stack);
+        if (stack.getItem() instanceof IKeyHolder holder)
+            return holder.getKey(stack);
         return -1;
     }
 
     public static ItemStack setKey(ItemStack stack, long key)
     {
-        Item item = stack.getItem();
-        if (item instanceof IKeyHolder)
-            ((IKeyHolder) item).setKey(stack, key);
+        if (stack.getItem() instanceof IKeyHolder holder)
+            holder.setKey(stack, key);
         return stack;
     }
 
     public static boolean isPrivate(ItemStack stack)
     {
-        Item item = stack.getItem();
-        if (item instanceof IKeyHolder)
-            return ((IKeyHolder) item).isPrivate(stack);
+        if (stack.getItem() instanceof IKeyHolder holder)
+            return holder.isPrivate(stack);
         return false;
     }
 
     public static ItemStack setPrivate(ItemStack stack, boolean priv)
     {
-        Item item = stack.getItem();
-        if (item instanceof IKeyHolder)
-            ((IKeyHolder) item).setPrivate(stack, priv);
+        if (stack.getItem() instanceof IKeyHolder  holder)
+            holder.setPrivate(stack, priv);
         return stack;
     }
 
     public static boolean isBound(ItemStack stack)
     {
-        Item item = stack.getItem();
-        if (item instanceof IBindable)
-            return ((IBindable) item).isBound(stack);
+        if (stack.getItem() instanceof IBindable bindable)
+            return bindable.isBound(stack);
         return false;
     }
 
     @Nullable
     public static UUID getBound(ItemStack stack)
     {
-        Item item = stack.getItem();
-        if (item instanceof IBindable)
-            return ((IBindable) item).getBound(stack);
+        if (stack.getItem() instanceof IBindable bindable)
+            return bindable.getBound(stack);
         return null;
     }
 
     public static ItemStack setBound(ItemStack stack, @Nullable UUID uuid)
     {
-        Item item = stack.getItem();
-        if (item instanceof IBindable)
-            ((IBindable) item).setBound(stack, uuid);
+        if (stack.getItem() instanceof IBindable bindable)
+            bindable.setBound(stack, uuid);
         return stack;
     }
 
     public static long getKey(BlockEntity te)
     {
-        if (te instanceof EnderKeyChestBlockEntity)
+        if (te instanceof EnderKeyChestBlockEntity chest)
         {
-            return ((EnderKeyChestBlockEntity) te).getKey();
+            return chest.getKey();
         }
 
         return -1;
@@ -201,12 +194,7 @@ public class KeyUtils
 
     public static ItemStack getItem(ItemLike itemProvider, long key, boolean priv)
     {
-        ItemStack stack = new ItemStack(itemProvider);
-
-        setKey(stack, key);
-        setPrivate(stack, priv);
-
-        return stack;
+        return setPrivate(setKey(new ItemStack(itemProvider), key), priv);
     }
 
     public static ItemStack getLock(long key, boolean priv)

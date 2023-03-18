@@ -1,24 +1,25 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "lel",
-    "nnn",
-    "lcl"
-  ],
+  "category": "misc",
   "key": {
-    "l": {
-      "item": "minecraft:leather"
-    },
     "c": {
       "item": "minecraft:ender_chest"
     },
     "e": {
       "item": "minecraft:ender_eye"
     },
+    "l": {
+      "item": "minecraft:leather"
+    },
     "n": {
       "item": "minecraft:iron_nugget"
     }
   },
+  "pattern": [
+    "lel",
+    "nnn",
+    "lcl"
+  ],
   "result": {
     "item": "enderthing:pack"
   }

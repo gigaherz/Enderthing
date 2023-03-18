@@ -1,10 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "nnn",
-    "ppp",
-    "nnn"
-  ],
+  "category": "misc",
   "key": {
     "n": {
       "item": "minecraft:gold_nugget"
@@ -13,6 +9,11 @@
       "item": "minecraft:paper"
     }
   },
+  "pattern": [
+    "nnn",
+    "ppp",
+    "nnn"
+  ],
   "result": {
     "item": "enderthing:card"
   }

@@ -60,18 +60,11 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
         return stack.getOrCreateTagElement("BlockEntityTag");
     }
 
-    @Override
-    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items)
+    public void fillItemCategory(CreativeModeTab.Output output)
     {
-        if (allowedIn(group))
-        {
-            items.add(new ItemStack(this));
-            items.add(KeyUtils.setPrivate(new ItemStack(this), true));
-        }
-        if (this.getItemCategory() != null && group == CreativeModeTab.TAB_SEARCH)
-        {
-            items.add(KeyUtils.setBound(KeyUtils.setPrivate(new ItemStack(this), true), Util.NIL_UUID));
-        }
+        output.accept(new ItemStack(this), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        output.accept(KeyUtils.setPrivate(new ItemStack(this), true), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        output.accept(KeyUtils.setBound(KeyUtils.setPrivate(new ItemStack(this), true), Util.NIL_UUID), CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY);
     }
 
     @OnlyIn(Dist.CLIENT)

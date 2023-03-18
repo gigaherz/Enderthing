@@ -10,7 +10,7 @@
     "item.enderthing.pack_private": "Приватная ендер упаковка",
     "item.enderthing.card": "Ендер карта безопасности",
 
-    "itemGroup.enderthing.things": "Enderthing... Вещы",
+    "tab.enderthing.things": "Enderthing... Вещы",
 
     "container.enderthing.global": "Глобальный ендер инвентрь",
     "container.enderthing.private": "Приватный ендер инвентрь",
