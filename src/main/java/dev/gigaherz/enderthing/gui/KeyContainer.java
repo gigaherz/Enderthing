@@ -86,7 +86,7 @@ public class KeyContainer extends AbstractContainerMenu
                         boolean isPrivate, int slot, long id, @Nullable UUID bound)
     {
         this(windowId, playerInventory, slot,
-                getInventory(playerInventory.player.level, playerInventory.player, isPrivate, id, bound), enderChest);
+                getInventory(playerInventory.player.level(), playerInventory.player, isPrivate, id, bound), enderChest);
     }
 
     // Ender Key on chest
@@ -94,7 +94,7 @@ public class KeyContainer extends AbstractContainerMenu
                         boolean isPrivate, int slot, long id, @Nullable UUID bound)
     {
         this(windowId, playerInventory, slot,
-                getInventory(playerInventory.player.level, playerInventory.player, isPrivate, id, bound),
+                getInventory(playerInventory.player.level(), playerInventory.player, isPrivate, id, bound),
                 new IContainerInteraction()
                 {
                     @Override
@@ -121,7 +121,7 @@ public class KeyContainer extends AbstractContainerMenu
     public KeyContainer(int windowId, Inventory playerInventory, boolean isPrivate, int slot, long id, @Nullable UUID bound)
     {
         this(windowId, playerInventory, slot,
-                getInventory(playerInventory.player.level, playerInventory.player, isPrivate, id, bound),
+                getInventory(playerInventory.player.level(), playerInventory.player, isPrivate, id, bound),
                 new IContainerInteraction()
                 {
                     @Override

@@ -59,7 +59,6 @@ import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -89,13 +88,12 @@ public class Enderthing
 
     public static final String MODID = "enderthing";
 
-    public static CreativeModeTab ENDERTHING_GROUP;
-
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
     private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, MODID);
     private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
     private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, MODID);
+    private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
     public static final RegistryObject<EnderKeyChestBlock> KEY_CHEST = BLOCKS.register("key_chest", () -> new EnderKeyChestBlock(Block.Properties.copy(Blocks.ENDER_CHEST)));
     public static final RegistryObject<EnderKeyChestBlockItem> KEY_CHEST_ITEM = ITEMS.register("key_chest", () -> new EnderKeyChestBlockItem(KEY_CHEST.get(), new Item.Properties()));
@@ -114,6 +112,19 @@ public class Enderthing
     public static final RegistryObject<SimpleCraftingRecipeSerializer<?>> ADD_LOCK = RECIPE_SERIALIZERS.register("add_lock", () ->   new SimpleCraftingRecipeSerializer<>(AddLockRecipe::new));
     public static final RegistryObject<SimpleCraftingRecipeSerializer<?>> MAKE_BOUND = RECIPE_SERIALIZERS.register("make_bound", () ->  new SimpleCraftingRecipeSerializer<>(MakeBoundRecipe::new));
 
+
+    public static RegistryObject<CreativeModeTab> ENDERTHING_GROUP = CREATIVE_TABS.register("enderthing_things", () -> new CreativeModeTab.Builder(CreativeModeTab.Row.TOP,0)
+        .icon(() -> new ItemStack(KEY.get()))
+        .title(Component.translatable("tab.enderthing.things"))
+        .displayItems((featureFlags, output) -> {
+            KEY_CHEST_ITEM.get().fillItemCategory(output);
+            KEY.get().fillItemCategory(output);
+            LOCK.get().fillItemCategory(output);
+            PACK.get().fillItemCategory(output);
+            output.accept(CARD.get());
+        }).build()
+        );
+
     private static final String PROTOCOL_VERSION = "1.0";
     public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
             .named(new ResourceLocation(MODID, "main"))
@@ -131,28 +142,13 @@ public class Enderthing
         BLOCK_ENTITIES.register(modEventBus);
         RECIPE_SERIALIZERS.register(modEventBus);
         MENU_TYPES.register(modEventBus);
+        CREATIVE_TABS.register(modEventBus);
 
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::clientSetup);
         modEventBus.addListener(this::gatherData);
-        modEventBus.addListener(this::registerTabs);
 
         MinecraftForge.EVENT_BUS.addListener(this::missingMappings);
-    }
-
-    private void registerTabs(CreativeModeTabEvent.Register event)
-    {
-        ENDERTHING_GROUP = event.registerCreativeModeTab(location("enderthing_things"), builder -> builder
-                .icon(() -> new ItemStack(KEY.get()))
-                .title(Component.translatable("tab.enderthing.things"))
-                .displayItems((featureFlags, output) -> {
-                    KEY_CHEST_ITEM.get().fillItemCategory(output);
-                    KEY.get().fillItemCategory(output);
-                    LOCK.get().fillItemCategory(output);
-                    PACK.get().fillItemCategory(output);
-                    output.accept(CARD.get());
-                })
-        );
     }
 
     public void missingMappings(MissingMappingsEvent event)

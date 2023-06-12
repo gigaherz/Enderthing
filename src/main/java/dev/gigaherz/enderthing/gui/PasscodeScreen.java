@@ -7,6 +7,7 @@ import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
 import joptsimple.internal.Strings;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -186,50 +187,47 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
     }
 
     @Override // render
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
-        this.renderBackground(matrixStack); // draw background
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+        this.renderBackground(graphics); // draw background
+        super.render(graphics, mouseX, mouseY, partialTicks);
 
         //Lighting.turnBackOn();
         for (int i = 0; i < itemPasscode.size(); i++)
         {
             ItemStack st = itemPasscode.get(i);
-            itemRenderer.renderAndDecorateItem(matrixStack, st, leftPos + 12 + i * 16, topPos + 46);
+            graphics.renderItem(st, leftPos + 12 + i * 16, topPos + 46);
         }
         if (preview != null)
-            itemRenderer.renderAndDecorateItem(matrixStack, preview, leftPos + imageWidth - 58, topPos + 97);
+            graphics.renderItem(preview, leftPos + imageWidth - 58, topPos + 97);
         //Lighting.turnOff();
 
-        this.renderTooltip(matrixStack, mouseX, mouseY); // draw tooltips
+        this.renderTooltip(graphics, mouseX, mouseY); // draw tooltips
     }
 
     @Override
-    protected void renderBg(PoseStack matrixStack, float p_230450_2_, int mouseX, int mouseY)
+    protected void renderBg(GuiGraphics graphics, float p_230450_2_, int mouseX, int mouseY)
     {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, CHEST_GUI_TEXTURE);
 
-        blit(matrixStack, leftPos, topPos, 0, 0, imageWidth, imageHeight);
+        graphics.blit(CHEST_GUI_TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight);
     }
 
     @Override // background
-    protected void renderTooltip(PoseStack p_230459_1_, int p_230459_2_, int p_230459_3_)
+    protected void renderTooltip(GuiGraphics graphics, int p_230459_2_, int p_230459_3_)
     {
-        super.renderTooltip(p_230459_1_, p_230459_2_, p_230459_3_);
+        super.renderTooltip(graphics, p_230459_2_, p_230459_3_);
     }
 
     @Override // foreground
-    protected void renderLabels(PoseStack p_230451_1_, int p_230451_2_, int p_230451_3_)
+    protected void renderLabels(GuiGraphics graphics, int p_230451_2_, int p_230451_3_)
     {
-        super.renderLabels(p_230451_1_, p_230451_2_, p_230451_3_);
+        super.renderLabels(graphics, p_230451_2_, p_230451_3_);
 
-        font.drawShadow(p_230451_1_, getKeyFormatted("Current key", menu.keyHolder.get(), "<not set>"), 10, 22, 0xd8d8d8);
-
-        font.drawShadow(p_230451_1_, Component.literal("Click on some items to set a key... "), 10, 35, 0xd8d8d8);
-        font.drawShadow(p_230451_1_, Component.literal("...or enter a key manually"), 10, 66, 0xd8d8d8);
-        font.drawShadow(p_230451_1_, getKeyFormatted("Key", currentCode, "<invalid>"), 10, 100, 0xd8d8d8);
+        graphics.drawString(font, getKeyFormatted("Current key", menu.keyHolder.get(), "<not set>"), 10, 22, 0xd8d8d8, true);
+        graphics.drawString(font, Component.literal("Click on some items to set a key... "), 10, 35, 0xd8d8d8, true);
+        graphics.drawString(font, Component.literal("...or enter a key manually"), 10, 66, 0xd8d8d8, true);
+        graphics.drawString(font, getKeyFormatted("Key", currentCode, "<invalid>"), 10, 100, 0xd8d8d8, true);
     }
 
     private Component getKeyFormatted(String s1, long currentCode, String s2)
