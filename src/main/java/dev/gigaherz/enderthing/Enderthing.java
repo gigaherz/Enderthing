@@ -53,6 +53,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.data.BlockTagsProvider;
@@ -60,6 +61,7 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -145,7 +147,6 @@ public class Enderthing
         CREATIVE_TABS.register(modEventBus);
 
         modEventBus.addListener(this::commonSetup);
-        modEventBus.addListener(this::clientSetup);
         modEventBus.addListener(this::gatherData);
 
         MinecraftForge.EVENT_BUS.addListener(this::missingMappings);
@@ -167,26 +168,30 @@ public class Enderthing
         LOGGER.debug("Final message number: " + messageNumber);
     }
 
-    private void clientSetup(FMLClientSetupEvent event)
-    {
-        MenuScreens.register(Enderthing.KEY_CONTAINER.get(), KeyScreen::new);
-        MenuScreens.register(Enderthing.PASSCODE_CONTAINER.get(), PasscodeScreen::new);
-
-        ItemProperties.register(KEY.get(), new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-        ItemProperties.register(LOCK.get(), new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-        ItemProperties.register(PACK.get(), new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-        ItemProperties.register(KEY_CHEST_ITEM.get(), new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-
-        ItemProperties.register(LOCK.get(), new ResourceLocation("bound"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) && KeyUtils.isBound(stack) ? 1.0f : 0.0f);
-    }
-
     public static ResourceLocation location(String path)
     {
         return new ResourceLocation(MODID, path);
     }
 
+    @Mod.EventBusSubscriber(value= Dist.CLIENT, modid= MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class Client
     {
+        @SubscribeEvent
+        public static void clientSetup(FMLClientSetupEvent event)
+        {
+            event.enqueueWork(() -> {
+                MenuScreens.register(Enderthing.KEY_CONTAINER.get(), KeyScreen::new);
+                MenuScreens.register(Enderthing.PASSCODE_CONTAINER.get(), PasscodeScreen::new);
+
+                ItemProperties.register(KEY.get(), new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+                ItemProperties.register(LOCK.get(), new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+                ItemProperties.register(PACK.get(), new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+                ItemProperties.register(KEY_CHEST_ITEM.get(), new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+
+                ItemProperties.register(LOCK.get(), new ResourceLocation("bound"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) && KeyUtils.isBound(stack) ? 1.0f : 0.0f);
+            });
+        }
+
         public static void addStandardInformation(ItemStack stack, List<Component> tooltip)
         {
             if (KeyUtils.isPrivate(stack))
