@@ -9,8 +9,7 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
-import net.minecraftforge.network.NetworkHooks;
-
+import net.neoforged.neoforge.network.NetworkHooks;
 import javax.annotation.Nullable;
 import java.util.UUID;
 

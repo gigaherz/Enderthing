@@ -5,8 +5,7 @@ import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.items.ItemStackHandler;
-
+import net.neoforged.neoforge.items.ItemStackHandler;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;

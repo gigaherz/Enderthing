@@ -14,9 +14,9 @@ import net.minecraft.world.level.Level;
 
 public class MakeBoundRecipe extends CustomRecipe
 {
-    public MakeBoundRecipe(ResourceLocation id, CraftingBookCategory cat)
+    public MakeBoundRecipe(CraftingBookCategory cat)
     {
-        super(id, cat);
+        super(cat);
     }
 
     @Override

@@ -1,17 +1,30 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net/' }
-        maven { url = 'https://maven.parchmentmc.org' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath 'org.parchmentmc:librarian:1.+'
-    }
+plugins {
+    id 'java-library'
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.neoforged.gradle.userdev' version '7.0.46'
+    //id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'net.neoforged.gradle.mixin' version '7.0.46'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
 }
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
-apply plugin: 'maven-publish'
+
+version = '1.4.7'
+group = 'dev.gigaherz.enderthing'
+
+base {
+    archivesName = "Enderthing-1.20.2"
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+sourceSets {
+    main.resources.srcDirs += 'src/main/generated_resources'
+}
 
 repositories {
     mavenLocal()
@@ -33,74 +46,34 @@ repositories {
     }
 }
 
-version = '1.4.7'
-group = 'dev.gigaherz.enderthing'
-archivesBaseName = "Enderthing-UNKNOWN"
+runs {
+    // applies to all the run configs below
+    configureEach {
+        systemProperty 'forge.logging.markers', '' // 'REGISTRIES'
+        systemProperty 'forge.logging.console.level', 'debug'
 
-project.afterEvaluate {
-    archivesBaseName = "Enderthing-${project.MC_VERSION}"
-}
+        //ideaModule "${project.name}.main"
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+        workingDirectory project.file('run')
 
-sourceSets {
-    main.resources.srcDirs += 'src/main/generated_resources'
-}
+        //programArguments.addAll "--mixin=jsonthings.mixins.json"
 
-minecraft {
-    //mappings channel: 'official', version: '1.19.4'
-    mappings channel: 'parchment', version: '1.19.3-2023.03.12-1.20.1'
+        modSource project.sourceSets.main
+    }
 
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    client {
+    }
 
-    runs {
-        client {
-            workingDirectory project.file('run')
+    server {
+    }
 
-            property 'forge.logging.markers', ''
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.logging.noansi', "false"
-
-            mods {
-                thismod {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', ''
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.logging.noansi', "false"
-
-            mods {
-                thismod {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', ''
-            property 'forge.logging.console.level', 'debug'
-
-            args '--mod', 'enderthing', '--all', '--output', file('src/main/generated_resources/'), '--existing', file('src/main/resources/')
-
-            mods {
-                thismod {
-                    source sourceSets.main
-                }
-            }
-        }
+    data {
+        programArguments.addAll '--mod', 'enderthing', '--all', '--output', file('src/main/generated_resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
     }
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.20.1-47.1.3'
+    implementation 'net.neoforged:neoforge:20.2.62-beta'
 
     /*compileOnly fg.deobf("mezz.jei:jei-1.19-common-api:11.0.0.206")
     runtimeOnly fg.deobf("mezz.jei:jei-1.19-common:11.0.0.206")

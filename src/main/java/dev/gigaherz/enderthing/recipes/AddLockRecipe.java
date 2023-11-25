@@ -16,9 +16,9 @@ import net.minecraft.world.level.Level;
 
 public class AddLockRecipe extends CustomRecipe
 {
-    public AddLockRecipe(ResourceLocation id, CraftingBookCategory cat)
+    public AddLockRecipe(CraftingBookCategory cat)
     {
-        super(id, cat);
+        super(cat);
     }
 
     @Override

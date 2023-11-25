@@ -21,6 +21,7 @@ import net.minecraft.Util;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
@@ -53,36 +54,32 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.data.BlockTagsProvider;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.common.extensions.IForgeMenuType;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.MissingMappingsEvent;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.data.BlockTagsProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.network.NetworkRegistry;
+import net.neoforged.neoforge.network.PlayNetworkDirection;
+import net.neoforged.neoforge.network.simple.SimpleChannel;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredItem;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-@Mod.EventBusSubscriber
 @Mod(Enderthing.MODID)
 public class Enderthing
 {
@@ -90,42 +87,48 @@ public class Enderthing
 
     public static final String MODID = "enderthing";
 
-    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
-    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, MODID);
-    private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
-    private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, MODID);
+    private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
+    private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
+    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, MODID);
+    private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(BuiltInRegistries.RECIPE_SERIALIZER, MODID);
+    private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(BuiltInRegistries.MENU, MODID);
     private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    public static final RegistryObject<EnderKeyChestBlock> KEY_CHEST = BLOCKS.register("key_chest", () -> new EnderKeyChestBlock(Block.Properties.copy(Blocks.ENDER_CHEST)));
-    public static final RegistryObject<EnderKeyChestBlockItem> KEY_CHEST_ITEM = ITEMS.register("key_chest", () -> new EnderKeyChestBlockItem(KEY_CHEST.get(), new Item.Properties()));
-    public static final RegistryObject<EnderKeyItem> KEY = ITEMS.register("key", () -> new EnderKeyItem(new Item.Properties()));
-    public static final RegistryObject<EnderLockItem> LOCK = ITEMS.register("lock", () -> new EnderLockItem(new Item.Properties()));
-    public static final RegistryObject<EnderPackItem> PACK = ITEMS.register("pack", () -> new EnderPackItem(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<EnderCardItem> CARD = ITEMS.register("card", () -> new EnderCardItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredBlock<EnderKeyChestBlock> KEY_CHEST = BLOCKS.register("key_chest", () -> new EnderKeyChestBlock(Block.Properties.copy(Blocks.ENDER_CHEST)));
 
-    public static final RegistryObject<BlockEntityType<EnderKeyChestBlockEntity>>
+    public static final DeferredItem<EnderKeyChestBlockItem> KEY_CHEST_ITEM = ITEMS.register("key_chest", () -> new EnderKeyChestBlockItem(KEY_CHEST.get(), new Item.Properties()));
+    public static final DeferredItem<EnderKeyItem> KEY = ITEMS.register("key", () -> new EnderKeyItem(new Item.Properties()));
+    public static final DeferredItem<EnderLockItem> LOCK = ITEMS.register("lock", () -> new EnderLockItem(new Item.Properties()));
+    public static final DeferredItem<EnderPackItem> PACK = ITEMS.register("pack", () -> new EnderPackItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<EnderCardItem> CARD = ITEMS.register("card", () -> new EnderCardItem(new Item.Properties().stacksTo(1)));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EnderKeyChestBlockEntity>>
             KEY_CHEST_BLOCK_ENTITY = BLOCK_ENTITIES.register("key_chest", () -> BlockEntityType.Builder.of(EnderKeyChestBlockEntity::new, KEY_CHEST.get()).build(null));
 
-    public static final RegistryObject<MenuType<KeyContainer>> KEY_CONTAINER = MENU_TYPES.register("key", () -> IForgeMenuType.create(KeyContainer::new));
-    public static final RegistryObject<MenuType<PasscodeContainer>> PASSCODE_CONTAINER = MENU_TYPES.register("passcode", () -> IForgeMenuType.create(PasscodeContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<KeyContainer>>
+            KEY_CONTAINER = MENU_TYPES.register("key", () -> IMenuTypeExtension.create(KeyContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<PasscodeContainer>>
+            PASSCODE_CONTAINER = MENU_TYPES.register("passcode", () -> IMenuTypeExtension.create(PasscodeContainer::new));
 
-    public static final RegistryObject<SimpleCraftingRecipeSerializer<?>> MAKE_PRIVATE = RECIPE_SERIALIZERS.register("make_private", () ->   new SimpleCraftingRecipeSerializer<>(MakePrivateRecipe::new));
-    public static final RegistryObject<SimpleCraftingRecipeSerializer<?>> ADD_LOCK = RECIPE_SERIALIZERS.register("add_lock", () ->   new SimpleCraftingRecipeSerializer<>(AddLockRecipe::new));
-    public static final RegistryObject<SimpleCraftingRecipeSerializer<?>> MAKE_BOUND = RECIPE_SERIALIZERS.register("make_bound", () ->  new SimpleCraftingRecipeSerializer<>(MakeBoundRecipe::new));
+    public static final DeferredHolder<RecipeSerializer<?>, SimpleCraftingRecipeSerializer<?>>
+            MAKE_PRIVATE = RECIPE_SERIALIZERS.register("make_private", () ->   new SimpleCraftingRecipeSerializer<>(MakePrivateRecipe::new));
+    public static final DeferredHolder<RecipeSerializer<?>, SimpleCraftingRecipeSerializer<?>>
+            ADD_LOCK = RECIPE_SERIALIZERS.register("add_lock", () ->   new SimpleCraftingRecipeSerializer<>(AddLockRecipe::new));
+    public static final DeferredHolder<RecipeSerializer<?>, SimpleCraftingRecipeSerializer<?>>
+            MAKE_BOUND = RECIPE_SERIALIZERS.register("make_bound", () ->  new SimpleCraftingRecipeSerializer<>(MakeBoundRecipe::new));
 
 
-    public static RegistryObject<CreativeModeTab> ENDERTHING_GROUP = CREATIVE_TABS.register("enderthing_things", () -> new CreativeModeTab.Builder(CreativeModeTab.Row.TOP,0)
-        .icon(() -> new ItemStack(KEY.get()))
-        .title(Component.translatable("tab.enderthing.things"))
-        .displayItems((featureFlags, output) -> {
-            KEY_CHEST_ITEM.get().fillItemCategory(output);
-            KEY.get().fillItemCategory(output);
-            LOCK.get().fillItemCategory(output);
-            PACK.get().fillItemCategory(output);
-            output.accept(CARD.get());
-        }).build()
-        );
+    public static DeferredHolder<CreativeModeTab, CreativeModeTab> ENDERTHING_GROUP =
+            CREATIVE_TABS.register("enderthing_things", () -> new CreativeModeTab.Builder(CreativeModeTab.Row.TOP,0)
+                    .icon(() -> new ItemStack(KEY.get()))
+                    .title(Component.translatable("tab.enderthing.things"))
+                    .displayItems((featureFlags, output) -> {
+                        KEY_CHEST_ITEM.get().fillItemCategory(output);
+                        KEY.get().fillItemCategory(output);
+                        LOCK.get().fillItemCategory(output);
+                        PACK.get().fillItemCategory(output);
+                        output.accept(CARD.get());
+                    }).build());
 
     private static final String PROTOCOL_VERSION = "1.0";
     public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
@@ -148,23 +151,12 @@ public class Enderthing
 
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::gatherData);
-
-        MinecraftForge.EVENT_BUS.addListener(this::missingMappings);
-    }
-
-    public void missingMappings(MissingMappingsEvent event)
-    {
-        event.getMappings(Registries.ITEM, MODID)
-                .forEach(map -> {
-                    if (map.getKey().equals(location("pad")))
-                        map.remap(PACK.get());
-                });
     }
 
     public void commonSetup(FMLCommonSetupEvent event)
     {
         int messageNumber = 0;
-        CHANNEL.messageBuilder(SetItemKey.class, messageNumber++, NetworkDirection.PLAY_TO_SERVER).encoder(SetItemKey::encode).decoder(SetItemKey::new).consumerNetworkThread(SetItemKey::handle).add();
+        CHANNEL.messageBuilder(SetItemKey.class, messageNumber++, PlayNetworkDirection.PLAY_TO_SERVER).encoder(SetItemKey::encode).decoder(SetItemKey::new).consumerNetworkThread(SetItemKey::handle).add();
         LOGGER.debug("Final message number: " + messageNumber);
     }
 
@@ -215,7 +207,7 @@ public class Enderthing
     {
         DataGenerator gen = event.getGenerator();
 
-        gen.addProvider(event.includeServer(), new Recipes(gen));
+        gen.addProvider(event.includeServer(), new Recipes(gen.getPackOutput(), event.getLookupProvider()));
         gen.addProvider(event.includeServer(), Loot.create(gen.getPackOutput()));
 
         var existingFileHelper = event.getExistingFileHelper();
@@ -323,7 +315,7 @@ public class Enderthing
             @Override
             protected Iterable<Block> getKnownBlocks()
             {
-                return ForgeRegistries.BLOCKS.getEntries().stream()
+                return BuiltInRegistries.BLOCK.entrySet().stream()
                         .filter(e -> e.getKey().location().getNamespace().equals(MODID))
                         .map(Map.Entry::getValue)
                         .collect(Collectors.toList());
@@ -333,13 +325,13 @@ public class Enderthing
 
     private static class Recipes extends RecipeProvider
     {
-        public Recipes(DataGenerator gen)
+        public Recipes(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider)
         {
-            super(gen.getPackOutput());
+            super(output, lookupProvider);
         }
 
         @Override
-        protected void buildRecipes(Consumer<FinishedRecipe> consumer)
+        protected void buildRecipes(RecipeOutput consumer)
         {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Enderthing.KEY.get())
                     .pattern("o  ")

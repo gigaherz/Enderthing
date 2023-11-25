@@ -9,8 +9,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.minecraft.nbt.Tag;
-import net.minecraftforge.common.util.INBTSerializable;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 
@@ -101,7 +101,7 @@ public class InventoryManager extends SavedData implements IInventoryManager
         ServerLevel overworld = world.getServer().overworld();
 
         DimensionDataStorage storage = overworld.getDataStorage();
-        return storage.computeIfAbsent(InventoryManager::new, InventoryManager::new, DATA_NAME);
+        return storage.computeIfAbsent(new SavedData.Factory<>(InventoryManager::new, InventoryManager::new), DATA_NAME);
     }
 
     @Override

@@ -189,7 +189,7 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
     @Override // render
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
-        this.renderBackground(graphics); // draw background
+        this.renderBackground(graphics, mouseX, mouseY, partialTicks);
         super.render(graphics, mouseX, mouseY, partialTicks);
 
         //Lighting.turnBackOn();

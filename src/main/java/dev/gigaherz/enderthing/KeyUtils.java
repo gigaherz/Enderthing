@@ -4,6 +4,7 @@ import com.google.common.primitives.Longs;
 import com.mojang.logging.LogUtils;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import joptsimple.internal.Strings;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
@@ -13,10 +14,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.slf4j.Logger;
-
 import javax.annotation.Nullable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -272,7 +271,7 @@ public class KeyUtils
             MessageDigest md = MessageDigest.getInstance("MD5");
             for (ItemStack st : passcode)
             {
-                md.update(ForgeRegistries.ITEMS.getKey(st.getItem()).toString().getBytes());
+                md.update(BuiltInRegistries.ITEM.getKey(st.getItem()).toString().getBytes());
                 if (st.hasCustomHoverName())
                     md.update(st.getHoverName().getString().getBytes());
             }

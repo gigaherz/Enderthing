@@ -4,8 +4,7 @@ import dev.gigaherz.enderthing.gui.PasscodeContainer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkEvent;
-
+import net.neoforged.neoforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public class SetItemKey
@@ -27,12 +26,12 @@ public class SetItemKey
         buffer.writeLong(key);
     }
 
-    public boolean handle(Supplier<NetworkEvent.Context> ctx)
+    public boolean handle(NetworkEvent.Context ctx)
     {
         if (key >= 0)
         {
-            ctx.get().enqueueWork(() -> {
-                Player sender = ctx.get().getSender();
+            ctx.enqueueWork(() -> {
+                Player sender = ctx.getSender();
                 if (sender != null && sender.containerMenu instanceof PasscodeContainer)
                 {
                     ((PasscodeContainer) sender.containerMenu).keyHolder.set(key);

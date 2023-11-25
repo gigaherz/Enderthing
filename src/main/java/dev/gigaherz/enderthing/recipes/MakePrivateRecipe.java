@@ -12,13 +12,13 @@ import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.crafting.IShapedRecipe;
+import net.neoforged.neoforge.common.crafting.IShapedRecipe;
 
 public class MakePrivateRecipe extends CustomRecipe implements IShapedRecipe<CraftingContainer>
 {
-    public MakePrivateRecipe(ResourceLocation id, CraftingBookCategory cat)
+    public MakePrivateRecipe(CraftingBookCategory cat)
     {
-        super(id, cat);
+        super(cat);
     }
 
     @Override
