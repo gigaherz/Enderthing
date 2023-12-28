@@ -6,7 +6,6 @@ import dev.gigaherz.enderthing.gui.KeyContainer;
 import dev.gigaherz.enderthing.storage.EnderInventory;
 import dev.gigaherz.enderthing.storage.InventoryManager;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
@@ -17,17 +16,28 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.capabilities.Capabilities;
-import net.neoforged.neoforge.common.capabilities.Capability;
-import net.neoforged.neoforge.common.util.LazyOptional;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
+@Mod.EventBusSubscriber(modid=Enderthing.MODID, bus= Mod.EventBusSubscriber.Bus.MOD)
 public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEntity, IContainerInteraction
 {
+    @SubscribeEvent
+    public static void registerCapabilities(RegisterCapabilitiesEvent event)
+    {
+        event.registerBlockEntity(
+                Capabilities.ItemHandler.BLOCK,
+                Enderthing.KEY_CHEST_BLOCK_ENTITY.get(),
+                (be, context) -> be.getInventory()
+        );
+    }
+
     protected EnderKeyChestBlockEntity(BlockEntityType<?> tileEntityTypeIn, BlockPos blockPos, BlockState blockState)
     {
         super(tileEntityTypeIn, blockPos, blockState);
@@ -63,7 +73,6 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
     private long key = -1;
     private UUID boundToPlayer;
     private EnderInventory inventory;
-    private LazyOptional<IItemHandler> inventoryLazy = LazyOptional.of(this::getInventory);
 
     public boolean isPrivate()
     {
@@ -117,19 +126,9 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
         }
     }
 
-    @Override
-    public void setRemoved()
-    {
-        inventoryLazy.invalidate();
-        super.setRemoved();
-    }
-
     private void invalidateInventory()
     {
         releasePreviousInventory();
-
-        inventoryLazy.invalidate();
-        inventoryLazy = LazyOptional.of(this::getInventory);
 
         setChanged();
 
@@ -194,15 +193,6 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
         {
             tag.putString("Bound", boundToPlayer.toString());
         }
-    }
-
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing)
-    {
-        if (capability == Capabilities.ITEM_HANDLER
-                && hasInventory())
-            return inventoryLazy.cast();
-        return super.getCapability(capability, facing);
     }
 
     @Override

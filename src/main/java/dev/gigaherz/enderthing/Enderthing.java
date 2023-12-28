@@ -60,7 +60,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -94,7 +93,7 @@ public class Enderthing
     private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(BuiltInRegistries.MENU, MODID);
     private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    public static final DeferredBlock<EnderKeyChestBlock> KEY_CHEST = BLOCKS.register("key_chest", () -> new EnderKeyChestBlock(Block.Properties.copy(Blocks.ENDER_CHEST)));
+    public static final DeferredBlock<EnderKeyChestBlock> KEY_CHEST = BLOCKS.register("key_chest", () -> new EnderKeyChestBlock(Block.Properties.ofFullCopy(Blocks.ENDER_CHEST)));
 
     public static final DeferredItem<EnderKeyChestBlockItem> KEY_CHEST_ITEM = ITEMS.register("key_chest", () -> new EnderKeyChestBlockItem(KEY_CHEST.get(), new Item.Properties()));
     public static final DeferredItem<EnderKeyItem> KEY = ITEMS.register("key", () -> new EnderKeyItem(new Item.Properties()));
@@ -138,10 +137,8 @@ public class Enderthing
             .networkProtocolVersion(() -> PROTOCOL_VERSION)
             .simpleChannel();
 
-    public Enderthing()
+    public Enderthing(IEventBus modEventBus)
     {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-
         ITEMS.register(modEventBus);
         BLOCKS.register(modEventBus);
         BLOCK_ENTITIES.register(modEventBus);
@@ -374,9 +371,9 @@ public class Enderthing
                     .unlockedBy("has_gold", has(Items.ENDER_EYE))
                     .save(consumer);
 
-            SpecialRecipeBuilder.special(MAKE_PRIVATE.get()).save(consumer, "enderthing:make_private");
-            SpecialRecipeBuilder.special(ADD_LOCK.get()).save(consumer, "enderthing:add_lock");
-            SpecialRecipeBuilder.special(MAKE_BOUND.get()).save(consumer, "enderthing:make_bound");
+            SpecialRecipeBuilder.special(MakePrivateRecipe::new).save(consumer, "enderthing:make_private");
+            SpecialRecipeBuilder.special(AddLockRecipe::new).save(consumer, "enderthing:add_lock");
+            SpecialRecipeBuilder.special(MakeBoundRecipe::new).save(consumer, "enderthing:make_bound");
         }
     }
 }

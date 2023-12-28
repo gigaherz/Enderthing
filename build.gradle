@@ -3,16 +3,15 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.57'
-    id 'net.neoforged.gradle.mixin' version '7.0.57'
-    id 'com.github.johnrengelman.shadow' version '7.1.0'
+    id 'net.neoforged.gradle.userdev' version '7.0.61'
+    id 'com.github.johnrengelman.shadow' version '8.1+'
 }
 
-version = '1.4.7'
+version = '1.4.8'
 group = 'dev.gigaherz.enderthing'
 
 base {
-    archivesName = "Enderthing-1.20.2"
+    archivesName = "Enderthing-1.20.4"
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -72,7 +71,7 @@ runs {
 }
 
 dependencies {
-    implementation 'net.neoforged:neoforge:20.2.86'
+    implementation 'net.neoforged:neoforge:20.4.60-beta'
 
     /*compileOnly fg.deobf("mezz.jei:jei-1.19-common-api:11.0.0.206")
     runtimeOnly fg.deobf("mezz.jei:jei-1.19-common:11.0.0.206")

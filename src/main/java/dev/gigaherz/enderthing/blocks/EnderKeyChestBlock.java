@@ -1,5 +1,6 @@
 package dev.gigaherz.enderthing.blocks;
 
+import com.mojang.serialization.MapCodec;
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.gui.Containers;
@@ -21,6 +22,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
@@ -44,6 +46,8 @@ import javax.annotation.Nullable;
 
 public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEntity> implements SimpleWaterloggedBlock
 {
+    public static final MapCodec<EnderKeyChestBlock> CODEC = simpleCodec(EnderKeyChestBlock::new);
+
     public static final DirectionProperty FACING = EnderChestBlock.FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
@@ -55,6 +59,12 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
         registerDefaultState(this.getStateDefinition().any()
                 .setValue(WATERLOGGED, false)
                 .setValue(FACING, Direction.NORTH));
+    }
+
+    @Override
+    protected MapCodec<? extends AbstractChestBlock<EnderKeyChestBlockEntity>> codec()
+    {
+        return CODEC;
     }
 
     @Override
@@ -103,9 +113,9 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter world, BlockPos pos, Player player)
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player)
     {
-        return getItem(world, pos, Screen.hasShiftDown() || (player.getAbilities().instabuild && Screen.hasControlDown()));
+        return getItem(level, pos, Screen.hasShiftDown() || (player.getAbilities().instabuild && Screen.hasControlDown()));
     }
 
     @Override
