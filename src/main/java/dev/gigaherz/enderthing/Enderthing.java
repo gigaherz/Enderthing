@@ -65,9 +65,8 @@ import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
-import net.neoforged.neoforge.network.NetworkRegistry;
-import net.neoforged.neoforge.network.PlayNetworkDirection;
-import net.neoforged.neoforge.network.simple.SimpleChannel;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -129,14 +128,6 @@ public class Enderthing
                         output.accept(CARD.get());
                     }).build());
 
-    private static final String PROTOCOL_VERSION = "1.0";
-    public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
-            .named(new ResourceLocation(MODID, "main"))
-            .clientAcceptedVersions(PROTOCOL_VERSION::equals)
-            .serverAcceptedVersions(PROTOCOL_VERSION::equals)
-            .networkProtocolVersion(() -> PROTOCOL_VERSION)
-            .simpleChannel();
-
     public Enderthing(IEventBus modEventBus)
     {
         ITEMS.register(modEventBus);
@@ -150,11 +141,10 @@ public class Enderthing
         modEventBus.addListener(this::gatherData);
     }
 
-    public void commonSetup(FMLCommonSetupEvent event)
+    private void commonSetup(RegisterPayloadHandlerEvent event)
     {
-        int messageNumber = 0;
-        CHANNEL.messageBuilder(SetItemKey.class, messageNumber++, PlayNetworkDirection.PLAY_TO_SERVER).encoder(SetItemKey::encode).decoder(SetItemKey::new).consumerNetworkThread(SetItemKey::handle).add();
-        LOGGER.debug("Final message number: " + messageNumber);
+        final IPayloadRegistrar registrar = event.registrar(MODID).versioned("1.0");
+        registrar.play(SetItemKey.ID, SetItemKey::new, play -> play.server(SetItemKey::handle));
     }
 
     public static ResourceLocation location(String path)

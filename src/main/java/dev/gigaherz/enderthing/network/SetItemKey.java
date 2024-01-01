@@ -3,12 +3,15 @@ package dev.gigaherz.enderthing.network;
 import dev.gigaherz.enderthing.gui.PasscodeContainer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.NetworkEvent;
-import java.util.function.Supplier;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
-public class SetItemKey
+public class SetItemKey implements CustomPacketPayload
 {
+    public static final ResourceLocation ID = new ResourceLocation("signbutton","update_spell_sequence");
+
     public final long key;
 
     public SetItemKey(long key)
@@ -21,18 +24,24 @@ public class SetItemKey
         this.key = buffer.readLong();
     }
 
-    public void encode(FriendlyByteBuf buffer)
+    public void write(FriendlyByteBuf buffer)
     {
         buffer.writeLong(key);
     }
 
-    public boolean handle(NetworkEvent.Context ctx)
+    @Override
+    public ResourceLocation id()
+    {
+        return ID;
+    }
+
+    public void handle(PlayPayloadContext context)
     {
         if (key >= 0)
         {
-            ctx.enqueueWork(() -> {
-                Player sender = ctx.getSender();
-                if (sender != null && sender.containerMenu instanceof PasscodeContainer)
+            context.workHandler().execute(() -> {
+                Player sender = context.player().orElseThrow();
+                if (sender.containerMenu instanceof PasscodeContainer)
                 {
                     ((PasscodeContainer) sender.containerMenu).keyHolder.set(key);
                     sender.closeContainer();
@@ -40,6 +49,5 @@ public class SetItemKey
                 }
             });
         }
-        return true;
     }
 }

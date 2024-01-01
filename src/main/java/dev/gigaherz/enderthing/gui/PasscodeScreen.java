@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
@@ -82,7 +83,7 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
     private void setButtonPressed(Button button)
     {
         if (currentCode >= 0)
-            Enderthing.CHANNEL.sendToServer(new SetItemKey(currentCode));
+            PacketDistributor.SERVER.noArg().send(new SetItemKey(currentCode));
     }
 
     private boolean textPasscodeChanging(String text)

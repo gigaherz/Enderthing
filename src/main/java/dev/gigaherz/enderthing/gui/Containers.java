@@ -9,7 +9,6 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
-import net.neoforged.neoforge.network.NetworkHooks;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
@@ -46,7 +45,7 @@ public class Containers
 
     private static void openGui(ServerPlayer player, boolean isPrivate, int slot, MenuConstructor provider)
     {
-        NetworkHooks.openScreen(player, new SimpleMenuProvider(
+        player.openMenu(new SimpleMenuProvider(
                 provider,
                 getDisplayName(isPrivate)
         ), packet -> packet.writeInt(slot));
@@ -55,7 +54,7 @@ public class Containers
 
     public static void openPasscodeScreen(ServerPlayer player, ILongAccessor code, ItemStack previewBase)
     {
-        NetworkHooks.openScreen(player, new SimpleMenuProvider(
+        player.openMenu(new SimpleMenuProvider(
                 (id, inv, p) -> new PasscodeContainer(id, inv, code, previewBase),
                 Component.translatable(CODE_TITLE)
         ), packet -> {
