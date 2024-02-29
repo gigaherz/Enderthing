@@ -3,11 +3,11 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.76'
+    id 'net.neoforged.gradle.userdev' version '7.0.96'
     id 'com.github.johnrengelman.shadow' version '8.1+'
 }
 
-version = '1.4.9'
+version = '1.4.10'
 group = 'dev.gigaherz.enderthing'
 
 base {
@@ -74,7 +74,7 @@ subsystems {
 }
 
 dependencies {
-    implementation 'net.neoforged:neoforge:20.4.72-beta'
+    implementation 'net.neoforged:neoforge:20.4.189'
 
     /*compileOnly fg.deobf("mezz.jei:jei-1.19-common-api:11.0.0.206")
     runtimeOnly fg.deobf("mezz.jei:jei-1.19-common:11.0.0.206")

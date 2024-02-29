@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 public class SetItemKey implements CustomPacketPayload
 {
-    public static final ResourceLocation ID = new ResourceLocation("signbutton","update_spell_sequence");
+    public static final ResourceLocation ID = new ResourceLocation("enderthing","key_change");
 
     public final long key;
 

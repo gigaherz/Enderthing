@@ -1,6 +1,5 @@
 package dev.gigaherz.enderthing;
 
-import com.mojang.logging.LogUtils;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlock;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockItem;
@@ -35,7 +34,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
@@ -59,7 +61,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -71,7 +72,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import org.slf4j.Logger;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -81,8 +82,6 @@ import java.util.stream.Collectors;
 @Mod(Enderthing.MODID)
 public class Enderthing
 {
-    private static final Logger LOGGER = LogUtils.getLogger();
-
     public static final String MODID = "enderthing";
 
     private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
