@@ -36,25 +36,13 @@ public class EnderKeyChestRenderer extends ChestRenderer<EnderKeyChestBlockEntit
                        PoseStack matrixStackIn, MultiBufferSource bufferIn,
                        int combinedLightIn, int combinedOverlayIn)
     {
-        int rotation = 0;
-        if (te.hasLevel())
+        int rotation = te.hasLevel() ? switch (te.getBlockState().getValue(EnderKeyChestBlock.FACING))
         {
-            switch (te.getBlockState().getValue(EnderKeyChestBlock.FACING))
-            {
-                case NORTH:
-                    rotation = 180;
-                    break;
-                case SOUTH:
-                    rotation = 0;
-                    break;
-                case WEST:
-                    rotation = 90;
-                    break;
-                case EAST:
-                    rotation = -90;
-                    break;
-            }
-        }
+            case NORTH -> 180;
+            case WEST -> 90;
+            case EAST -> -90;
+            default -> 0;
+        } : 0;
 
         ItemStack lock = KeyUtils.getLock(te.getKey(), te.isPrivate(), te.getPlayerBound());
         renderInternal(te, partialTicks, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, rotation, lock);

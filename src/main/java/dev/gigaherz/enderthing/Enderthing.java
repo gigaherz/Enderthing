@@ -61,6 +61,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -158,8 +159,6 @@ public class Enderthing
         public static void clientSetup(FMLClientSetupEvent event)
         {
             event.enqueueWork(() -> {
-                MenuScreens.register(Enderthing.KEY_CONTAINER.get(), KeyScreen::new);
-                MenuScreens.register(Enderthing.PASSCODE_CONTAINER.get(), PasscodeScreen::new);
 
                 ItemProperties.register(KEY.get(), new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
                 ItemProperties.register(LOCK.get(), new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
@@ -168,6 +167,13 @@ public class Enderthing
 
                 ItemProperties.register(LOCK.get(), new ResourceLocation("bound"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) && KeyUtils.isBound(stack) ? 1.0f : 0.0f);
             });
+        }
+
+        @SubscribeEvent
+        public static void clientSetup(RegisterMenuScreensEvent event)
+        {
+            event.register(Enderthing.KEY_CONTAINER.get(), KeyScreen::new);
+            event.register(Enderthing.PASSCODE_CONTAINER.get(), PasscodeScreen::new);
         }
 
         public static void addStandardInformation(ItemStack stack, List<Component> tooltip)
