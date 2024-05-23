@@ -2,6 +2,7 @@ package dev.gigaherz.enderthing.storage;
 
 import com.google.common.collect.Lists;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -84,9 +85,9 @@ public class EnderInventory extends ItemStackHandler
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public CompoundTag serializeNBT(HolderLookup.Provider lookup)
     {
-        var tag = super.serializeNBT();
+        var tag = super.serializeNBT(lookup);
         tag.putLong("created", created);
         tag.putLong("lastLoaded", lastLoaded);
         tag.putLong("lastModified", lastModified);
@@ -94,9 +95,9 @@ public class EnderInventory extends ItemStackHandler
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt)
+    public void deserializeNBT(HolderLookup.Provider lookup, CompoundTag nbt)
     {
-        super.deserializeNBT(nbt);
+        super.deserializeNBT(lookup, nbt);
         if(nbt.contains("created", Tag.TAG_ANY_NUMERIC))
             created = nbt.getLong("created");
         else

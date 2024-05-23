@@ -17,7 +17,6 @@ import dev.gigaherz.enderthing.recipes.MakeBoundRecipe;
 import dev.gigaherz.enderthing.recipes.MakePrivateRecipe;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -48,17 +47,17 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
-import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
@@ -67,8 +66,8 @@ import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
-import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -137,14 +136,16 @@ public class Enderthing
         MENU_TYPES.register(modEventBus);
         CREATIVE_TABS.register(modEventBus);
 
+        KeyUtils.init(modEventBus);
+
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::gatherData);
     }
 
-    private void commonSetup(RegisterPayloadHandlerEvent event)
+    private void commonSetup(RegisterPayloadHandlersEvent event)
     {
-        final IPayloadRegistrar registrar = event.registrar(MODID).versioned("1.0");
-        registrar.play(SetItemKey.ID, SetItemKey::new, play -> play.server(SetItemKey::handle));
+        final PayloadRegistrar registrar = event.registrar(MODID).versioned("1.0");
+        registrar.playToServer(SetItemKey.TYPE, SetItemKey.STREAM_CODEC, SetItemKey::handle);
     }
 
     public static ResourceLocation location(String path)
@@ -152,7 +153,7 @@ public class Enderthing
         return new ResourceLocation(MODID, path);
     }
 
-    @Mod.EventBusSubscriber(value= Dist.CLIENT, modid= MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber(value= Dist.CLIENT, modid= MODID, bus = EventBusSubscriber.Bus.MOD)
     public static class Client
     {
         @SubscribeEvent
@@ -160,12 +161,12 @@ public class Enderthing
         {
             event.enqueueWork(() -> {
 
-                ItemProperties.register(KEY.get(), new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-                ItemProperties.register(LOCK.get(), new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-                ItemProperties.register(PACK.get(), new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-                ItemProperties.register(KEY_CHEST_ITEM.get(), new ResourceLocation("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+                ItemProperties.register(KEY.get(), location("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+                ItemProperties.register(LOCK.get(), location("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+                ItemProperties.register(PACK.get(), location("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
+                ItemProperties.register(KEY_CHEST_ITEM.get(), location("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
 
-                ItemProperties.register(LOCK.get(), new ResourceLocation("bound"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) && KeyUtils.isBound(stack) ? 1.0f : 0.0f);
+                ItemProperties.register(LOCK.get(), location("bound"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) && KeyUtils.isBound(stack) ? 1.0f : 0.0f);
             });
         }
 
@@ -200,7 +201,7 @@ public class Enderthing
         DataGenerator gen = event.getGenerator();
 
         gen.addProvider(event.includeServer(), new Recipes(gen.getPackOutput(), event.getLookupProvider()));
-        gen.addProvider(event.includeServer(), Loot.create(gen.getPackOutput()));
+        gen.addProvider(event.includeServer(), Loot.create(gen.getPackOutput(), event.getLookupProvider()));
 
         var existingFileHelper = event.getExistingFileHelper();
         var blockTags = new BlockTagGens(gen, existingFileHelper);
@@ -223,6 +224,14 @@ public class Enderthing
         {
             tag(Tags.Items.CHESTS_ENDER)
                     .add(Enderthing.KEY_CHEST_ITEM.get());
+            tag(KeyUtils.CAN_MAKE_BOUND)
+                    .add(Enderthing.KEY_CHEST_ITEM.get())
+                    .add(Enderthing.LOCK.get());
+            tag(KeyUtils.CAN_MAKE_PRIVATE)
+                    .add(Enderthing.KEY_CHEST_ITEM.get())
+                    .add(Enderthing.LOCK.get())
+                    .add(Enderthing.PACK.get())
+                    .add(Enderthing.KEY.get());
         }
     }
 
@@ -246,11 +255,11 @@ public class Enderthing
 
     private static class Loot
     {
-        public static LootTableProvider create(PackOutput gen)
+        public static LootTableProvider create(PackOutput gen, CompletableFuture<HolderLookup.Provider> lookup)
         {
             return new LootTableProvider(gen, Set.of(), List.of(
                     new LootTableProvider.SubProviderEntry(Loot.BlockTables::new, LootContextParamSets.BLOCK)
-            ));
+            ), lookup);
         }
 
         public static class BlockTables extends VanillaBlockLoot
@@ -280,17 +289,18 @@ public class Enderthing
                                         .add(LootItem.lootTableItem(block)
                                                 .when(HAS_SILK_TOUCH)
                                                 .apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY))
-                                                .apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-                                                        .copy("Key", "BlockEntityTag.Key")
-                                                        .copy("IsPrivate", "BlockEntityTag.IsPrivate")
-                                                        .copy("Bound", "BlockEntityTag.Bound")
+                                                .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                                                                .include(KeyUtils.KEY.get())
+                                                                .include(KeyUtils.IS_PRIVATE.get())
+                                                                .include(KeyUtils.BINDING.get())
                                                 )
                                                 .otherwise(LootItem.lootTableItem(LOCK.get())
-                                                        .apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-                                                                .copy("Key", "Key")
-                                                                .copy("IsPrivate", "IsPrivate")
-                                                                .copy("Bound", "Bound")
-                                                        ))
+                                                        .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                                                                .include(KeyUtils.KEY.get())
+                                                                .include(KeyUtils.IS_PRIVATE.get())
+                                                                .include(KeyUtils.BINDING.get())
+                                                        )
+                                                )
                                         )
                                 )
                         ).withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1))

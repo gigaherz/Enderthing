@@ -25,13 +25,12 @@ public class EnderPackItem extends EnderthingItem
         super(properties);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
     {
         tooltip.add(Component.translatable("tooltip.enderthing.ender_pack.right_click").withStyle(ChatFormatting.ITALIC));
 
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, context, tooltip, flagIn);
     }
 
     @Override
@@ -55,7 +54,7 @@ public class EnderPackItem extends EnderthingItem
             return InteractionResult.SUCCESS;
         }
 
-        openPackGui(player, id, isPrivate(stack));
+        openPackGui(player, id, KeyUtils.isPrivate(stack));
 
         return InteractionResult.SUCCESS;
     }
@@ -79,7 +78,7 @@ public class EnderPackItem extends EnderthingItem
             return InteractionResultHolder.success(stack);
         }
 
-        openPackGui(playerIn, id, isPrivate(stack));
+        openPackGui(playerIn, id, KeyUtils.isPrivate(stack));
 
         return InteractionResultHolder.success(stack);
     }

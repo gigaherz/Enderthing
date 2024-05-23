@@ -10,10 +10,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -23,37 +20,17 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-import net.neoforged.neoforge.common.util.NonNullLazy;
-import net.minecraft.nbt.Tag;
-import javax.annotation.Nullable;
+import net.neoforged.neoforge.common.util.Lazy;
+
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
-public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBindableKeyHolder
+public class EnderKeyChestBlockItem extends BlockItem
 {
     public EnderKeyChestBlockItem(Block block, Properties properties)
     {
         super(block, properties);
-    }
-
-    @Override
-    public Optional<CompoundTag> findHolderTag(ItemStack stack)
-    {
-        CompoundTag tag = stack.getTag();
-        if (tag == null) return Optional.empty();
-        if (!tag.contains("BlockEntityTag", Tag.TAG_COMPOUND))
-            return Optional.empty();
-        return Optional.of(tag.getCompound("BlockEntityTag"));
-    }
-
-    @Override
-    public CompoundTag getOrCreateHolderTag(ItemStack stack)
-    {
-        return stack.getOrCreateTagElement("BlockEntityTag");
     }
 
     public void fillItemCategory(CreativeModeTab.Output output)
@@ -63,16 +40,15 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
         output.accept(KeyUtils.setBound(KeyUtils.setPrivate(new ItemStack(this), true), Util.NIL_UUID), CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
     {
         tooltip.add(Component.translatable("tooltip.enderthing.ender_key_chest.right_click").withStyle(ChatFormatting.ITALIC));
 
         Enderthing.Client.addStandardInformation(stack, tooltip);
 
-        if (isBound(stack))
-            tooltip.add(Component.translatable("tooltip.enderthing.ender_lock.bound", getBoundStr(stack)));
+        if (KeyUtils.isBound(stack))
+            tooltip.add(Component.translatable("tooltip.enderthing.ender_lock.bound", KeyUtils.getBoundStr(stack)));
 
     }
 
@@ -99,7 +75,7 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
     {
         ItemStack stack = playerIn.getItemInHand(hand);
 
-        long oldId = getKey(stack);
+        long oldId = KeyUtils.getKey(stack);
 
         if (oldId < 0)
         {
@@ -110,7 +86,7 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
 
         if (playerIn.isShiftKeyDown())
         {
-            ItemStack oldStack = KeyUtils.getLock(oldId, isPrivate(stack));
+            ItemStack oldStack = KeyUtils.getLock(oldId, KeyUtils.isPrivate(stack));
 
             if (!playerIn.getInventory().add(oldStack))
             {
@@ -140,7 +116,7 @@ public class EnderKeyChestBlockItem extends BlockItem implements KeyUtils.IBinda
     {
         consumer.accept(new IClientItemExtensions()
         {
-            static final NonNullLazy<BlockEntityWithoutLevelRenderer> renderer = NonNullLazy.of(() -> new BlockEntityWithoutLevelRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels())
+            static final Lazy<BlockEntityWithoutLevelRenderer> renderer = Lazy.of(() -> new BlockEntityWithoutLevelRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels())
             {
                 final EnderKeyChestBlockEntity defaultChest = new EnderKeyChestBlockEntity(BlockPos.ZERO, Enderthing.KEY_CHEST.get().defaultBlockState());
 

@@ -2,6 +2,7 @@ package dev.gigaherz.enderthing.recipes;
 
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -27,7 +28,7 @@ public class MakeBoundRecipe extends CustomRecipe
         for (int i = 0; i < inv.getContainerSize(); i++)
         {
             ItemStack st = inv.getItem(i);
-            if ((st.getItem() instanceof KeyUtils.IBindableKeyHolder) && KeyUtils.isPrivate(st))
+            if (st.is(KeyUtils.CAN_MAKE_BOUND) && KeyUtils.isPrivate(st))
             {
                 if (holder < 0)
                     holder = i;
@@ -47,7 +48,7 @@ public class MakeBoundRecipe extends CustomRecipe
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess)
+    public ItemStack assemble(CraftingContainer inv, HolderLookup.Provider lookup)
     {
         ItemStack holder = ItemStack.EMPTY;
         ItemStack card = ItemStack.EMPTY;
@@ -55,7 +56,7 @@ public class MakeBoundRecipe extends CustomRecipe
         for (int i = 0; i < inv.getContainerSize(); i++)
         {
             ItemStack st = inv.getItem(i);
-            if ((st.getItem() instanceof KeyUtils.IBindableKeyHolder) && KeyUtils.isPrivate(st))
+            if (st.is(KeyUtils.CAN_MAKE_BOUND) && KeyUtils.isPrivate(st))
             {
                 if (holder.getCount() == 0)
                     holder = st;

@@ -5,11 +5,12 @@ import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestRenderer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 
-@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Enderthing.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT, modid = Enderthing.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class ClientEvents
 {
     @SubscribeEvent
@@ -27,13 +28,13 @@ public class ClientEvents
 
                     long id = KeyUtils.getKey(stack);
                     if (id < 0)
-                        return 0;
+                        return 0xFF000000;
 
                     int r = ((int) (id >>> ((layer - 1) * 21)) & 0x7f) * 255 / 127;
                     int g = ((int) (id >>> ((layer - 1) * 21 + 7)) & 0x7f) * 255 / 127;
                     int b = ((int) (id >>> ((layer - 1) * 21 + 14)) & 0x7f) * 255 / 127;
 
-                    return (r << 16) | (g << 8) | (b);
+                    return 0xFF000000 | (r << 16) | (g << 8) | (b);
                 },
                 Enderthing.KEY.get(), Enderthing.LOCK.get(), Enderthing.PACK.get());
     }

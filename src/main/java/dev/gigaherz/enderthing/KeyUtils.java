@@ -2,183 +2,107 @@ package dev.gigaherz.enderthing;
 
 import com.google.common.primitives.Longs;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import joptsimple.internal.Strings;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.slf4j.Logger;
 import javax.annotation.Nullable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 public class KeyUtils
 {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENT_TYPES = DeferredRegister.create(BuiltInRegistries.DATA_COMPONENT_TYPE, Enderthing.MODID);
 
-    public interface IKeyHolder
+    public static final Supplier<DataComponentType<UUID>> BINDING = DATA_COMPONENT_TYPES.register("binding", () ->
+            DataComponentType.<UUID>builder().persistent(UUIDUtil.CODEC).networkSynchronized(UUIDUtil.STREAM_CODEC).build()
+    );
+
+    public static final Supplier<DataComponentType<Boolean>> IS_PRIVATE = DATA_COMPONENT_TYPES.register("is_private", () ->
+            DataComponentType.<Boolean>builder().persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL).build()
+    );
+
+    public static final Supplier<DataComponentType<Long>> KEY = DATA_COMPONENT_TYPES.register("key", () ->
+            DataComponentType.<Long>builder().persistent(Codec.LONG).networkSynchronized(ByteBufCodecs.VAR_LONG).build()
+    );
+
+    public static final Supplier<DataComponentType<String>> CACHED_PLAYER_NAME = DATA_COMPONENT_TYPES.register("cached_player_name", () ->
+            DataComponentType.<String>builder().persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8).build()
+    );
+
+    public static final TagKey<Item> CAN_MAKE_BOUND = TagKey.create(Registries.ITEM, Enderthing.location("can_make_bound"));
+    public static final TagKey<Item> CAN_MAKE_PRIVATE = TagKey.create(Registries.ITEM, Enderthing.location("can_make_private"));
+
+    public static void init(IEventBus modBus)
     {
-        private Item self() { return (Item)this; }
-
-        Optional<CompoundTag> findHolderTag(ItemStack stack);
-
-        CompoundTag getOrCreateHolderTag(ItemStack stack);
-
-        default boolean isPrivate(ItemStack stack)
-        {
-            return findHolderTag(stack).map(blockTag -> blockTag.getBoolean("IsPrivate")).orElse(false);
-        }
-
-        default void setPrivate(ItemStack stack, boolean priv)
-        {
-            getOrCreateHolderTag(stack).putBoolean("IsPrivate", priv);
-        }
-
-        default long getKey(ItemStack stack)
-        {
-            return findHolderTag(stack).map(blockTag -> blockTag.contains("Key", Tag.TAG_LONG) ? blockTag.getLong("Key") : -1).orElse(-1L);
-        }
-
-        default void setKey(ItemStack stack, long key)
-        {
-            getOrCreateHolderTag(stack).putLong("Key", key);
-        }
-
-        default ItemStack makeStack(boolean isPrivate)
-        {
-            var stack = self().getDefaultInstance();
-            if (isPrivate) setPrivate(stack, true);
-            return stack;
-        }
-
-        default ItemStack makeStack(boolean isPrivate, long key)
-        {
-            var stack = self().getDefaultInstance();
-            if (isPrivate) setPrivate(stack, true);
-            if (key != -1) setKey(stack, key);
-            return stack;
-        }
-    }
-
-    public interface IBindable
-    {
-        Optional<CompoundTag> findHolderTag(ItemStack stack);
-
-        CompoundTag getOrCreateHolderTag(ItemStack stack);
-
-        boolean isBound(ItemStack stack);
-
-        @Nullable
-        UUID getBound(ItemStack stack);
-
-        void setBound(ItemStack stack, @Nullable UUID uuid);
-    }
-
-    public interface IBindableKeyHolder extends IKeyHolder, IBindable
-    {
-        default boolean isBound(ItemStack stack)
-        {
-            if (!isPrivate(stack))
-                return false;
-            return findHolderTag(stack).map(tag -> !Strings.isNullOrEmpty(tag.getString("Bound"))).orElse(false);
-        }
-
-        @Nullable
-        default String getBoundStr(ItemStack stack)
-        {
-            if (!isPrivate(stack))
-                return null;
-            return findHolderTag(stack).map(tag -> tag.getString("Bound")).orElse(null);
-        }
-
-        @Nullable
-        default UUID getBound(ItemStack stack)
-        {
-            if (!isPrivate(stack))
-                return null;
-            return findHolderTag(stack).map(tag -> {
-                if (!tag.contains("Bound", Tag.TAG_STRING))
-                    return null;
-                try
-                {
-                    return UUID.fromString(tag.getString("Bound"));
-                }
-                catch (IllegalArgumentException e)
-                {
-                    LOGGER.warn("Stack contained wrong UUID", e);
-                    return null;
-                }
-            }).orElse(null);
-        }
-
-        default void setBound(ItemStack stack, @Nullable UUID uuid)
-        {
-            if (uuid == null)
-                findHolderTag(stack).ifPresent(blockTag -> blockTag.remove("Bound"));
-            else
-                getOrCreateHolderTag(stack).putString("Bound", uuid.toString());
-        }
+        DATA_COMPONENT_TYPES.register(modBus);
     }
 
     public static long getKey(ItemStack stack)
     {
-        if (stack.getItem() instanceof IKeyHolder holder)
-            return holder.getKey(stack);
-        return -1;
+        return Objects.requireNonNullElse(stack.get(KEY), -1L);
     }
 
     public static ItemStack setKey(ItemStack stack, long key)
     {
-        if (stack.getItem() instanceof IKeyHolder holder)
-            holder.setKey(stack, key);
+        stack.set(KEY, key);
         return stack;
     }
 
     public static boolean isPrivate(ItemStack stack)
     {
-        if (stack.getItem() instanceof IKeyHolder holder)
-            return holder.isPrivate(stack);
-        return false;
+        return Boolean.TRUE.equals(stack.get(IS_PRIVATE));
     }
 
     public static ItemStack setPrivate(ItemStack stack, boolean priv)
     {
-        if (stack.getItem() instanceof IKeyHolder  holder)
-            holder.setPrivate(stack, priv);
+        stack.set(IS_PRIVATE, priv);
         return stack;
     }
 
     public static boolean isBound(ItemStack stack)
     {
-        if (stack.getItem() instanceof IBindable bindable)
-            return bindable.isBound(stack);
-        return false;
+        return stack.get(BINDING) != null;
     }
 
     @Nullable
     public static UUID getBound(ItemStack stack)
     {
-        if (stack.getItem() instanceof IBindable bindable)
-            return bindable.getBound(stack);
-        return null;
+        return stack.get(BINDING);
     }
 
     public static ItemStack setBound(ItemStack stack, @Nullable UUID uuid)
     {
-        if (stack.getItem() instanceof IBindable bindable)
-            bindable.setBound(stack, uuid);
+        stack.set(BINDING, uuid);
         return stack;
+    }
+
+    @Nullable
+    public static String getBoundStr(ItemStack stack)
+    {
+        var uuid = getBound(stack);
+        return uuid != null ? uuid.toString() : null;
     }
 
     public static long getKey(BlockEntity te)
@@ -272,7 +196,7 @@ public class KeyUtils
             for (ItemStack st : passcode)
             {
                 md.update(BuiltInRegistries.ITEM.getKey(st.getItem()).toString().getBytes());
-                if (st.hasCustomHoverName())
+                if (st.has(DataComponents.CUSTOM_NAME))
                     md.update(st.getHoverName().getString().getBytes());
             }
             return Longs.fromByteArray(md.digest()) & 0x7fffffffffffffffL;
@@ -281,5 +205,16 @@ public class KeyUtils
         {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void setCachedPlayerName(ItemStack stack, String string)
+    {
+        stack.set(CACHED_PLAYER_NAME, string);
+    }
+
+    @Nullable
+    public static String getCachedPlayerName(ItemStack stack)
+    {
+        return stack.get(CACHED_PLAYER_NAME);
     }
 }

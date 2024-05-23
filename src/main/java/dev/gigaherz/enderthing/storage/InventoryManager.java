@@ -2,6 +2,7 @@ package dev.gigaherz.enderthing.storage;
 
 import com.google.common.collect.Maps;
 import com.mojang.logging.LogUtils;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.File;
 import java.util.Map;
 import java.util.UUID;
 
@@ -31,9 +33,9 @@ public class InventoryManager extends SavedData implements IInventoryManager
     {
     }
 
-    public InventoryManager(CompoundTag nbt)
+    public InventoryManager(CompoundTag nbt, HolderLookup.Provider lookup)
     {
-        global.deserializeNBT(nbt);
+        global.deserializeNBT(lookup, nbt);
 
         if (nbt.contains("Private", Tag.TAG_LIST))
         {
@@ -45,7 +47,7 @@ public class InventoryManager extends SavedData implements IInventoryManager
                 UUID uuid = uuidFromNBT(containerTag);
 
                 Container container = new Container();
-                container.deserializeNBT(containerTag);
+                container.deserializeNBT(lookup, containerTag);
 
                 perPlayer.put(uuid, container);
             }
@@ -129,23 +131,23 @@ public class InventoryManager extends SavedData implements IInventoryManager
     }
 
     @Override
-    public CompoundTag save(CompoundTag compound)
+    public CompoundTag save(CompoundTag tag, HolderLookup.Provider lookup)
     {
-        CompoundTag temp = global.serializeNBT();
+        CompoundTag temp = global.serializeNBT(lookup);
 
-        compound.put("Inventories", temp.get("Inventories"));
+        tag.put("Inventories", temp.get("Inventories"));
 
         ListTag list = new ListTag();
         for (Map.Entry<UUID, Container> e : perPlayer.entrySet())
         {
-            CompoundTag tag = e.getValue().serializeNBT();
-            uuidToNBT(tag, e.getKey());
-            list.add(tag);
+            CompoundTag containerTag = e.getValue().serializeNBT(lookup);
+            uuidToNBT(containerTag, e.getKey());
+            list.add(containerTag);
         }
 
-        compound.put("Private", list);
+        tag.put("Private", list);
 
-        return compound;
+        return tag;
     }
 
     public static void uuidToNBT(CompoundTag tag, UUID uuid)
@@ -186,7 +188,7 @@ public class InventoryManager extends SavedData implements IInventoryManager
         }
 
         @Override
-        public CompoundTag serializeNBT()
+        public CompoundTag serializeNBT(HolderLookup.Provider lookup)
         {
             CompoundTag tag = new CompoundTag();
             ListTag inventories = new ListTag();
@@ -197,7 +199,7 @@ public class InventoryManager extends SavedData implements IInventoryManager
 
                 CompoundTag inventoryTag = new CompoundTag();
                 inventoryTag.putLong("Key", entry.getKey());
-                inventoryTag.put("Contents", inventory.serializeNBT());
+                inventoryTag.put("Contents", inventory.serializeNBT(lookup));
                 inventories.add(inventoryTag);
             }
 
@@ -206,7 +208,7 @@ public class InventoryManager extends SavedData implements IInventoryManager
         }
 
         @Override
-        public void deserializeNBT(CompoundTag nbt)
+        public void deserializeNBT(HolderLookup.Provider lookup, CompoundTag nbt)
         {
             ListTag nbtTagList = nbt.getList("Inventories", Tag.TAG_COMPOUND);
 
@@ -219,7 +221,7 @@ public class InventoryManager extends SavedData implements IInventoryManager
 
                 EnderInventory inventory = new EnderInventory(this);
 
-                inventory.deserializeNBT(inventoryTag.getCompound("Contents"));
+                inventory.deserializeNBT(lookup, inventoryTag.getCompound("Contents"));
 
                 inventories.put(j, inventory);
             }

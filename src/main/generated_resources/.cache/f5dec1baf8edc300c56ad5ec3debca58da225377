@@ -1,2 +1,4 @@
-// 1.20.4	2023-12-28T02:52:51.8457169	Tags for minecraft:item mod id enderthing
-e279b77b8a6ba36b87d7d35b87d78d2416d74bb7 data/forge/tags/items/chests/ender.json
+// 1.20.6	2024-05-23T18:34:30.4706488	Tags for minecraft:item mod id enderthing
+e279b77b8a6ba36b87d7d35b87d78d2416d74bb7 data/c/tags/items/chests/ender.json
+b506685e463ed3ba10a43ecfe7d3b34eab9ddeb0 data/enderthing/tags/items/can_make_bound.json
+6f5ba15105e7bf89c423d6d6fa1cb4a71acdf8a4 data/enderthing/tags/items/can_make_private.json

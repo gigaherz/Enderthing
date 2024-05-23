@@ -18,6 +18,7 @@
     "nnn"
   ],
   "result": {
-    "item": "enderthing:lock"
+    "count": 1,
+    "id": "enderthing:lock"
   }
 }

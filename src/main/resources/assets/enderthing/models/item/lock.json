@@ -9,14 +9,14 @@
   "overrides": [
     {
       "predicate": {
-        "private": 1
+        "enderthing:private": 1
       },
       "model": "enderthing:item/lock_private"
     },
     {
       "predicate": {
-        "private": 1,
-        "bound": 1
+        "enderthing:private": 1,
+        "enderthing:bound": 1
       },
       "model": "enderthing:item/lock_bound"
     }

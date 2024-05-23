@@ -2,6 +2,7 @@ package dev.gigaherz.enderthing.recipes;
 
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -33,12 +34,12 @@ public class MakePrivateRecipe extends CustomRecipe implements IShapedRecipe<Cra
                 && inv.getItem(6).getCount() == 0
                 && inv.getItem(7).getItem() == Items.GOLD_NUGGET
                 && inv.getItem(8).getCount() == 0
-                && centerSlot.getItem() instanceof KeyUtils.IKeyHolder
+                && centerSlot.is(KeyUtils.CAN_MAKE_PRIVATE)
                 && !KeyUtils.isPrivate(centerSlot);
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess)
+    public ItemStack assemble(CraftingContainer inv, HolderLookup.Provider lookup)
     {
         ItemStack output = inv.getItem(4).copy();
 
@@ -66,13 +67,13 @@ public class MakePrivateRecipe extends CustomRecipe implements IShapedRecipe<Cra
     }
 
     @Override
-    public int getRecipeWidth()
+    public int getWidth()
     {
         return 3;
     }
 
     @Override
-    public int getRecipeHeight()
+    public int getHeight()
     {
         return 3;
     }

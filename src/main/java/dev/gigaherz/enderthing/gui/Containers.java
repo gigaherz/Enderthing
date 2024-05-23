@@ -2,7 +2,9 @@ package dev.gigaherz.enderthing.gui;
 
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import dev.gigaherz.enderthing.util.ILongAccessor;
+import io.netty.buffer.ByteBufUtil;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.SimpleMenuProvider;
@@ -59,7 +61,7 @@ public class Containers
                 Component.translatable(CODE_TITLE)
         ), packet -> {
             packet.writeLong(code.get());
-            packet.writeItem(previewBase);
+            ItemStack.STREAM_CODEC.encode(packet, previewBase);
         });
     }
 }

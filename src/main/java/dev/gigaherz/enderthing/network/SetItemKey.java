@@ -1,46 +1,37 @@
 package dev.gigaherz.enderthing.network;
 
 import dev.gigaherz.enderthing.gui.PasscodeContainer;
-import net.minecraft.network.FriendlyByteBuf;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public class SetItemKey implements CustomPacketPayload
+public record SetItemKey(long key) implements CustomPacketPayload
 {
     public static final ResourceLocation ID = new ResourceLocation("enderthing","key_change");
+    public static final Type<SetItemKey> TYPE = new Type<>(ID);
 
-    public final long key;
-
-    public SetItemKey(long key)
-    {
-        this.key = key;
-    }
-
-    public SetItemKey(FriendlyByteBuf buffer)
-    {
-        this.key = buffer.readLong();
-    }
-
-    public void write(FriendlyByteBuf buffer)
-    {
-        buffer.writeLong(key);
-    }
+    public static final StreamCodec<ByteBuf, SetItemKey> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_LONG, SetItemKey::key,
+            SetItemKey::new
+    );
 
     @Override
-    public ResourceLocation id()
+    public Type<? extends CustomPacketPayload> type()
     {
-        return ID;
+        return TYPE;
     }
 
-    public void handle(PlayPayloadContext context)
+    public void handle(IPayloadContext context)
     {
         if (key >= 0)
         {
-            context.workHandler().execute(() -> {
-                Player sender = context.player().orElseThrow();
+            context.enqueueWork(() -> {
+                Player sender = context.player();
                 if (sender.containerMenu instanceof PasscodeContainer)
                 {
                     ((PasscodeContainer) sender.containerMenu).keyHolder.set(key);

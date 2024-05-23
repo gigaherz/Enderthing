@@ -15,6 +15,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -125,22 +126,22 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit)
+    protected InteractionResult useWithoutItem(BlockState state, Level pLevel, BlockPos pos, Player player, BlockHitResult pHitResult)
     {
-        if (!(worldIn.getBlockEntity(pos) instanceof EnderKeyChestBlockEntity chest))
+        if (!(pLevel.getBlockEntity(pos) instanceof EnderKeyChestBlockEntity chest))
             return InteractionResult.PASS;
 
-        if (worldIn.getBlockState(pos.above()).isRedstoneConductor(worldIn, pos))
+        if (pLevel.getBlockState(pos.above()).isRedstoneConductor(pLevel, pos))
             return InteractionResult.FAIL;
 
-        if (worldIn.isClientSide)
+        if (pLevel.isClientSide)
             return InteractionResult.SUCCESS;
 
         if (player.isShiftKeyDown())
         {
-            ItemStack stack = getItem(worldIn, pos, false);
+            ItemStack stack = getItem(pLevel, pos, false);
             ItemHandlerHelper.giveItemToPlayer(player, stack);
-            worldIn.setBlockAndUpdate(pos, Blocks.ENDER_CHEST.defaultBlockState()
+            pLevel.setBlockAndUpdate(pos, Blocks.ENDER_CHEST.defaultBlockState()
                     .setValue(EnderKeyChestBlock.WATERLOGGED, state.getValue(EnderChestBlock.WATERLOGGED))
                     .setValue(EnderKeyChestBlock.FACING, state.getValue(EnderChestBlock.FACING)));
             return InteractionResult.SUCCESS;
@@ -225,9 +226,8 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
         return super.updateShape(stateIn, facing, facingState, worldIn, currentPos, facingPos);
     }
 
-    @Deprecated
     @Override
-    public boolean isPathfindable(BlockState state, BlockGetter worldIn, BlockPos pos, PathComputationType type)
+    protected boolean isPathfindable(BlockState pState, PathComputationType pPathComputationType)
     {
         return false;
     }

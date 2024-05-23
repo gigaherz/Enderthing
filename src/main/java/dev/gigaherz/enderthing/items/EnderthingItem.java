@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class EnderthingItem extends Item implements KeyUtils.IKeyHolder
+public class EnderthingItem extends Item
 {
     public EnderthingItem(Properties properties)
     {
@@ -36,18 +36,6 @@ public class EnderthingItem extends Item implements KeyUtils.IKeyHolder
         output.accept(KeyUtils.setBound(KeyUtils.setPrivate(new ItemStack(this), true), Util.NIL_UUID), CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY);
     }
 
-    @Override
-    public Optional<CompoundTag> findHolderTag(ItemStack stack)
-    {
-        return Optional.ofNullable(stack.getTag());
-    }
-
-    @Override
-    public CompoundTag getOrCreateHolderTag(ItemStack stack)
-    {
-        return stack.getOrCreateTag();
-    }
-
     protected void openPasscodeScreen(Player playerIn, ItemStack stack)
     {
         Containers.openPasscodeScreen((ServerPlayer) playerIn, new ILongAccessor()
@@ -55,20 +43,20 @@ public class EnderthingItem extends Item implements KeyUtils.IKeyHolder
             @Override
             public long get()
             {
-                return getKey(stack);
+                return KeyUtils.getKey(stack);
             }
 
             @Override
             public void set(long value)
             {
-                setKey(stack, value);
+                KeyUtils.setKey(stack, value);
             }
         }, stack.copy());
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
     {
         Enderthing.Client.addStandardInformation(stack, tooltip);
     }

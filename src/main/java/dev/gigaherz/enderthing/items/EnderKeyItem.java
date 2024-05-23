@@ -33,13 +33,12 @@ public class EnderKeyItem extends EnderthingItem
         super(properties);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
     {
         tooltip.add(Component.translatable("tooltip.enderthing.ender_key.right_click").withStyle(ChatFormatting.ITALIC));
 
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, context, tooltip, flagIn);
     }
 
     @Override
@@ -88,9 +87,9 @@ public class EnderKeyItem extends EnderthingItem
         {
             BlockEntity te = world.getBlockEntity(pos);
             if (te instanceof EnderKeyChestBlockEntity)
-                Containers.openItemGui((ServerPlayer) player, isPrivate(stack), -1, id, null, (EnderKeyChestBlockEntity) te);
+                Containers.openItemGui((ServerPlayer) player, KeyUtils.isPrivate(stack), -1, id, null, (EnderKeyChestBlockEntity) te);
             else if (te instanceof EnderChestBlockEntity)
-                Containers.openItemGui((ServerPlayer) player, isPrivate(stack), -1, id, null, (EnderChestBlockEntity) te);
+                Containers.openItemGui((ServerPlayer) player, KeyUtils.isPrivate(stack), -1, id, null, (EnderChestBlockEntity) te);
         }
 
         return InteractionResult.SUCCESS;

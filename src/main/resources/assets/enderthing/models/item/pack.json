@@ -9,7 +9,7 @@
   "overrides": [
     {
       "predicate": {
-        "private": 1
+        "enderthing:private": 1
       },
       "model": "enderthing:item/pack_private"
     }

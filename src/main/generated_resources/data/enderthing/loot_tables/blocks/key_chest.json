@@ -18,14 +18,16 @@
                 {
                   "condition": "minecraft:match_tool",
                   "predicate": {
-                    "enchantments": [
-                      {
-                        "enchantment": "minecraft:silk_touch",
-                        "levels": {
-                          "min": 1
+                    "predicates": {
+                      "minecraft:enchantments": [
+                        {
+                          "enchantment": "minecraft:silk_touch",
+                          "levels": {
+                            "min": 1
+                          }
                         }
-                      }
-                    ]
+                      ]
+                    }
                   }
                 }
               ],
@@ -35,23 +37,11 @@
                   "source": "block_entity"
                 },
                 {
-                  "function": "minecraft:copy_nbt",
-                  "ops": [
-                    {
-                      "op": "replace",
-                      "source": "Key",
-                      "target": "BlockEntityTag.Key"
-                    },
-                    {
-                      "op": "replace",
-                      "source": "IsPrivate",
-                      "target": "BlockEntityTag.IsPrivate"
-                    },
-                    {
-                      "op": "replace",
-                      "source": "Bound",
-                      "target": "BlockEntityTag.Bound"
-                    }
+                  "function": "minecraft:copy_components",
+                  "include": [
+                    "enderthing:key",
+                    "enderthing:is_private",
+                    "enderthing:binding"
                   ],
                   "source": "block_entity"
                 }
@@ -62,23 +52,11 @@
               "type": "minecraft:item",
               "functions": [
                 {
-                  "function": "minecraft:copy_nbt",
-                  "ops": [
-                    {
-                      "op": "replace",
-                      "source": "Key",
-                      "target": "Key"
-                    },
-                    {
-                      "op": "replace",
-                      "source": "IsPrivate",
-                      "target": "IsPrivate"
-                    },
-                    {
-                      "op": "replace",
-                      "source": "Bound",
-                      "target": "Bound"
-                    }
+                  "function": "minecraft:copy_components",
+                  "include": [
+                    "enderthing:key",
+                    "enderthing:is_private",
+                    "enderthing:binding"
                   ],
                   "source": "block_entity"
                 }
@@ -101,14 +79,16 @@
               "term": {
                 "condition": "minecraft:match_tool",
                 "predicate": {
-                  "enchantments": [
-                    {
-                      "enchantment": "minecraft:silk_touch",
-                      "levels": {
-                        "min": 1
+                  "predicates": {
+                    "minecraft:enchantments": [
+                      {
+                        "enchantment": "minecraft:silk_touch",
+                        "levels": {
+                          "min": 1
+                        }
                       }
-                    }
-                  ]
+                    ]
+                  }
                 }
               }
             }

@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableKeyHolder
+public class EnderLockItem extends EnderthingItem
 {
     public EnderLockItem(Properties properties)
     {
@@ -37,14 +37,14 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
     {
         tooltip.add(Component.translatable("tooltip.enderthing.ender_lock.right_click").withStyle(ChatFormatting.ITALIC));
 
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, context, tooltip, flagIn);
 
-        if (isBound(stack))
-            tooltip.add(Component.translatable("tooltip.enderthing.ender_lock.bound", getBoundStr(stack)));
+        if (KeyUtils.isBound(stack))
+            tooltip.add(Component.translatable("tooltip.enderthing.ender_lock.bound", KeyUtils.getBoundStr(stack)));
 
     }
 
@@ -100,7 +100,7 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
                     Containers.dropItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
             }
 
-            boolean newPrivate = isPrivate(stack);
+            boolean newPrivate = KeyUtils.isPrivate(stack);
             return replaceWithKeyChest(worldIn, pos, stack, state, oldPrivate != newPrivate, player);
         }
 
@@ -113,10 +113,10 @@ public class EnderLockItem extends EnderthingItem implements KeyUtils.IBindableK
 
         if (worldIn.getBlockEntity(pos) instanceof EnderKeyChestBlockEntity chest)
         {
-            chest.setKey(getKey(stack));
-            chest.setPrivate(isPrivate(stack));
-            if (isPrivate(stack) && isBound(stack))
-                chest.bindToPlayer(getBound(stack));
+            chest.setKey(KeyUtils.getKey(stack));
+            chest.setPrivate(KeyUtils.isPrivate(stack));
+            if (KeyUtils.isPrivate(stack) && KeyUtils.isBound(stack))
+                chest.bindToPlayer(KeyUtils.getBound(stack));
 
             long id = chest.getKey();
             if (player != null && id < 0)

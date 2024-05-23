@@ -5,6 +5,7 @@ import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.util.ILongAccessor;
 import dev.gigaherz.enderthing.util.LongMutable;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -18,9 +19,11 @@ public class PasscodeContainer extends AbstractContainerMenu
     public final ILongAccessor keyHolder;
     public final ItemStack previewBase;
 
-    public PasscodeContainer(int windowId, Inventory playerInventory, FriendlyByteBuf packetData)
+    public PasscodeContainer(int windowId, Inventory playerInventory, RegistryFriendlyByteBuf packetData)
     {
-        this(windowId, playerInventory, new LongMutable(packetData.readLong()), packetData.readItem());
+        this(windowId, playerInventory,
+                new LongMutable(packetData.readLong()),
+                ItemStack.STREAM_CODEC.decode(packetData));
     }
 
     public PasscodeContainer(int windowId, Inventory playerInventory, ILongAccessor keyHolder, ItemStack previewBase)

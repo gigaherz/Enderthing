@@ -83,7 +83,7 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
     private void setButtonPressed(Button button)
     {
         if (currentCode >= 0)
-            PacketDistributor.SERVER.noArg().send(new SetItemKey(currentCode));
+            PacketDistributor.sendToServer(new SetItemKey(currentCode));
     }
 
     private boolean textPasscodeChanging(String text)
