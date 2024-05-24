@@ -1,12 +1,14 @@
 package dev.gigaherz.enderthing.blocks;
 
 import dev.gigaherz.enderthing.Enderthing;
+import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.gui.IContainerInteraction;
 import dev.gigaherz.enderthing.gui.KeyContainer;
 import dev.gigaherz.enderthing.storage.EnderInventory;
 import dev.gigaherz.enderthing.storage.InventoryManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
@@ -25,6 +27,7 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.UUID;
 
 @EventBusSubscriber(modid=Enderthing.MODID, bus= EventBusSubscriber.Bus.MOD)
@@ -223,6 +226,22 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
 
         BlockState state = level.getBlockState(worldPosition);
         level.sendBlockUpdated(worldPosition, state, state, 3);
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentInput pComponentInput)
+    {
+        key = Objects.requireNonNullElse(pComponentInput.get(KeyUtils.KEY), -1L);
+        boundToPlayer = pComponentInput.get(KeyUtils.BINDING);
+        priv = Objects.requireNonNullElse(pComponentInput.get(KeyUtils.IS_PRIVATE), false);
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder pComponents)
+    {
+        if(key >= 0) pComponents.set(KeyUtils.KEY, key);
+        if(priv) pComponents.set(KeyUtils.IS_PRIVATE, true);
+        if(boundToPlayer != null) pComponents.set(KeyUtils.BINDING, boundToPlayer);
     }
 
     public static void lidAnimationTick(Level level, BlockPos pos, BlockState state, EnderKeyChestBlockEntity be)

@@ -9,7 +9,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1+'
 }
 
-version = '1.5.0'
+version = '1.5.1'
 group = 'dev.gigaherz.enderthing'
 
 Provider<String> minecraftVersion(Transformer<String, String> mapper) {
