@@ -82,7 +82,7 @@ subsystems {
 }
 
 dependencies {
-    implementation 'net.neoforged:neoforge:20.6.75-beta'
+    implementation 'net.neoforged:neoforge:20.6.78-beta'
 
     /*compileOnly fg.deobf("mezz.jei:jei-1.19-common-api:11.0.0.206")
     runtimeOnly fg.deobf("mezz.jei:jei-1.19-common:11.0.0.206")
