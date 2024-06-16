@@ -8,14 +8,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CustomRecipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.crafting.IShapedRecipe;
 
-public class MakePrivateRecipe extends CustomRecipe implements IShapedRecipe<CraftingContainer>
+public class MakePrivateRecipe extends CustomRecipe implements IShapedRecipe<CraftingInput>
 {
     public MakePrivateRecipe(CraftingBookCategory cat)
     {
@@ -23,7 +20,7 @@ public class MakePrivateRecipe extends CustomRecipe implements IShapedRecipe<Cra
     }
 
     @Override
-    public boolean matches(CraftingContainer inv, Level worldIn)
+    public boolean matches(CraftingInput inv, Level worldIn)
     {
         ItemStack centerSlot = inv.getItem(4);
         return inv.getItem(0).getCount() == 0
@@ -39,7 +36,7 @@ public class MakePrivateRecipe extends CustomRecipe implements IShapedRecipe<Cra
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inv, HolderLookup.Provider lookup)
+    public ItemStack assemble(CraftingInput inv, HolderLookup.Provider lookup)
     {
         ItemStack output = inv.getItem(4).copy();
 

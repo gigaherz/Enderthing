@@ -9,10 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CustomRecipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 
 public class AddLockRecipe extends CustomRecipe
@@ -23,12 +20,12 @@ public class AddLockRecipe extends CustomRecipe
     }
 
     @Override
-    public boolean matches(CraftingContainer inv, Level worldIn)
+    public boolean matches(CraftingInput inv, Level worldIn)
     {
         boolean chestHasLock = false;
         int chest = -1;
         int lock = -1;
-        for (int i = 0; i < inv.getContainerSize(); i++)
+        for (int i = 0; i < inv.size(); i++)
         {
             ItemStack st = inv.getItem(i);
             if (st.getItem() == Items.ENDER_CHEST)
@@ -58,12 +55,12 @@ public class AddLockRecipe extends CustomRecipe
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inv, HolderLookup.Provider lookup)
+    public ItemStack assemble(CraftingInput inv, HolderLookup.Provider lookup)
     {
         ItemStack chest = ItemStack.EMPTY;
         ItemStack lock = ItemStack.EMPTY;
 
-        for (int i = 0; i < inv.getContainerSize(); i++)
+        for (int i = 0; i < inv.size(); i++)
         {
             ItemStack st = inv.getItem(i);
             if (st.getItem() == Items.ENDER_CHEST || st.getItem() == Enderthing.KEY_CHEST_ITEM.get())
@@ -95,9 +92,9 @@ public class AddLockRecipe extends CustomRecipe
     }
 
     @Override
-    public NonNullList<ItemStack> getRemainingItems(CraftingContainer inv)
+    public NonNullList<ItemStack> getRemainingItems(CraftingInput inv)
     {
-        NonNullList<ItemStack> remaining = NonNullList.withSize(inv.getContainerSize(), ItemStack.EMPTY);
+        NonNullList<ItemStack> remaining = NonNullList.withSize(inv.size(), ItemStack.EMPTY);
 
         for (int i = 0; i < remaining.size(); ++i)
         {

@@ -1,12 +1,12 @@
-// 1.20.6	2024-05-23T18:34:30.4726488	Recipes
-5cc19856af8f1358866bdd1d72ed6b2432747d82 data/enderthing/advancements/recipes/misc/card.json
-90bf2aaee575e86069783ef0db43253c879056fc data/enderthing/advancements/recipes/misc/key.json
-43d009bf6ef83b5b3fac4299c58d12946e568d20 data/enderthing/advancements/recipes/misc/lock.json
-5843aa54168a2ed08f6a7c7c9a406f565daea46f data/enderthing/advancements/recipes/misc/pack.json
-f4a97f95900aa50f4a5ec44ad70161198cdc314a data/enderthing/recipes/add_lock.json
-0a847c59b2de49caea3dc90655a855c275ac7557 data/enderthing/recipes/card.json
-646cfcdc010d52f64325a4e909a0eb54a7d44aef data/enderthing/recipes/key.json
-cd2f2e88bf9685f2fb4863e2f51cb2b1cd2c9cab data/enderthing/recipes/lock.json
-0f33981197b7819ea9235089f1e19481a94d6ce8 data/enderthing/recipes/make_bound.json
-bfd6be8233ca68fded68375ca80609e187276975 data/enderthing/recipes/make_private.json
-48eb813c3c93c8b9743fc39d03a379999a0188b3 data/enderthing/recipes/pack.json
+// 1.21	2024-06-16T20:38:20.2782371	Recipes
+5cc19856af8f1358866bdd1d72ed6b2432747d82 data/enderthing/advancement/recipes/misc/card.json
+90bf2aaee575e86069783ef0db43253c879056fc data/enderthing/advancement/recipes/misc/key.json
+43d009bf6ef83b5b3fac4299c58d12946e568d20 data/enderthing/advancement/recipes/misc/lock.json
+5843aa54168a2ed08f6a7c7c9a406f565daea46f data/enderthing/advancement/recipes/misc/pack.json
+f4a97f95900aa50f4a5ec44ad70161198cdc314a data/enderthing/recipe/add_lock.json
+0a847c59b2de49caea3dc90655a855c275ac7557 data/enderthing/recipe/card.json
+646cfcdc010d52f64325a4e909a0eb54a7d44aef data/enderthing/recipe/key.json
+cd2f2e88bf9685f2fb4863e2f51cb2b1cd2c9cab data/enderthing/recipe/lock.json
+0f33981197b7819ea9235089f1e19481a94d6ce8 data/enderthing/recipe/make_bound.json
+bfd6be8233ca68fded68375ca80609e187276975 data/enderthing/recipe/make_private.json
+48eb813c3c93c8b9743fc39d03a379999a0188b3 data/enderthing/recipe/pack.json

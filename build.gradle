@@ -5,11 +5,11 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.134'
+    id 'net.neoforged.gradle.userdev' version '7.0.142'
     id 'com.github.johnrengelman.shadow' version '8.1+'
 }
 
-version = '1.5.1'
+version = '1.5.2'
 group = 'dev.gigaherz.enderthing'
 
 Provider<String> minecraftVersion(Transformer<String, String> mapper) {
@@ -82,7 +82,7 @@ subsystems {
 }
 
 dependencies {
-    implementation 'net.neoforged:neoforge:20.6.78-beta'
+    implementation 'net.neoforged:neoforge:21.0.11-beta'
 
     /*compileOnly fg.deobf("mezz.jei:jei-1.19-common-api:11.0.0.206")
     runtimeOnly fg.deobf("mezz.jei:jei-1.19-common:11.0.0.206")

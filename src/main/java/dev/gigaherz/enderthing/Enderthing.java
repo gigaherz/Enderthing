@@ -62,6 +62,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.conditions.NotCondition;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
@@ -150,7 +151,7 @@ public class Enderthing
 
     public static ResourceLocation location(String path)
     {
-        return new ResourceLocation(MODID, path);
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 
     @EventBusSubscriber(value= Dist.CLIENT, modid= MODID, bus = EventBusSubscriber.Bus.MOD)
@@ -264,6 +265,11 @@ public class Enderthing
 
         public static class BlockTables extends VanillaBlockLoot
         {
+            public BlockTables(HolderLookup.Provider provider)
+            {
+                super(provider);
+            }
+
             @Override
             protected void generate()
             {
@@ -287,7 +293,7 @@ public class Enderthing
                                 LootPool.lootPool()
                                         .setRolls(ConstantValue.exactly(1))
                                         .add(LootItem.lootTableItem(block)
-                                                .when(HAS_SILK_TOUCH)
+                                                .when(hasSilkTouch())
                                                 .apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY))
                                                 .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
                                                                 .include(KeyUtils.KEY.get())
@@ -310,7 +316,7 @@ public class Enderthing
 
             protected LootPoolEntryContainer.Builder<?> withNoSilkTouchRandomly(Block block, ItemLike item, NumberProvider range)
             {
-                return applyExplosionDecay(block, LootItem.lootTableItem(item).apply(SetItemCountFunction.setCount(range))).when(HAS_NO_SILK_TOUCH);
+                return applyExplosionDecay(block, LootItem.lootTableItem(item).apply(SetItemCountFunction.setCount(range))).when(hasSilkTouch().invert());
             }
 
 

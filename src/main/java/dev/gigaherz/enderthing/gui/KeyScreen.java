@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class KeyScreen extends AbstractContainerScreen<KeyContainer>
 {
-    private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
+    private static final ResourceLocation CHEST_GUI_TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/container/generic_54.png");
 
     public KeyScreen(KeyContainer container, Inventory playerInventory, Component title)
     {

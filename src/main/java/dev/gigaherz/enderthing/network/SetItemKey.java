@@ -1,5 +1,6 @@
 package dev.gigaherz.enderthing.network;
 
+import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.gui.PasscodeContainer;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;
@@ -12,7 +13,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record SetItemKey(long key) implements CustomPacketPayload
 {
-    public static final ResourceLocation ID = new ResourceLocation("enderthing","key_change");
+    public static final ResourceLocation ID = Enderthing.location("key_change");
     public static final Type<SetItemKey> TYPE = new Type<>(ID);
 
     public static final StreamCodec<ByteBuf, SetItemKey> STREAM_CODEC = StreamCodec.composite(
