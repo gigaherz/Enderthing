@@ -21,16 +21,16 @@ import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 
-@EventBusSubscriber(modid=Enderthing.MODID, bus= EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Enderthing.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEntity, IContainerInteraction
 {
     @SubscribeEvent
@@ -54,22 +54,27 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
     }
 
     private final ChestLidController chestLidController = new ChestLidController();
-    private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
-        protected void onOpen(Level level, BlockPos pos, BlockState state) {
+    private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter()
+    {
+        protected void onOpen(Level level, BlockPos pos, BlockState state)
+        {
             level.playSound(null, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D,
                     SoundEvents.ENDER_CHEST_OPEN, SoundSource.BLOCKS, 0.5F, level.random.nextFloat() * 0.1F + 0.9F);
         }
 
-        protected void onClose(Level level, BlockPos pos, BlockState state) {
+        protected void onClose(Level level, BlockPos pos, BlockState state)
+        {
             level.playSound(null, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D,
                     SoundEvents.ENDER_CHEST_CLOSE, SoundSource.BLOCKS, 0.5F, level.random.nextFloat() * 0.1F + 0.9F);
         }
 
-        protected void openerCountChanged(Level level, BlockPos pos, BlockState state, int unknown1, int unknown2) {
+        protected void openerCountChanged(Level level, BlockPos pos, BlockState state, int unknown1, int unknown2)
+        {
             level.blockEvent(pos, state.getBlock(), 1, unknown2);
         }
 
-        protected boolean isOwnContainer(Player player) {
+        protected boolean isOwnContainer(Player player)
+        {
             return player.containerMenu instanceof KeyContainer m && m.interactionHandler == EnderKeyChestBlockEntity.this;
         }
     };
@@ -239,9 +244,9 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder pComponents)
     {
-        if(key >= 0) pComponents.set(KeyUtils.KEY, key);
-        if(priv) pComponents.set(KeyUtils.IS_PRIVATE, true);
-        if(boundToPlayer != null) pComponents.set(KeyUtils.BINDING, boundToPlayer);
+        if (key >= 0) pComponents.set(KeyUtils.KEY, key);
+        if (priv) pComponents.set(KeyUtils.IS_PRIVATE, true);
+        if (boundToPlayer != null) pComponents.set(KeyUtils.BINDING, boundToPlayer);
     }
 
     public static void lidAnimationTick(Level level, BlockPos pos, BlockState state, EnderKeyChestBlockEntity be)
@@ -268,18 +273,20 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
         }
     }
 
-    public void openChest(Player player) {
-        if (!this.remove && !player.isSpectator()) {
+    public void openChest(Player player)
+    {
+        if (!this.remove && !player.isSpectator())
+        {
             this.openersCounter.incrementOpeners(player, this.getLevel(), this.getBlockPos(), this.getBlockState());
         }
-
     }
 
-    public void closeChest(Player player) {
-        if (!this.remove && !player.isSpectator()) {
+    public void closeChest(Player player)
+    {
+        if (!this.remove && !player.isSpectator())
+        {
             this.openersCounter.decrementOpeners(player, this.getLevel(), this.getBlockPos(), this.getBlockState());
         }
-
     }
 
     public boolean canBeUsed(Player player)
@@ -296,7 +303,8 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
 
     public void recheckOpen()
     {
-        if (!this.remove) {
+        if (!this.remove)
+        {
             this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
         }
     }

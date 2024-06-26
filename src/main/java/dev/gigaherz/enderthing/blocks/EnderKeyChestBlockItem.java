@@ -49,7 +49,6 @@ public class EnderKeyChestBlockItem extends BlockItem
 
         if (KeyUtils.isBound(stack))
             tooltip.add(Component.translatable("tooltip.enderthing.ender_lock.bound", KeyUtils.getBoundStr(stack)));
-
     }
 
     private void openPasscodeScreen(Player playerIn, ItemStack stack)

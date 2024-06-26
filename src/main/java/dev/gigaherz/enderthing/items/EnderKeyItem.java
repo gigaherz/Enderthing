@@ -1,9 +1,9 @@
 package dev.gigaherz.enderthing.items;
 
-import dev.gigaherz.enderthing.gui.Containers;
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
+import dev.gigaherz.enderthing.gui.Containers;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -21,9 +21,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import javax.annotation.Nullable;
+
 import java.util.List;
 
 public class EnderKeyItem extends EnderthingItem

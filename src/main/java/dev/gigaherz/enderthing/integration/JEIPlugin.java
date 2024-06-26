@@ -1,5 +1,5 @@
 package dev.gigaherz.enderthing.integration;
-/*
+
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
 import mezz.jei.api.IModPlugin;
@@ -14,12 +14,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.minecraft.world.item.crafting.ShapelessRecipe;
+import net.minecraft.world.item.crafting.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @JeiPlugin
 public class JEIPlugin implements IModPlugin
@@ -47,82 +45,74 @@ public class JEIPlugin implements IModPlugin
                 dummyAddLockRecipe(false, Enderthing.location("dummy_addlock")),
                 dummyAddLockRecipe(true, Enderthing.location("dummy_addlock_private")),
                 dummySwapLockRecipe(Ingredient.of(
-                        Enderthing.KEY_CHEST_ITEM.get().makeStack(false),
-                        Enderthing.KEY_CHEST_ITEM.get().makeStack(true)
+                        KeyUtils.setPrivate(new ItemStack(Enderthing.KEY_CHEST_ITEM.get()), false),
+                        KeyUtils.setPrivate(new ItemStack(Enderthing.KEY_CHEST_ITEM.get()), true)
                 ), false, Enderthing.location("dummy_swaplock")),
                 dummySwapLockRecipe(Ingredient.of(
-                        Enderthing.KEY_CHEST_ITEM.get().makeStack(false),
-                        Enderthing.KEY_CHEST_ITEM.get().makeStack(true)
+                        KeyUtils.setPrivate(new ItemStack(Enderthing.KEY_CHEST_ITEM.get()), false),
+                        KeyUtils.setPrivate(new ItemStack(Enderthing.KEY_CHEST_ITEM.get()), true)
                 ), true, Enderthing.location("dummy_swaplock_private")),
                 dummyRemoveLockRecipe(Enderthing.location("dummy_removelock"))
         ));
     }
 
-    private <T extends Item> CraftingRecipe dummyRemoveLockRecipe(ResourceLocation id)
+    private <T extends Item> RecipeHolder<CraftingRecipe> dummyRemoveLockRecipe(ResourceLocation id)
     {
         NonNullList<Ingredient> inputs = NonNullList.of(Ingredient.EMPTY, Ingredient.of(
-                Enderthing.KEY_CHEST_ITEM.get().makeStack(false),
-                Enderthing.KEY_CHEST_ITEM.get().makeStack(true)
+                KeyUtils.setPrivate(new ItemStack(Enderthing.KEY_CHEST_ITEM.get()), false),
+                KeyUtils.setPrivate(new ItemStack(Enderthing.KEY_CHEST_ITEM.get()), true)
         ));
 
         ItemStack result = new ItemStack(Items.ENDER_CHEST);
 
-        return new ShapelessRecipe(id, id.getNamespace() + "." + id.getPath().replace("/", "."), result, inputs);
+        return new RecipeHolder<>(id, new ShapelessRecipe(id.getNamespace() + "." + id.getPath().replace("/", "."), CraftingBookCategory.MISC, result, inputs));
     }
 
-    private <T extends Item> CraftingRecipe dummyAddLockRecipe(boolean isPrivate, ResourceLocation id)
+    private <T extends Item> RecipeHolder<CraftingRecipe> dummyAddLockRecipe(boolean isPrivate, ResourceLocation id)
     {
         return dummySwapLockRecipe(Ingredient.of(Items.ENDER_CHEST), isPrivate, id);
     }
 
-    private <T extends Item> CraftingRecipe dummySwapLockRecipe(Ingredient inputIngredient, boolean isPrivate, ResourceLocation id)
+    private <T extends Item> RecipeHolder<CraftingRecipe> dummySwapLockRecipe(Ingredient inputIngredient, boolean isPrivate, ResourceLocation id)
     {
-        Ingredient lock = Ingredient.of(Enderthing.LOCK.get().makeStack(isPrivate));
+        Ingredient lock = Ingredient.of(KeyUtils.setPrivate(new ItemStack(Enderthing.LOCK.get()), isPrivate));
 
         NonNullList<Ingredient> inputs = NonNullList.of(Ingredient.EMPTY, inputIngredient, lock);
 
-        ItemStack result = Util.make(new ItemStack(Enderthing.KEY_CHEST_ITEM.get()), r -> {
-            if (r.getItem() instanceof KeyUtils.IKeyHolder holder)
-                holder.setPrivate(r, isPrivate);
-        });
+        ItemStack result = KeyUtils.setPrivate(new ItemStack(Enderthing.KEY_CHEST_ITEM.get()), isPrivate);
 
-        return new ShapelessRecipe(id, id.getNamespace() + "." + id.getPath().replace("/", "."), result, inputs);
+        return new RecipeHolder<>(id, new ShapelessRecipe(id.getNamespace() + "." + id.getPath().replace("/", "."), CraftingBookCategory.MISC, result, inputs));
     }
 
-    private <T extends Item & KeyUtils.IBindableKeyHolder> CraftingRecipe dummyBoundRecipe(T item, ResourceLocation id)
+    private <T extends Item> RecipeHolder<CraftingRecipe> dummyBoundRecipe(T item, ResourceLocation id)
     {
-        Ingredient card = Ingredient.of(Enderthing.CARD.get());
+        Ingredient card = Ingredient.of(KeyUtils.setBound(new ItemStack(Enderthing.CARD.get()), Util.NIL_UUID));
 
-        ItemStack result = Util.make(new ItemStack(item), r -> {
-            if (r.getItem() instanceof KeyUtils.IKeyHolder holder)
-                holder.setPrivate(r, true);
-        });
+        ItemStack result = KeyUtils.setPrivate(new ItemStack(item), true);
 
         Ingredient inputIngredient = Ingredient.of(result.copy());
 
         NonNullList<Ingredient> inputs = NonNullList.of(Ingredient.EMPTY, inputIngredient, card);
 
-        item.setBound(result, Util.NIL_UUID);
+        KeyUtils.setBound(result, Util.NIL_UUID);
 
-        return new ShapelessRecipe(id, id.getNamespace() + "." + id.getPath().replace("/", "."), result, inputs);
+        return new RecipeHolder<>(id, new ShapelessRecipe(id.getNamespace() + "." + id.getPath().replace("/", "."), CraftingBookCategory.MISC, result, inputs));
     }
 
-    private <T extends Item & KeyUtils.IKeyHolder> CraftingRecipe dummyPrivateRecipe(T item, ResourceLocation id)
+    private <T extends Item> RecipeHolder<CraftingRecipe> dummyPrivateRecipe(T item, ResourceLocation id)
     {
         Ingredient goldNugget = Ingredient.of(Items.GOLD_NUGGET);
         Ingredient inputIngredient = Ingredient.of(item);
 
         NonNullList<Ingredient> inputs = NonNullList.of(Ingredient.EMPTY,
                 Ingredient.EMPTY, goldNugget, Ingredient.EMPTY,
-                goldNugget,    inputIngredient, goldNugget,
+                goldNugget, inputIngredient, goldNugget,
                 Ingredient.EMPTY, goldNugget, Ingredient.EMPTY);
 
-        ItemStack result = Util.make(new ItemStack(item), r -> {
-            if (r.getItem() instanceof KeyUtils.IKeyHolder holder)
-                holder.setPrivate(r, true);
-        });
+        ItemStack result = KeyUtils.setPrivate(new ItemStack(item), true);
 
-        return new ShapedRecipe(id, id.getNamespace() + "." + id.getPath().replace("/", "."), 3, 3, inputs, result);
+        return new RecipeHolder<>(id, new ShapedRecipe(id.getNamespace() + "." + id.getPath().replace("/", "."), CraftingBookCategory.MISC,
+                new ShapedRecipePattern(3, 3, inputs, Optional.empty()), result));
     }
 
     @Override
@@ -135,21 +125,20 @@ public class JEIPlugin implements IModPlugin
         registerKeySubtypes(Enderthing.PACK.get(), registration);
     }
 
-    private <T extends Item & KeyUtils.IKeyHolder> void registerKeySubtypes(T item, ISubtypeRegistration registration)
+    private <T extends Item> void registerKeySubtypes(T item, ISubtypeRegistration registration)
     {
         registration.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, item, (ingredient, context) -> {
-            ItemStack stack = new ItemStack(ingredient.getItem());
-            stack.setTag(ingredient.getTag());
-            boolean isPrivate = item.isPrivate(stack);
-            var key = "key_" + (isPrivate?"private_":"public");
 
-            if(isPrivate && ingredient.getItem() instanceof KeyUtils.IBindable bindable)
+            boolean isPrivate = KeyUtils.isPrivate(ingredient);
+            var key = "key_" + (isPrivate ? "private" : "public");
+
+            if (isPrivate)
             {
-                if (bindable.isBound(stack))
-                    key = key + "_bound";
+                if (KeyUtils.isBound(ingredient))
+                    key += "_bound";
             }
 
             return key;
         });
     }
-}*/
+}

@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.ItemStackHandler;
+
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
@@ -98,15 +99,15 @@ public class EnderInventory extends ItemStackHandler
     public void deserializeNBT(HolderLookup.Provider lookup, CompoundTag nbt)
     {
         super.deserializeNBT(lookup, nbt);
-        if(nbt.contains("created", Tag.TAG_ANY_NUMERIC))
+        if (nbt.contains("created", Tag.TAG_ANY_NUMERIC))
             created = nbt.getLong("created");
         else
             created = getTimestamp();
-        if(nbt.contains("lastLoaded", Tag.TAG_ANY_NUMERIC))
+        if (nbt.contains("lastLoaded", Tag.TAG_ANY_NUMERIC))
             lastLoaded = nbt.getLong("lastLoaded");
         else
             lastLoaded = getTimestamp();
-        if(nbt.contains("lastModified", Tag.TAG_ANY_NUMERIC))
+        if (nbt.contains("lastModified", Tag.TAG_ANY_NUMERIC))
             lastModified = nbt.getLong("lastModified");
         else
             lastModified = lastLoaded;

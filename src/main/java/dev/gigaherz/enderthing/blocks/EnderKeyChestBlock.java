@@ -13,9 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -25,7 +23,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -43,6 +44,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.NotNull;
+
 import javax.annotation.Nullable;
 
 public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEntity> implements SimpleWaterloggedBlock
@@ -157,7 +159,6 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
             }
 
             Containers.openBlockGui((ServerPlayer) player, chest);
-
         }
 
         return InteractionResult.SUCCESS;
@@ -234,7 +235,8 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
 
     @Deprecated
     @Override
-    public void tick(BlockState p_153203_, ServerLevel p_153204_, BlockPos p_153205_, RandomSource p_153206_) {
+    public void tick(BlockState p_153203_, ServerLevel p_153204_, BlockPos p_153205_, RandomSource p_153206_)
+    {
         BlockEntity blockentity = p_153204_.getBlockEntity(p_153205_);
         if (blockentity instanceof EnderKeyChestBlockEntity chestBE)
         {
@@ -258,36 +260,41 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
         return 0;
     }
 
-    public static int getRedstoneSignalFromContainer(@Nullable IItemHandler handler) {
-        if (handler == null) {
+    public static int getRedstoneSignalFromContainer(@Nullable IItemHandler handler)
+    {
+        if (handler == null)
+        {
             return 0;
         }
 
         int nonEmptyStacks = 0;
         float fullness = 0.0F;
 
-        for(int j = 0; j < handler.getSlots(); ++j) {
+        for (int j = 0; j < handler.getSlots(); ++j)
+        {
             ItemStack itemstack = handler.getStackInSlot(j);
             if (!itemstack.isEmpty())
             {
-                fullness += (float)itemstack.getCount() / (float)Math.min(handler.getSlotLimit(j), itemstack.getMaxStackSize());
+                fullness += (float) itemstack.getCount() / (float) Math.min(handler.getSlotLimit(j), itemstack.getMaxStackSize());
                 ++nonEmptyStacks;
             }
         }
 
-        fullness /= (float)handler.getSlots();
+        fullness /= (float) handler.getSlots();
         return Mth.floor(fullness * 14.0F) + (nonEmptyStacks > 0 ? 1 : 0);
     }
 
     @Deprecated
     @Override
-    public BlockState rotate(BlockState state, Rotation rotation) {
+    public BlockState rotate(BlockState state, Rotation rotation)
+    {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Deprecated
     @Override
-    public BlockState mirror(BlockState state, Mirror mirror) {
+    public BlockState mirror(BlockState state, Mirror mirror)
+    {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 

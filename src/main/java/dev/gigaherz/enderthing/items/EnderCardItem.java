@@ -20,18 +20,15 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
 public class EnderCardItem extends Item
 {
     private static final Logger LOGGER = LogUtils.getLogger();
-    
+
     public EnderCardItem(Properties properties)
     {
         super(properties);

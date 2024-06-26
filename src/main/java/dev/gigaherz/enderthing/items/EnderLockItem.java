@@ -19,11 +19,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EnderChestBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
+
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
@@ -45,7 +45,6 @@ public class EnderLockItem extends EnderthingItem
 
         if (KeyUtils.isBound(stack))
             tooltip.add(Component.translatable("tooltip.enderthing.ender_lock.bound", KeyUtils.getBoundStr(stack)));
-
     }
 
     @Override

@@ -2,15 +2,14 @@ package dev.gigaherz.enderthing.gui;
 
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import dev.gigaherz.enderthing.util.ILongAccessor;
-import io.netty.buffer.ByteBufUtil;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
+
 import javax.annotation.Nullable;
 import java.util.UUID;
 

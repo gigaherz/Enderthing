@@ -62,7 +62,6 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.common.conditions.NotCondition;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
@@ -109,15 +108,15 @@ public class Enderthing
             PASSCODE_CONTAINER = MENU_TYPES.register("passcode", () -> IMenuTypeExtension.create(PasscodeContainer::new));
 
     public static final DeferredHolder<RecipeSerializer<?>, SimpleCraftingRecipeSerializer<?>>
-            MAKE_PRIVATE = RECIPE_SERIALIZERS.register("make_private", () ->   new SimpleCraftingRecipeSerializer<>(MakePrivateRecipe::new));
+            MAKE_PRIVATE = RECIPE_SERIALIZERS.register("make_private", () -> new SimpleCraftingRecipeSerializer<>(MakePrivateRecipe::new));
     public static final DeferredHolder<RecipeSerializer<?>, SimpleCraftingRecipeSerializer<?>>
-            ADD_LOCK = RECIPE_SERIALIZERS.register("add_lock", () ->   new SimpleCraftingRecipeSerializer<>(AddLockRecipe::new));
+            ADD_LOCK = RECIPE_SERIALIZERS.register("add_lock", () -> new SimpleCraftingRecipeSerializer<>(AddLockRecipe::new));
     public static final DeferredHolder<RecipeSerializer<?>, SimpleCraftingRecipeSerializer<?>>
-            MAKE_BOUND = RECIPE_SERIALIZERS.register("make_bound", () ->  new SimpleCraftingRecipeSerializer<>(MakeBoundRecipe::new));
+            MAKE_BOUND = RECIPE_SERIALIZERS.register("make_bound", () -> new SimpleCraftingRecipeSerializer<>(MakeBoundRecipe::new));
 
 
     public static DeferredHolder<CreativeModeTab, CreativeModeTab> ENDERTHING_GROUP =
-            CREATIVE_TABS.register("enderthing_things", () -> new CreativeModeTab.Builder(CreativeModeTab.Row.TOP,0)
+            CREATIVE_TABS.register("enderthing_things", () -> new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 0)
                     .icon(() -> new ItemStack(KEY.get()))
                     .title(Component.translatable("tab.enderthing.things"))
                     .displayItems((featureFlags, output) -> {
@@ -154,7 +153,7 @@ public class Enderthing
         return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 
-    @EventBusSubscriber(value= Dist.CLIENT, modid= MODID, bus = EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber(value = Dist.CLIENT, modid = MODID, bus = EventBusSubscriber.Bus.MOD)
     public static class Client
     {
         @SubscribeEvent
@@ -209,7 +208,6 @@ public class Enderthing
         var itemTags = new ItemTagGens(gen, blockTags.contentsGetter(), existingFileHelper);
         gen.addProvider(event.includeServer(), blockTags);
         gen.addProvider(event.includeServer(), itemTags);
-
     }
 
     private static class ItemTagGens extends ItemTagsProvider implements DataProvider
@@ -290,24 +288,24 @@ public class Enderthing
             {
                 return LootTable.lootTable()
                         .withPool(applyExplosionCondition(block,
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1))
-                                        .add(LootItem.lootTableItem(block)
-                                                .when(hasSilkTouch())
-                                                .apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY))
-                                                .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
-                                                                .include(KeyUtils.KEY.get())
-                                                                .include(KeyUtils.IS_PRIVATE.get())
-                                                                .include(KeyUtils.BINDING.get())
-                                                )
-                                                .otherwise(LootItem.lootTableItem(LOCK.get())
+                                        LootPool.lootPool()
+                                                .setRolls(ConstantValue.exactly(1))
+                                                .add(LootItem.lootTableItem(block)
+                                                        .when(hasSilkTouch())
+                                                        .apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY))
                                                         .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
                                                                 .include(KeyUtils.KEY.get())
                                                                 .include(KeyUtils.IS_PRIVATE.get())
                                                                 .include(KeyUtils.BINDING.get())
                                                         )
+                                                        .otherwise(LootItem.lootTableItem(LOCK.get())
+                                                                .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                                                                        .include(KeyUtils.KEY.get())
+                                                                        .include(KeyUtils.IS_PRIVATE.get())
+                                                                        .include(KeyUtils.BINDING.get())
+                                                                )
+                                                        )
                                                 )
-                                        )
                                 )
                         ).withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1))
                                 .add(withNoSilkTouchRandomly(block, Items.OBSIDIAN, ConstantValue.exactly(8)))

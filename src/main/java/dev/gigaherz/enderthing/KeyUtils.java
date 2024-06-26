@@ -1,7 +1,6 @@
 package dev.gigaherz.enderthing;
 
 import com.google.common.primitives.Longs;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import joptsimple.internal.Strings;
@@ -22,7 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
-import org.slf4j.Logger;
+
 import javax.annotation.Nullable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

@@ -7,10 +7,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(targets="net.minecraft.world.level.block.entity.EnderChestBlockEntity$1")
+@Mixin(targets = "net.minecraft.world.level.block.entity.EnderChestBlockEntity$1")
 public class EnderChestOpenersCounterMixin
 {
-    @Inject(method = "isOwnContainer(Lnet/minecraft/world/entity/player/Player;)Z", at=@At("HEAD"), cancellable = true)
+    @Inject(method = "isOwnContainer(Lnet/minecraft/world/entity/player/Player;)Z", at = @At("HEAD"), cancellable = true)
     private void inject_isOwnContainer_allowEnderKeyMenu(Player player, CallbackInfoReturnable<Boolean> ret)
     {
         if (player.containerMenu instanceof KeyContainer kc)

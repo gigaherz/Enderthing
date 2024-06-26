@@ -1,17 +1,15 @@
 package dev.gigaherz.enderthing.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import dev.gigaherz.enderthing.network.SetItemKey;
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
+import dev.gigaherz.enderthing.network.SetItemKey;
 import joptsimple.internal.Strings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -49,7 +47,7 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
         super.init();
         long cc = menu.keyHolder.get();
         String startKey = cc >= 0 ? String.format("%d", cc) : "";
-        addRenderableWidget(setButton = Button.builder(Component.literal("Set"), this::setButtonPressed).pos(leftPos + (imageWidth - 30 - 10), topPos + 95).size( 30, 20).build());
+        addRenderableWidget(setButton = Button.builder(Component.literal("Set"), this::setButtonPressed).pos(leftPos + (imageWidth - 30 - 10), topPos + 95).size(30, 20).build());
         addRenderableWidget(textPasscode = new EditBox(font, leftPos + 12, topPos + 78, imageWidth - 24, 12, Component.literal(startKey))
         {
             @Override
