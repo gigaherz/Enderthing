@@ -20,7 +20,7 @@ config="enderthing.mixins.json"
 [[dependencies.enderthing]]
     modId="neoforge"
     type="required"
-    versionRange="[21.0.10-beta,)"
+    versionRange="[21.0.67-beta,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.enderthing]]
