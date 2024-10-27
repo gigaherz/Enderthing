@@ -76,20 +76,8 @@ public class MakeBoundRecipe extends CustomRecipe
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height)
-    {
-        return width * height >= 2;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer()
+    public RecipeSerializer<MakeBoundRecipe> getSerializer()
     {
         return Enderthing.MAKE_BOUND.get();
-    }
-
-    @Override
-    public RecipeType<?> getType()
-    {
-        return RecipeType.CRAFTING;
     }
 }

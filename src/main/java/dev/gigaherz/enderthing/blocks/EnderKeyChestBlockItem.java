@@ -14,7 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
@@ -45,7 +45,7 @@ public class EnderKeyChestBlockItem extends BlockItem
     {
         tooltip.add(Component.translatable("tooltip.enderthing.ender_key_chest.right_click").withStyle(ChatFormatting.ITALIC));
 
-        Enderthing.Client.addStandardInformation(stack, tooltip);
+        KeyUtils.addStandardInformation(stack, tooltip);
 
         if (KeyUtils.isBound(stack))
             tooltip.add(Component.translatable("tooltip.enderthing.ender_lock.bound", KeyUtils.getBoundStr(stack)));
@@ -70,7 +70,7 @@ public class EnderKeyChestBlockItem extends BlockItem
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand hand)
+    public InteractionResult use(Level worldIn, Player playerIn, InteractionHand hand)
     {
         ItemStack stack = playerIn.getItemInHand(hand);
 
@@ -80,7 +80,7 @@ public class EnderKeyChestBlockItem extends BlockItem
         {
             if (!worldIn.isClientSide)
                 openPasscodeScreen(playerIn, stack);
-            return InteractionResultHolder.success(stack);
+            return InteractionResult.SUCCESS;
         }
 
         if (playerIn.isShiftKeyDown())
@@ -101,37 +101,12 @@ public class EnderKeyChestBlockItem extends BlockItem
                 }
 
                 stack.grow(-1);
-                return InteractionResultHolder.success(stack);
+                return InteractionResult.SUCCESS;
             }
 
-            return InteractionResultHolder.success(new ItemStack(Blocks.ENDER_CHEST));
+            return InteractionResult.SUCCESS.heldItemTransformedTo(new ItemStack(Blocks.ENDER_CHEST));
         }
 
         return super.use(worldIn, playerIn, hand);
-    }
-
-    @Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer)
-    {
-        consumer.accept(new IClientItemExtensions()
-        {
-            static final Lazy<BlockEntityWithoutLevelRenderer> renderer = Lazy.of(() -> new BlockEntityWithoutLevelRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels())
-            {
-                final EnderKeyChestBlockEntity defaultChest = new EnderKeyChestBlockEntity(BlockPos.ZERO, Enderthing.KEY_CHEST.get().defaultBlockState());
-
-                @Override
-                public void renderByItem(ItemStack itemStackIn, ItemDisplayContext transformType, PoseStack matrixStackIn,
-                                         MultiBufferSource bufferIn, int combinedLightIn, int combinedOverlayIn)
-                {
-                    EnderKeyChestRenderer.INSTANCE.renderFromItem(itemStackIn, defaultChest, transformType, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn);
-                }
-            });
-
-            @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer()
-            {
-                return renderer.get();
-            }
-        });
     }
 }

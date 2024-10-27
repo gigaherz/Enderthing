@@ -10,7 +10,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -47,34 +46,28 @@ public class EnderCardItem extends Item
     }
 
     @Override
-    public boolean hasCraftingRemainingItem(ItemStack stack)
-    {
-        return true;
-    }
-
-    @Override
-    public ItemStack getCraftingRemainingItem(ItemStack itemStack)
+    public ItemStack getCraftingRemainder(ItemStack itemStack)
     {
         return itemStack.copy();
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand hand)
+    public InteractionResult use(Level level, Player player, InteractionHand hand)
     {
-        ItemStack stack = playerIn.getItemInHand(hand);
-        if (worldIn.isClientSide)
-            return InteractionResultHolder.success(stack);
+        ItemStack stack = player.getItemInHand(hand);
+        if (level.isClientSide)
+            return InteractionResult.SUCCESS;
 
-        if (playerIn.isShiftKeyDown())
+        if (player.isShiftKeyDown())
         {
-            bindToPlayer(stack, playerIn);
+            bindToPlayer(stack, player);
 
-            playerIn.sendSystemMessage(Component.translatable("text.enderthing.ender_card.bound"));
+            player.displayClientMessage(Component.translatable("text.enderthing.ender_card.bound"), true);
 
-            return InteractionResultHolder.success(stack);
+            return InteractionResult.SUCCESS;
         }
 
-        return InteractionResultHolder.pass(stack);
+        return InteractionResult.PASS;
     }
 
     @Override
@@ -113,12 +106,12 @@ public class EnderCardItem extends Item
             if (player != null && uuid != null)
             {
                 if (name == null || name.length() == 0)
-                    player.sendSystemMessage(Component.translatable("text.enderthing.ender_chest.bound1",
-                            Component.literal(uuid.toString())));
+                    player.displayClientMessage(Component.translatable("text.enderthing.ender_chest.bound1",
+                            Component.literal(uuid.toString())), true);
                 else
-                    player.sendSystemMessage(Component.translatable("text.enderthing.ender_chest.bound2",
+                    player.displayClientMessage(Component.translatable("text.enderthing.ender_chest.bound2",
                             Component.literal(uuid.toString()),
-                            Component.literal(name)));
+                            Component.literal(name)), true);
             }
 
             return InteractionResult.SUCCESS;

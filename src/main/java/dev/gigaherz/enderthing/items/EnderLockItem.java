@@ -10,7 +10,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -48,7 +47,7 @@ public class EnderLockItem extends EnderthingItem
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn)
+    public InteractionResult use(Level worldIn, Player playerIn, InteractionHand handIn)
     {
         ItemStack stack = playerIn.getItemInHand(handIn);
 
@@ -58,10 +57,10 @@ public class EnderLockItem extends EnderthingItem
         {
             if (!worldIn.isClientSide)
                 openPasscodeScreen(playerIn, stack);
-            return InteractionResultHolder.success(stack);
+            return InteractionResult.SUCCESS;
         }
 
-        return InteractionResultHolder.pass(stack);
+        return InteractionResult.PASS;
     }
 
     @Override

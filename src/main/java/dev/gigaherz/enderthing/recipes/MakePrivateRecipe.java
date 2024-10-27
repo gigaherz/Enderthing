@@ -16,12 +16,6 @@ public class MakePrivateRecipe extends CustomRecipe
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height)
-    {
-        return width >= 3 && height >= 3;
-    }
-
-    @Override
     public boolean matches(CraftingInput inv, Level worldIn)
     {
         if (inv.width() != 3 || inv.height() != 3)
@@ -50,7 +44,7 @@ public class MakePrivateRecipe extends CustomRecipe
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer()
+    public RecipeSerializer<? extends CustomRecipe> getSerializer()
     {
         return Enderthing.MAKE_PRIVATE.get();
     }

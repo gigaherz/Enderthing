@@ -7,7 +7,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -58,27 +57,27 @@ public class EnderPackItem extends EnderthingItem
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand hand)
+    public InteractionResult use(Level worldIn, Player playerIn, InteractionHand hand)
     {
         ItemStack stack = playerIn.getItemInHand(hand);
 
         if (hand != InteractionHand.MAIN_HAND)
-            return InteractionResultHolder.pass(stack);
+            return InteractionResult.PASS;
 
         if (worldIn.isClientSide)
-            return InteractionResultHolder.success(stack);
+            return InteractionResult.SUCCESS;
 
         long id = KeyUtils.getKey(stack);
 
         if (id < 0 || playerIn.isShiftKeyDown())
         {
             openPasscodeScreen(playerIn, stack);
-            return InteractionResultHolder.success(stack);
+            return InteractionResult.SUCCESS;
         }
 
         openPackGui(playerIn, id, KeyUtils.isPrivate(stack));
 
-        return InteractionResultHolder.success(stack);
+        return InteractionResult.SUCCESS;
     }
 
     public void openPackGui(Player playerIn, long id, boolean priv)

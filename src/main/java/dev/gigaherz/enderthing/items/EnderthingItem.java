@@ -53,6 +53,6 @@ public class EnderthingItem extends Item
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
     {
-        Enderthing.Client.addStandardInformation(stack, tooltip);
+        KeyUtils.addStandardInformation(stack, tooltip);
     }
 }

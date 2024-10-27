@@ -110,20 +110,8 @@ public class AddLockRecipe extends CustomRecipe
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height)
-    {
-        return width * height >= 2;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer()
+    public RecipeSerializer<AddLockRecipe> getSerializer()
     {
         return Enderthing.ADD_LOCK.get();
-    }
-
-    @Override
-    public RecipeType<?> getType()
-    {
-        return RecipeType.CRAFTING;
     }
 }

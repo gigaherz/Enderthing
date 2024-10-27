@@ -1,8 +1,10 @@
 package dev.gigaherz.enderthing;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlock;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockItem;
+import dev.gigaherz.enderthing.blocks.EnderKeyChestRenderer;
 import dev.gigaherz.enderthing.gui.KeyContainer;
 import dev.gigaherz.enderthing.gui.KeyScreen;
 import dev.gigaherz.enderthing.gui.PasscodeContainer;
@@ -17,7 +19,11 @@ import dev.gigaherz.enderthing.recipes.MakeBoundRecipe;
 import dev.gigaherz.enderthing.recipes.MakePrivateRecipe;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -27,18 +33,17 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.data.loot.packs.VanillaBlockLoot;
 import net.minecraft.data.recipes.*;
+import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -61,10 +66,13 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -91,29 +99,34 @@ public class Enderthing
     private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(BuiltInRegistries.MENU, MODID);
     private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    public static final DeferredBlock<EnderKeyChestBlock> KEY_CHEST = BLOCKS.register("key_chest", () -> new EnderKeyChestBlock(Block.Properties.ofFullCopy(Blocks.ENDER_CHEST)));
+    public static final DeferredBlock<EnderKeyChestBlock>
+            KEY_CHEST = BLOCKS.registerBlock("key_chest", EnderKeyChestBlock::new, Block.Properties.ofFullCopy(Blocks.ENDER_CHEST));
 
-    public static final DeferredItem<EnderKeyChestBlockItem> KEY_CHEST_ITEM = ITEMS.register("key_chest", () -> new EnderKeyChestBlockItem(KEY_CHEST.get(), new Item.Properties()));
-    public static final DeferredItem<EnderKeyItem> KEY = ITEMS.register("key", () -> new EnderKeyItem(new Item.Properties()));
-    public static final DeferredItem<EnderLockItem> LOCK = ITEMS.register("lock", () -> new EnderLockItem(new Item.Properties()));
-    public static final DeferredItem<EnderPackItem> PACK = ITEMS.register("pack", () -> new EnderPackItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<EnderCardItem> CARD = ITEMS.register("card", () -> new EnderCardItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<EnderKeyChestBlockItem>
+            KEY_CHEST_ITEM = ITEMS.registerItem("key_chest", props -> new EnderKeyChestBlockItem(KEY_CHEST.get(), props));
+    public static final DeferredItem<EnderKeyItem>
+            KEY   = ITEMS.registerItem("key", EnderKeyItem::new);
+    public static final DeferredItem<EnderLockItem>
+            LOCK = ITEMS.registerItem("lock", EnderLockItem::new);
+    public static final DeferredItem<EnderPackItem>
+            PACK = ITEMS.registerItem("pack", props -> new EnderPackItem(props.stacksTo(1)));
+    public static final DeferredItem<EnderCardItem>
+            CARD = ITEMS.registerItem("card", props -> new EnderCardItem(props.stacksTo(1)));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EnderKeyChestBlockEntity>>
-            KEY_CHEST_BLOCK_ENTITY = BLOCK_ENTITIES.register("key_chest", () -> BlockEntityType.Builder.of(EnderKeyChestBlockEntity::new, KEY_CHEST.get()).build(null));
+            KEY_CHEST_BLOCK_ENTITY = BLOCK_ENTITIES.register("key_chest", () -> new BlockEntityType<>(EnderKeyChestBlockEntity::new, KEY_CHEST.get()));
 
     public static final DeferredHolder<MenuType<?>, MenuType<KeyContainer>>
             KEY_CONTAINER = MENU_TYPES.register("key", () -> IMenuTypeExtension.create(KeyContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<PasscodeContainer>>
             PASSCODE_CONTAINER = MENU_TYPES.register("passcode", () -> IMenuTypeExtension.create(PasscodeContainer::new));
 
-    public static final DeferredHolder<RecipeSerializer<?>, SimpleCraftingRecipeSerializer<?>>
-            MAKE_PRIVATE = RECIPE_SERIALIZERS.register("make_private", () -> new SimpleCraftingRecipeSerializer<>(MakePrivateRecipe::new));
-    public static final DeferredHolder<RecipeSerializer<?>, SimpleCraftingRecipeSerializer<?>>
-            ADD_LOCK = RECIPE_SERIALIZERS.register("add_lock", () -> new SimpleCraftingRecipeSerializer<>(AddLockRecipe::new));
-    public static final DeferredHolder<RecipeSerializer<?>, SimpleCraftingRecipeSerializer<?>>
-            MAKE_BOUND = RECIPE_SERIALIZERS.register("make_bound", () -> new SimpleCraftingRecipeSerializer<>(MakeBoundRecipe::new));
-
+    public static final DeferredHolder<RecipeSerializer<?>, CustomRecipe.Serializer<MakePrivateRecipe>>
+            MAKE_PRIVATE = RECIPE_SERIALIZERS.register("make_private", () -> new CustomRecipe.Serializer<>(MakePrivateRecipe::new));
+    public static final DeferredHolder<RecipeSerializer<?>, CustomRecipe.Serializer<AddLockRecipe>>
+            ADD_LOCK = RECIPE_SERIALIZERS.register("add_lock", () -> new CustomRecipe.Serializer<>(AddLockRecipe::new));
+    public static final DeferredHolder<RecipeSerializer<?>, CustomRecipe.Serializer<MakeBoundRecipe>>
+            MAKE_BOUND = RECIPE_SERIALIZERS.register("make_bound", () -> new CustomRecipe.Serializer<>(MakeBoundRecipe::new));
 
     public static DeferredHolder<CreativeModeTab, CreativeModeTab> ENDERTHING_GROUP =
             CREATIVE_TABS.register("enderthing_things", () -> new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 0)
@@ -151,49 +164,6 @@ public class Enderthing
     public static ResourceLocation location(String path)
     {
         return ResourceLocation.fromNamespaceAndPath(MODID, path);
-    }
-
-    @EventBusSubscriber(value = Dist.CLIENT, modid = MODID, bus = EventBusSubscriber.Bus.MOD)
-    public static class Client
-    {
-        @SubscribeEvent
-        public static void clientSetup(FMLClientSetupEvent event)
-        {
-            event.enqueueWork(() -> {
-
-                ItemProperties.register(KEY.get(), location("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-                ItemProperties.register(LOCK.get(), location("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-                ItemProperties.register(PACK.get(), location("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-                ItemProperties.register(KEY_CHEST_ITEM.get(), location("private"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) ? 1.0f : 0.0f);
-
-                ItemProperties.register(LOCK.get(), location("bound"), (stack, world, entity, i) -> KeyUtils.isPrivate(stack) && KeyUtils.isBound(stack) ? 1.0f : 0.0f);
-            });
-        }
-
-        @SubscribeEvent
-        public static void clientSetup(RegisterMenuScreensEvent event)
-        {
-            event.register(Enderthing.KEY_CONTAINER.get(), KeyScreen::new);
-            event.register(Enderthing.PASSCODE_CONTAINER.get(), PasscodeScreen::new);
-        }
-
-        public static void addStandardInformation(ItemStack stack, List<Component> tooltip)
-        {
-            if (KeyUtils.isPrivate(stack))
-            {
-                tooltip.add(Component.translatable("tooltip.enderthing.private").withStyle(ChatFormatting.ITALIC, ChatFormatting.BOLD));
-            }
-
-            long key = KeyUtils.getKey(stack);
-            if (key >= 0)
-            {
-                tooltip.add(Component.translatable("tooltip.enderthing.key", key).withStyle(ChatFormatting.ITALIC));
-            }
-            else
-            {
-                tooltip.add(Component.translatable("tooltip.enderthing.key_missing").withStyle(ChatFormatting.ITALIC));
-            }
-        }
     }
 
     public void gatherData(GatherDataEvent event)
@@ -329,7 +299,7 @@ public class Enderthing
         }
     }
 
-    private static class Recipes extends RecipeProvider
+    private static class Recipes extends RecipeProvider.Runner
     {
         public Recipes(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider)
         {
@@ -337,52 +307,65 @@ public class Enderthing
         }
 
         @Override
-        protected void buildRecipes(RecipeOutput consumer)
+        protected RecipeProvider createRecipeProvider(HolderLookup.Provider lookup, RecipeOutput output)
         {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Enderthing.KEY.get())
-                    .pattern("o  ")
-                    .pattern("eog")
-                    .pattern("nnn")
-                    .define('o', Blocks.OBSIDIAN)
-                    .define('g', Items.GOLD_INGOT)
-                    .define('e', Items.ENDER_EYE)
-                    .define('n', Items.IRON_NUGGET)
-                    .unlockedBy("has_gold", has(Items.ENDER_EYE))
-                    .save(consumer);
+            return new VanillaRecipeProvider(lookup, output)
+            {
+                @Override
+                protected void buildRecipes()
+                {
+                    shaped(RecipeCategory.MISC, Enderthing.KEY.get())
+                            .pattern("o  ")
+                            .pattern("eog")
+                            .pattern("nnn")
+                            .define('o', Tags.Items.OBSIDIANS_NORMAL)
+                            .define('g', Tags.Items.INGOTS_GOLD)
+                            .define('e', Items.ENDER_EYE)
+                            .define('n', Tags.Items.NUGGETS_IRON)
+                            .unlockedBy("has_gold", has(Items.ENDER_EYE))
+                            .save(output);
 
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Enderthing.LOCK.get())
-                    .pattern(" g ")
-                    .pattern("geg")
-                    .pattern("nnn")
-                    .define('g', Items.GOLD_INGOT)
-                    .define('e', Items.ENDER_EYE)
-                    .define('n', Items.IRON_NUGGET)
-                    .unlockedBy("has_gold", has(Items.ENDER_EYE))
-                    .save(consumer);
+                    shaped(RecipeCategory.MISC, Enderthing.LOCK.get())
+                            .pattern(" g ")
+                            .pattern("geg")
+                            .pattern("nnn")
+                            .define('g', Tags.Items.INGOTS_GOLD)
+                            .define('e', Items.ENDER_EYE)
+                            .define('n', Tags.Items.NUGGETS_IRON)
+                            .unlockedBy("has_gold", has(Items.ENDER_EYE))
+                            .save(output);
 
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Enderthing.PACK.get())
-                    .pattern("lel")
-                    .pattern("nnn")
-                    .pattern("lcl")
-                    .define('l', Items.LEATHER)
-                    .define('c', Blocks.ENDER_CHEST)
-                    .define('e', Items.ENDER_EYE)
-                    .define('n', Items.IRON_NUGGET)
-                    .unlockedBy("has_gold", has(Items.ENDER_EYE))
-                    .save(consumer);
+                    shaped(RecipeCategory.MISC, Enderthing.PACK.get())
+                            .pattern("lel")
+                            .pattern("nnn")
+                            .pattern("lcl")
+                            .define('l', Tags.Items.LEATHERS)
+                            .define('c', Blocks.ENDER_CHEST)
+                            .define('e', Items.ENDER_EYE)
+                            .define('n', Tags.Items.NUGGETS_IRON)
+                            .unlockedBy("has_gold", has(Items.ENDER_EYE))
+                            .save(output);
 
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Enderthing.CARD.get())
-                    .pattern("nnn")
-                    .pattern("ppp")
-                    .pattern("nnn")
-                    .define('n', Items.GOLD_NUGGET)
-                    .define('p', Items.PAPER)
-                    .unlockedBy("has_gold", has(Items.ENDER_EYE))
-                    .save(consumer);
+                    shaped(RecipeCategory.MISC, Enderthing.CARD.get())
+                            .pattern("nnn")
+                            .pattern("ppp")
+                            .pattern("nnn")
+                            .define('n', Tags.Items.NUGGETS_GOLD)
+                            .define('p', Items.PAPER)
+                            .unlockedBy("has_gold", has(Items.ENDER_EYE))
+                            .save(output);
 
-            SpecialRecipeBuilder.special(MakePrivateRecipe::new).save(consumer, "enderthing:make_private");
-            SpecialRecipeBuilder.special(AddLockRecipe::new).save(consumer, "enderthing:add_lock");
-            SpecialRecipeBuilder.special(MakeBoundRecipe::new).save(consumer, "enderthing:make_bound");
+                    SpecialRecipeBuilder.special(MakePrivateRecipe::new).save(output, "enderthing:make_private");
+                    SpecialRecipeBuilder.special(AddLockRecipe::new).save(output, "enderthing:add_lock");
+                    SpecialRecipeBuilder.special(MakeBoundRecipe::new).save(output, "enderthing:make_bound");
+                }
+            };
+        }
+
+        @Override
+        public String getName()
+        {
+            return "Enderthing Recipes";
         }
     }
 }

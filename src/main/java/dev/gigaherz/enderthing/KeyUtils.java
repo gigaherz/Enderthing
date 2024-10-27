@@ -4,11 +4,13 @@ import com.google.common.primitives.Longs;
 import com.mojang.serialization.Codec;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import joptsimple.internal.Strings;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.PlayerList;
@@ -215,5 +217,23 @@ public class KeyUtils
     public static String getCachedPlayerName(ItemStack stack)
     {
         return stack.get(CACHED_PLAYER_NAME);
+    }
+
+    public static void addStandardInformation(ItemStack stack, List<Component> tooltip)
+    {
+        if (KeyUtils.isPrivate(stack))
+        {
+            tooltip.add(Component.translatable("tooltip.enderthing.private").withStyle(ChatFormatting.ITALIC, ChatFormatting.BOLD));
+        }
+
+        long key = KeyUtils.getKey(stack);
+        if (key >= 0)
+        {
+            tooltip.add(Component.translatable("tooltip.enderthing.key", key).withStyle(ChatFormatting.ITALIC));
+        }
+        else
+        {
+            tooltip.add(Component.translatable("tooltip.enderthing.key_missing").withStyle(ChatFormatting.ITALIC));
+        }
     }
 }

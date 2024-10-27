@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "e": {
-      "item": "minecraft:ender_eye"
-    },
-    "g": {
-      "item": "minecraft:gold_ingot"
-    },
-    "n": {
-      "item": "minecraft:iron_nugget"
-    }
+    "e": "minecraft:ender_eye",
+    "g": "#c:ingots/gold",
+    "n": "#c:nuggets/iron"
   },
   "pattern": [
     " g ",
