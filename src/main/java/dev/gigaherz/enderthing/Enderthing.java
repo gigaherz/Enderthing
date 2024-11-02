@@ -44,6 +44,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SmithingRecipe;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -103,7 +104,7 @@ public class Enderthing
             KEY_CHEST = BLOCKS.registerBlock("key_chest", EnderKeyChestBlock::new, Block.Properties.ofFullCopy(Blocks.ENDER_CHEST));
 
     public static final DeferredItem<EnderKeyChestBlockItem>
-            KEY_CHEST_ITEM = ITEMS.registerItem("key_chest", props -> new EnderKeyChestBlockItem(KEY_CHEST.get(), props));
+            KEY_CHEST_ITEM = ITEMS.registerItem("key_chest", props -> new EnderKeyChestBlockItem(KEY_CHEST.get(), props.useBlockDescriptionPrefix()));
     public static final DeferredItem<EnderKeyItem>
             KEY   = ITEMS.registerItem("key", EnderKeyItem::new);
     public static final DeferredItem<EnderLockItem>
