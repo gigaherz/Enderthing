@@ -2,26 +2,41 @@ package dev.gigaherz.enderthing.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.MapCodec;
-import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
-import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
-import dev.gigaherz.enderthing.blocks.EnderKeyChestRenderer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.ChestModel;
 import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
-import net.minecraft.core.BlockPos;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public class KeyChestSpecialRenderer implements SpecialModelRenderer<ItemStack>
+public class EnderKeyChestSpecialRenderer implements SpecialModelRenderer<ItemStack>
 {
-    private final EnderKeyChestBlockEntity defaultChest = new EnderKeyChestBlockEntity(BlockPos.ZERO, Enderthing.KEY_CHEST.get().defaultBlockState());
+    private final ChestModel model;
+    private final Material material;
+
+    public EnderKeyChestSpecialRenderer(ChestModel model, Material material)
+    {
+        this.model = model;
+        this.material = material;
+    }
 
     @Override
     public void render(@Nullable ItemStack lock, ItemDisplayContext displayContext, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, boolean hasFoilType)
     {
-        EnderKeyChestRenderer.INSTANCE.renderFromItem(lock, defaultChest, poseStack, bufferSource, packedLight, packedOverlay);
+        var buffer = this.material.buffer(bufferSource, RenderType::entitySolid);
+        this.model.setupAnim(0);
+        this.model.renderToBuffer(poseStack, buffer, packedLight, packedOverlay);
+        if (lock != null)
+        {
+            EnderKeyChestRenderer.renderLockOnChest(lock, Minecraft.getInstance().level, poseStack, bufferSource, packedLight, packedOverlay, 0);
+        }
     }
 
     @Nullable
@@ -49,7 +64,9 @@ public class KeyChestSpecialRenderer implements SpecialModelRenderer<ItemStack>
         @Override
         public SpecialModelRenderer<?> bake(EntityModelSet modelSet)
         {
-            return new KeyChestSpecialRenderer();
+            ChestModel model = new ChestModel(modelSet.bakeLayer(ModelLayers.CHEST));
+            Material material = Sheets.ENDER_CHEST_LOCATION;
+            return new EnderKeyChestSpecialRenderer(model, material);
         }
     }
 }

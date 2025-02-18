@@ -1,7 +1,6 @@
 package dev.gigaherz.enderthing.client;
 
 import dev.gigaherz.enderthing.Enderthing;
-import dev.gigaherz.enderthing.blocks.EnderKeyChestRenderer;
 import dev.gigaherz.enderthing.gui.KeyScreen;
 import dev.gigaherz.enderthing.gui.PasscodeScreen;
 import net.neoforged.api.distmarker.Dist;
@@ -37,6 +36,6 @@ public class ClientEvents
     @SubscribeEvent
     public static void specialModels(RegisterSpecialModelRendererEvent event)
     {
-        event.register(Enderthing.location("key_chest"), KeyChestSpecialRenderer.Unbaked.CODEC);
+        event.register(Enderthing.location("key_chest"), EnderKeyChestSpecialRenderer.Unbaked.CODEC);
     }
 }

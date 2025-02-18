@@ -3,7 +3,7 @@ package dev.gigaherz.enderthing;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlock;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockItem;
-import dev.gigaherz.enderthing.client.KeyChestSpecialRenderer;
+import dev.gigaherz.enderthing.client.EnderKeyChestSpecialRenderer;
 import dev.gigaherz.enderthing.client.KeyColor;
 import dev.gigaherz.enderthing.gui.KeyContainer;
 import dev.gigaherz.enderthing.gui.PasscodeContainer;
@@ -226,7 +226,7 @@ public class Enderthing
                     )
                     .build()
                     .create(item, TextureMapping.particle(Blocks.OBSIDIAN), blockModels.modelOutput);
-            ItemModel.Unbaked chestModel = ItemModelUtils.specialModel(modelName, new KeyChestSpecialRenderer.Unbaked());
+            ItemModel.Unbaked chestModel = ItemModelUtils.specialModel(modelName, new EnderKeyChestSpecialRenderer.Unbaked());
             blockModels.itemModelOutput.accept(item, chestModel);
         }
 
