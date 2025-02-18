@@ -30,7 +30,10 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.data.loot.packs.VanillaBlockLoot;
-import net.minecraft.data.recipes.*;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.data.tags.ItemTagsProvider;
@@ -93,7 +96,7 @@ public class Enderthing
     public static final DeferredItem<EnderKeyChestBlockItem>
             KEY_CHEST_ITEM = ITEMS.registerItem("key_chest", props -> new EnderKeyChestBlockItem(KEY_CHEST.get(), props.useBlockDescriptionPrefix()));
     public static final DeferredItem<EnderKeyItem>
-            KEY   = ITEMS.registerItem("key", EnderKeyItem::new);
+            KEY = ITEMS.registerItem("key", EnderKeyItem::new);
     public static final DeferredItem<EnderLockItem>
             LOCK = ITEMS.registerItem("lock", EnderLockItem::new);
     public static final DeferredItem<EnderPackItem>
@@ -161,7 +164,7 @@ public class Enderthing
         gen.addProvider(true, new Recipes(gen.getPackOutput(), event.getLookupProvider()));
         gen.addProvider(true, Loot.create(gen.getPackOutput(), event.getLookupProvider()));
 
-        var blockTags =  gen.addProvider(true, new BlockTagGens(gen));
+        var blockTags = gen.addProvider(true, new BlockTagGens(gen));
         gen.addProvider(true, new ItemTagGens(gen, blockTags.contentsGetter()));
 
 
@@ -190,12 +193,13 @@ public class Enderthing
             itemModels.generateFlatItem(CARD.get(), ModelTemplates.FLAT_ITEM);
         }
 
-        public void createKeyChest(BlockModelGenerators blockModels, Block chestBlock) {
+        public void createKeyChest(BlockModelGenerators blockModels, Block chestBlock)
+        {
             blockModels.createParticleOnlyBlock(chestBlock, Blocks.OBSIDIAN);
             Item item = chestBlock.asItem();
             ResourceLocation modelName = ModelTemplates.CHEST_INVENTORY.extend()
                     .transform(ItemDisplayContext.GUI, b -> b
-                            .rotation(30, 45, 0 )
+                            .rotation(30, 45, 0)
                             .translation(0, 0, 0)
                             .scale(0.625f, 0.625f, 0.625f)
                     )
@@ -241,37 +245,37 @@ public class Enderthing
             ResourceLocation privateModelName = ModelLocationUtils.getModelLocation(item, "_private");
             ModelTemplates.createItem("generated", TextureSlot.LAYER0, TextureSlot.LAYER1, TextureSlot.LAYER2, LAYER3).extend()
                     .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, b -> b
-                            .rotation( 90, 90, 0 )
-                            .translation( 0, 3, 1 )
+                            .rotation(90, 90, 0)
+                            .translation(0, 3, 1)
                             .scale(0.55f)
                     )
                     .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, b -> b
-                            .rotation( 0, 90, 25 )
-                            .translation( 1.13f, 3.2f, 1.13f)
+                            .rotation(0, 90, 25)
+                            .translation(1.13f, 3.2f, 1.13f)
                             .scale(0.68f)
                     )
                     .build().create(publicModelName, new TextureMapping()
-                    .put(TextureSlot.LAYER0, baseTexture)
-                    .put(TextureSlot.LAYER1, layerTexture1)
-                    .put(TextureSlot.LAYER2, layerTexture2)
-                    .put(LAYER3, layerTexture3), itemModels.modelOutput);
+                            .put(TextureSlot.LAYER0, baseTexture)
+                            .put(TextureSlot.LAYER1, layerTexture1)
+                            .put(TextureSlot.LAYER2, layerTexture2)
+                            .put(LAYER3, layerTexture3), itemModels.modelOutput);
             ModelTemplates.createItem("generated", TextureSlot.LAYER0, TextureSlot.LAYER1, TextureSlot.LAYER2, LAYER3, LAYER4).extend()
                     .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, b -> b
-                            .rotation( 90, 90, 0 )
-                            .translation( 0, 3, 1 )
+                            .rotation(90, 90, 0)
+                            .translation(0, 3, 1)
                             .scale(0.55f)
                     )
                     .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, b -> b
-                            .rotation( 0, 90, 25 )
-                            .translation( 1.13f, 3.2f, 1.13f)
+                            .rotation(0, 90, 25)
+                            .translation(1.13f, 3.2f, 1.13f)
                             .scale(0.68f)
                     )
                     .build().create(privateModelName, new TextureMapping()
-                    .put(TextureSlot.LAYER0, baseTexture)
-                    .put(TextureSlot.LAYER1, layerTexture1)
-                    .put(TextureSlot.LAYER2, layerTexture2)
-                    .put(LAYER3, layerTexture3)
-                    .put(LAYER4, privateTexture), itemModels.modelOutput);
+                            .put(TextureSlot.LAYER0, baseTexture)
+                            .put(TextureSlot.LAYER1, layerTexture1)
+                            .put(TextureSlot.LAYER2, layerTexture2)
+                            .put(LAYER3, layerTexture3)
+                            .put(LAYER4, privateTexture), itemModels.modelOutput);
 
             var publicModel = ItemModelUtils.tintedModel(publicModelName, new Constant(-1), new KeyColor(1), new KeyColor(2), new KeyColor(3));
             var privateModel = ItemModelUtils.tintedModel(privateModelName, new Constant(-1), new KeyColor(1), new KeyColor(2), new KeyColor(3), new Constant(-1));
@@ -283,13 +287,13 @@ public class Enderthing
 
                 ModelTemplates.createItem("generated", TextureSlot.LAYER0, TextureSlot.LAYER1, TextureSlot.LAYER2, LAYER3, LAYER4).extend()
                         .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, b -> b
-                                .rotation( 90, 90, 0 )
-                                .translation( 0, 3, 1 )
+                                .rotation(90, 90, 0)
+                                .translation(0, 3, 1)
                                 .scale(0.55f)
                         )
                         .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, b -> b
-                                .rotation( 0, 90, 25 )
-                                .translation( 1.13f, 3.2f, 1.13f)
+                                .rotation(0, 90, 25)
+                                .translation(1.13f, 3.2f, 1.13f)
                                 .scale(0.68f)
                         )
                         .build().create(boundModelName, new TextureMapping()

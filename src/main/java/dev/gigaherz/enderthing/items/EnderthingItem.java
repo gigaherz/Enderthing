@@ -1,6 +1,5 @@
 package dev.gigaherz.enderthing.items;
 
-import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.gui.Containers;
 import dev.gigaherz.enderthing.util.ILongAccessor;

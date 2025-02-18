@@ -7,7 +7,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1+'
 }
 
-version = '1.5.5'
+version = '1.6.0'
 group = 'dev.gigaherz.enderthing'
 
 var minecraftVersionResolver = project.neoForge.version.map { "1." + (it =~ /^(\d+(?:\.[1-9]\d*|))\./)[0][1] }
