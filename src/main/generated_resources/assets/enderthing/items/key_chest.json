@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "enderthing:item/key_chest",
+    "model": {
+      "type": "enderthing:key_chest"
+    }
+  }
+}

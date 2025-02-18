@@ -1,0 +1,46 @@
+{
+  "parent": "minecraft:item/generated",
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        25
+      ],
+      "scale": [
+        0.68,
+        0.68,
+        0.68
+      ],
+      "translation": [
+        1.13,
+        3.2,
+        1.13
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        90,
+        90,
+        0
+      ],
+      "scale": [
+        0.55,
+        0.55,
+        0.55
+      ],
+      "translation": [
+        0,
+        3,
+        1
+      ]
+    }
+  },
+  "textures": {
+    "layer0": "enderthing:item/lock_base",
+    "layer1": "enderthing:item/lock_layer1",
+    "layer2": "enderthing:item/lock_layer2",
+    "layer3": "enderthing:item/lock_layer3",
+    "layer4": "enderthing:item/lock_bound"
+  }
+}

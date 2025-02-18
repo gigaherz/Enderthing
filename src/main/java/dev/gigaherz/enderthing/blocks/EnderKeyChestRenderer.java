@@ -12,6 +12,7 @@ import net.minecraft.client.resources.model.Material;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.ChestType;
+import org.jetbrains.annotations.Nullable;
 
 public class EnderKeyChestRenderer extends ChestRenderer<EnderKeyChestBlockEntity>
 {
@@ -23,19 +24,17 @@ public class EnderKeyChestRenderer extends ChestRenderer<EnderKeyChestBlockEntit
         INSTANCE = this;
     }
 
-    public void renderFromItem(ItemStack stack, EnderKeyChestBlockEntity te, ItemDisplayContext transformType, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightIn, int combinedOverlayIn)
+    public void renderFromItem(@Nullable ItemStack lock, EnderKeyChestBlockEntity chest, PoseStack poseStack, MultiBufferSource buffers, int packedLight, int packedOverlay)
     {
-        // TODO: transformType?
-        ItemStack lock = KeyUtils.getLock(KeyUtils.getKey(stack), KeyUtils.isPrivate(stack), KeyUtils.getBound(stack));
-        renderInternal(te, 0, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, 0, lock);
+        renderInternal(chest, 0, poseStack, buffers, packedLight, packedOverlay, 0, lock);
     }
 
     @Override
-    public void render(EnderKeyChestBlockEntity te, float partialTicks,
-                       PoseStack matrixStackIn, MultiBufferSource bufferIn,
-                       int combinedLightIn, int combinedOverlayIn)
+    public void render(EnderKeyChestBlockEntity chest, float partialTicks,
+                       PoseStack poseStack, MultiBufferSource buffers,
+                       int packedLight, int packedOverlay)
     {
-        int rotation = te.hasLevel() ? switch (te.getBlockState().getValue(EnderKeyChestBlock.FACING))
+        int rotation = chest.hasLevel() ? switch (chest.getBlockState().getValue(EnderKeyChestBlock.FACING))
         {
             case NORTH -> 180;
             case WEST -> 90;
@@ -43,31 +42,35 @@ public class EnderKeyChestRenderer extends ChestRenderer<EnderKeyChestBlockEntit
             default -> 0;
         } : 0;
 
-        ItemStack lock = KeyUtils.getLock(te.getKey(), te.isPrivate(), te.getPlayerBound());
-        renderInternal(te, partialTicks, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, rotation, lock);
+        ItemStack lock = KeyUtils.getLock(chest.getKey(), chest.isPrivate(), chest.getPlayerBound());
+        renderInternal(chest, partialTicks, poseStack, buffers, packedLight, packedOverlay, rotation, lock);
     }
 
-    public void renderInternal(EnderKeyChestBlockEntity te, float partialTicks,
-                               PoseStack matrixStackIn, MultiBufferSource bufferIn,
-                               int combinedLightIn, int combinedOverlayIn,
-                               int rotation, ItemStack lock)
+    public static void renderInternal(EnderKeyChestBlockEntity chest, float partialTicks,
+                               PoseStack poseStack, MultiBufferSource buffers,
+                               int packedLight, int packedOverlay,
+                               int rotation, @Nullable ItemStack lock)
     {
-        matrixStackIn.pushPose();
-        super.render(te, partialTicks, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn);
-        matrixStackIn.popPose();
+        poseStack.pushPose();
+        super.render(chest, partialTicks, poseStack, buffers, packedLight, packedOverlay);
+        poseStack.popPose();
 
-        matrixStackIn.pushPose();
+        if (lock != null)
         {
-            matrixStackIn.translate(0.5, 0.5, 0.5);
-            matrixStackIn.mulPose(Axis.YP.rotationDegrees(180 - rotation));
-            matrixStackIn.translate(-0.5, -0.5, -0.5);
+            poseStack.pushPose();
+            {
+                poseStack.translate(0.5, 0.5, 0.5);
+                poseStack.mulPose(Axis.YP.rotationDegrees(180 - rotation));
+                poseStack.translate(-0.5, -0.5, -0.5);
 
-            matrixStackIn.translate(0.5, 0.35, 0.6 / 16.0);
-            float scale = 6 / 8.0f;
-            matrixStackIn.scale(scale, scale, scale);
-            Minecraft.getInstance().getItemRenderer().renderStatic(lock, ItemDisplayContext.FIXED, combinedLightIn, combinedOverlayIn, matrixStackIn, bufferIn, te.getLevel(), 0);
+                poseStack.translate(0.5, 0.35, 0.6 / 16.0);
+                float scale = 6 / 8.0f;
+                poseStack.scale(scale, scale, scale);
+
+                Minecraft.getInstance().getItemRenderer().renderStatic(lock, ItemDisplayContext.FIXED, packedLight, packedOverlay, poseStack, buffers, chest.getLevel(), 0);
+            }
+            poseStack.popPose();
         }
-        matrixStackIn.popPose();
     }
 
     @Override

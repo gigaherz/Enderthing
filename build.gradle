@@ -3,7 +3,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.42-beta'
+    id 'net.neoforged.moddev' version '2.0.63-beta'
     id 'com.github.johnrengelman.shadow' version '8.1+'
 }
 
@@ -49,7 +49,7 @@ repositories {
 }
 
 neoForge {
-    version = "21.3.0-beta"
+    version = "21.4.92-beta"
 
     runs {
         // applies to all the run configs below
@@ -68,8 +68,8 @@ neoForge {
             server()
         }
 
-        data {
-            data()
+        clientData {
+            clientData()
             programArguments.addAll '--mod', 'enderthing', '--all', '--output', file('src/main/generated_resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
         }
     }
@@ -81,8 +81,8 @@ neoForge {
     }
 
     parchment {
-        minecraftVersion = "1.21"
-        mappingsVersion = "2024.07.07"
+        minecraftVersion = "1.21.4"
+        mappingsVersion = "2025.02.16"
     }
 }
 
@@ -94,9 +94,7 @@ dependencies {
 }
 
 jar {
-    from('/') {
-        include 'LICENSE.txt'
-    }
+    from(files('LICENSE.txt'))
 
     manifest {
         attributes([

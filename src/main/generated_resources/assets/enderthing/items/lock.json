@@ -1,0 +1,86 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "component": "enderthing:is_private",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "enderthing:item/lock",
+      "tints": [
+        {
+          "type": "minecraft:constant",
+          "value": -1
+        },
+        {
+          "type": "enderthing:key_color",
+          "layer": 1
+        },
+        {
+          "type": "enderthing:key_color",
+          "layer": 2
+        },
+        {
+          "type": "enderthing:key_color",
+          "layer": 3
+        }
+      ]
+    },
+    "on_true": {
+      "type": "minecraft:condition",
+      "component": "enderthing:binding",
+      "on_false": {
+        "type": "minecraft:model",
+        "model": "enderthing:item/lock_private",
+        "tints": [
+          {
+            "type": "minecraft:constant",
+            "value": -1
+          },
+          {
+            "type": "enderthing:key_color",
+            "layer": 1
+          },
+          {
+            "type": "enderthing:key_color",
+            "layer": 2
+          },
+          {
+            "type": "enderthing:key_color",
+            "layer": 3
+          },
+          {
+            "type": "minecraft:constant",
+            "value": -1
+          }
+        ]
+      },
+      "on_true": {
+        "type": "minecraft:model",
+        "model": "enderthing:item/lock_bound",
+        "tints": [
+          {
+            "type": "minecraft:constant",
+            "value": -1
+          },
+          {
+            "type": "enderthing:key_color",
+            "layer": 1
+          },
+          {
+            "type": "enderthing:key_color",
+            "layer": 2
+          },
+          {
+            "type": "enderthing:key_color",
+            "layer": 3
+          },
+          {
+            "type": "minecraft:constant",
+            "value": -1
+          }
+        ]
+      },
+      "property": "minecraft:has_component"
+    },
+    "property": "minecraft:has_component"
+  }
+}
