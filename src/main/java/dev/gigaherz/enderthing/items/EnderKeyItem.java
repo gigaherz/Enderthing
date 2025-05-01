@@ -13,6 +13,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -22,6 +23,7 @@ import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class EnderKeyItem extends EnderthingItem
 {
@@ -30,12 +32,14 @@ public class EnderKeyItem extends EnderthingItem
         super(properties);
     }
 
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> consumer, TooltipFlag advanced)
     {
-        tooltip.add(Component.translatable("tooltip.enderthing.ender_key.right_click").withStyle(ChatFormatting.ITALIC));
+        consumer.accept(Component.translatable("tooltip.enderthing.ender_key.right_click").withStyle(ChatFormatting.ITALIC));
 
-        super.appendHoverText(stack, context, tooltip, flagIn);
+        super.appendHoverText(stack, context, display, consumer, advanced);
     }
 
     @Override

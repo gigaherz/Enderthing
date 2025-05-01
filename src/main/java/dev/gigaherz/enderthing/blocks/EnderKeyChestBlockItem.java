@@ -14,11 +14,13 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class EnderKeyChestBlockItem extends BlockItem
 {
@@ -34,15 +36,20 @@ public class EnderKeyChestBlockItem extends BlockItem
         output.accept(KeyUtils.setBound(KeyUtils.setPrivate(new ItemStack(this), true), Util.NIL_UUID), CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY);
     }
 
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> consumer, TooltipFlag advanced)
     {
-        tooltip.add(Component.translatable("tooltip.enderthing.ender_key_chest.right_click").withStyle(ChatFormatting.ITALIC));
+        super.appendHoverText(stack, context, display, consumer, advanced);
 
-        KeyUtils.addStandardInformation(stack, tooltip);
+        consumer.accept(Component.translatable("tooltip.enderthing.ender_key_chest.right_click").withStyle(ChatFormatting.ITALIC));
+
+        KeyUtils.addStandardInformation(stack, consumer);
 
         if (KeyUtils.isBound(stack))
-            tooltip.add(Component.translatable("tooltip.enderthing.ender_lock.bound", KeyUtils.getBoundStr(stack)));
+            consumer.accept(Component.translatable("tooltip.enderthing.ender_lock.bound", KeyUtils.getBoundStr(stack)));
+
     }
 
     private void openPasscodeScreen(Player playerIn, ItemStack stack)

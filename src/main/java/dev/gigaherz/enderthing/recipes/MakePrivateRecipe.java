@@ -43,7 +43,7 @@ public class MakePrivateRecipe extends CustomRecipe
         if (inv.width() != 3 || inv.height() != 3)
             return ItemStack.EMPTY;
 
-        return KeyUtils.setPrivate(inv.getItem(1, 1).copy(), true);
+        return KeyUtils.setPrivate(inv.getItem(1, 1).copyWithCount(1), true);
     }
 
     @Override

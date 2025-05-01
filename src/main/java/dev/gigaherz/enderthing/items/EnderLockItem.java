@@ -13,6 +13,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -26,6 +27,7 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class EnderLockItem extends EnderthingItem
 {
@@ -34,16 +36,17 @@ public class EnderLockItem extends EnderthingItem
         super(properties);
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> consumer, TooltipFlag advanced)
     {
-        tooltip.add(Component.translatable("tooltip.enderthing.ender_lock.right_click").withStyle(ChatFormatting.ITALIC));
+        consumer.accept(Component.translatable("tooltip.enderthing.ender_lock.right_click").withStyle(ChatFormatting.ITALIC));
 
-        super.appendHoverText(stack, context, tooltip, flagIn);
+        super.appendHoverText(stack, context, display, consumer, advanced);
 
         if (KeyUtils.isBound(stack))
-            tooltip.add(Component.translatable("tooltip.enderthing.ender_lock.bound", KeyUtils.getBoundStr(stack)));
+            consumer.accept(Component.translatable("tooltip.enderthing.ender_lock.bound", KeyUtils.getBoundStr(stack)));
     }
 
     @Override

@@ -2,6 +2,7 @@ package dev.gigaherz.enderthing.gui;
 
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
+import dev.gigaherz.enderthing.storage.EnderInventory;
 import dev.gigaherz.enderthing.storage.IInventoryManager;
 import dev.gigaherz.enderthing.storage.InventoryManager;
 import net.minecraft.network.FriendlyByteBuf;
@@ -33,7 +34,8 @@ public class KeyContainer extends AbstractContainerMenu
 
     private static IItemHandler getInventory(@Nullable Level world, Player user, boolean isPriv, long key, @Nullable UUID bound)
     {
-        if (world == null) return new ItemStackHandler(27);
+        if (world == null || world.isClientSide)
+            return new ItemStackHandler(27);
         InventoryManager inventoryManager = InventoryManager.get(world);
         IInventoryManager mgr = isPriv ? inventoryManager.getPrivate(bound != null ? bound : user.getUUID()) : inventoryManager;
         return mgr.getInventory(key);

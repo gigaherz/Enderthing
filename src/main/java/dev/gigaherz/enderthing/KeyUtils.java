@@ -1,6 +1,7 @@
 package dev.gigaherz.enderthing;
 
 import com.google.common.primitives.Longs;
+import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import joptsimple.internal.Strings;
@@ -12,6 +13,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.tags.TagKey;
@@ -30,6 +32,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class KeyUtils
@@ -40,8 +43,8 @@ public class KeyUtils
             DataComponentType.<UUID>builder().persistent(UUIDUtil.CODEC).networkSynchronized(UUIDUtil.STREAM_CODEC).build()
     );
 
-    public static final Supplier<DataComponentType<Boolean>> IS_PRIVATE = DATA_COMPONENT_TYPES.register("is_private", () ->
-            DataComponentType.<Boolean>builder().persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL).build()
+    public static final Supplier<DataComponentType<Unit>> IS_PRIVATE = DATA_COMPONENT_TYPES.register("is_private", () ->
+            DataComponentType.<Unit>builder().persistent(Codec.unit(Unit.INSTANCE)).networkSynchronized(StreamCodec.unit(Unit.INSTANCE)).build()
     );
 
     public static final Supplier<DataComponentType<Long>> KEY = DATA_COMPONENT_TYPES.register("key", () ->
@@ -73,12 +76,15 @@ public class KeyUtils
 
     public static boolean isPrivate(ItemStack stack)
     {
-        return Boolean.TRUE.equals(stack.get(IS_PRIVATE));
+        return stack.get(IS_PRIVATE) != null;
     }
 
     public static ItemStack setPrivate(ItemStack stack, boolean priv)
     {
-        stack.set(IS_PRIVATE, priv);
+        if (priv)
+            stack.set(IS_PRIVATE, Unit.INSTANCE);
+        else
+            stack.remove(IS_PRIVATE);
         return stack;
     }
 
@@ -219,21 +225,21 @@ public class KeyUtils
         return stack.get(CACHED_PLAYER_NAME);
     }
 
-    public static void addStandardInformation(ItemStack stack, List<Component> tooltip)
+    public static void addStandardInformation(ItemStack stack, Consumer<Component> consumer)
     {
         if (KeyUtils.isPrivate(stack))
         {
-            tooltip.add(Component.translatable("tooltip.enderthing.private").withStyle(ChatFormatting.ITALIC, ChatFormatting.BOLD));
+            consumer.accept(Component.translatable("tooltip.enderthing.private").withStyle(ChatFormatting.ITALIC, ChatFormatting.BOLD));
         }
 
         long key = KeyUtils.getKey(stack);
         if (key >= 0)
         {
-            tooltip.add(Component.translatable("tooltip.enderthing.key", key).withStyle(ChatFormatting.ITALIC));
+            consumer.accept(Component.translatable("tooltip.enderthing.key", key).withStyle(ChatFormatting.ITALIC));
         }
         else
         {
-            tooltip.add(Component.translatable("tooltip.enderthing.key_missing").withStyle(ChatFormatting.ITALIC));
+            consumer.accept(Component.translatable("tooltip.enderthing.key_missing").withStyle(ChatFormatting.ITALIC));
         }
     }
 }

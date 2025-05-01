@@ -1,5 +1,6 @@
 package dev.gigaherz.enderthing.blocks;
 
+import com.mojang.datafixers.util.Unit;
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.gui.IContainerInteraction;
@@ -8,6 +9,7 @@ import dev.gigaherz.enderthing.storage.EnderInventory;
 import dev.gigaherz.enderthing.storage.InventoryManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -171,7 +173,7 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
     @Nonnull
     public IItemHandlerModifiable getInventory()
     {
-        if (level != null && inventory == null && hasInventory())
+        if (level != null && !level.isClientSide && inventory == null && hasInventory())
         {
             if (isBoundToPlayer())
                 inventory = InventoryManager.get(level).getPrivate(boundToPlayer).getInventory(key);
@@ -186,10 +188,10 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider pRegistries)
     {
         super.loadAdditional(tag, pRegistries);
-        key = tag.getLong("Key");
-        priv = tag.getBoolean("IsPrivate");
-        if (isPrivate() && tag.contains("Bound", Tag.TAG_STRING))
-            boundToPlayer = UUID.fromString(tag.getString("Bound"));
+        key = tag.getLongOr("Key", -1);
+        priv = tag.getBooleanOr("IsPrivate", false);
+        if (isPrivate() && tag.contains("Bound") && tag.get("Bound").getId() == Tag.TAG_STRING)
+            boundToPlayer = tag.getString("Bound").map(UUID::fromString).orElse(null);
         releasePreviousInventory();
     }
 
@@ -234,18 +236,18 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput pComponentInput)
+    protected void applyImplicitComponents(DataComponentGetter pComponentInput)
     {
         key = Objects.requireNonNullElse(pComponentInput.get(KeyUtils.KEY), -1L);
         boundToPlayer = pComponentInput.get(KeyUtils.BINDING);
-        priv = Objects.requireNonNullElse(pComponentInput.get(KeyUtils.IS_PRIVATE), false);
+        priv = pComponentInput.get(KeyUtils.IS_PRIVATE) != null;
     }
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder pComponents)
     {
         if (key >= 0) pComponents.set(KeyUtils.KEY, key);
-        if (priv) pComponents.set(KeyUtils.IS_PRIVATE, true);
+        if (priv) pComponents.set(KeyUtils.IS_PRIVATE, Unit.INSTANCE);
         if (boundToPlayer != null) pComponents.set(KeyUtils.BINDING, boundToPlayer);
     }
 

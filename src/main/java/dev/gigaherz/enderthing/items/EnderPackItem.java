@@ -10,10 +10,12 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class EnderPackItem extends EnderthingItem
 {
@@ -22,12 +24,14 @@ public class EnderPackItem extends EnderthingItem
         super(properties);
     }
 
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> consumer, TooltipFlag advanced)
     {
-        tooltip.add(Component.translatable("tooltip.enderthing.ender_pack.right_click").withStyle(ChatFormatting.ITALIC));
+        consumer.accept(Component.translatable("tooltip.enderthing.ender_pack.right_click").withStyle(ChatFormatting.ITALIC));
 
-        super.appendHoverText(stack, context, tooltip, flagIn);
+        super.appendHoverText(stack, context, display, consumer, advanced);
     }
 
     @Override
@@ -87,7 +91,7 @@ public class EnderPackItem extends EnderthingItem
             Containers.openItemGui(
                     (ServerPlayer) playerIn,
                     priv,
-                    playerIn.getInventory().selected,
+                    playerIn.getInventory().getSelectedSlot(),
                     id, null);
         }
     }

@@ -8,21 +8,26 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class EnderCardItem extends Item
 {
@@ -121,9 +126,9 @@ public class EnderCardItem extends Item
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected)
+    public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, @Nullable EquipmentSlot slot)
     {
-        if (!worldIn.isClientSide && (stack.hashCode() % 120) == (worldIn.getGameTime() % 120))
+        if (!level.isClientSide && (stack.hashCode() % 120) == (level.getGameTime() % 120))
         {
             UUID uuid = KeyUtils.getBound(stack);
             if (uuid != null)
@@ -138,33 +143,35 @@ public class EnderCardItem extends Item
         }
     }
 
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> consumer, TooltipFlag advanced)
     {
-        tooltip.add(Component.translatable("tooltip.enderthing.ender_card.right_click1").withStyle(ChatFormatting.ITALIC));
-        tooltip.add(Component.translatable("tooltip.enderthing.ender_card.right_click2").withStyle(ChatFormatting.ITALIC));
+        consumer.accept(Component.translatable("tooltip.enderthing.ender_card.right_click1").withStyle(ChatFormatting.ITALIC));
+        consumer.accept(Component.translatable("tooltip.enderthing.ender_card.right_click2").withStyle(ChatFormatting.ITALIC));
 
         UUID uuid = KeyUtils.getBound(stack);
 
         if (uuid == null)
         {
-            tooltip.add(Component.translatable("tooltip.enderthing.ender_card.unbound"));
+            consumer.accept(Component.translatable("tooltip.enderthing.ender_card.unbound"));
             return;
         }
 
         String name = KeyUtils.getCachedPlayerName(stack);
         String uuidText = uuid.toString();
 
-        if (flagIn == TooltipFlag.Default.NORMAL && !Screen.hasShiftDown())
+        if (advanced == TooltipFlag.Default.NORMAL && !Screen.hasShiftDown())
         {
             String uuidBegin = uuidText.substring(0, 4);
             String uuidEnd = uuidText.substring(uuidText.length() - 4);
             uuidText = uuidBegin + "..." + uuidEnd;
         }
 
-        if (name == null || name.length() == 0)
-            tooltip.add(Component.translatable("tooltip.enderthing.ender_card.bound1", uuidText));
+        if (name == null || name.isEmpty())
+            consumer.accept(Component.translatable("tooltip.enderthing.ender_card.bound1", uuidText));
         else
-            tooltip.add(Component.translatable("tooltip.enderthing.ender_card.bound2", uuidText, name));
+            consumer.accept(Component.translatable("tooltip.enderthing.ender_card.bound2", uuidText, name));
     }
 }

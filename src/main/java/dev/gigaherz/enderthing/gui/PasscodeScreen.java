@@ -48,8 +48,8 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
         super.init();
         long cc = menu.keyHolder.get();
         String startKey = cc >= 0 ? String.format("%d", cc) : "";
-        addRenderableWidget(setButton = Button.builder(Component.literal("Set"), this::setButtonPressed).pos(leftPos + (imageWidth - 30 - 10), topPos + 95).size(30, 20).build());
-        addRenderableWidget(textPasscode = new EditBox(font, leftPos + 12, topPos + 78, imageWidth - 24, 12, Component.literal(startKey))
+        setButton = addRenderableWidget(Button.builder(Component.literal("Set"), this::setButtonPressed).pos(leftPos + (imageWidth - 30 - 10), topPos + 95).size(30, 20).build());
+        textPasscode = addRenderableWidget(new EditBox(font, leftPos + 12, topPos + 78, imageWidth - 24, 12, Component.literal(startKey))
         {
             @Override
             public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)

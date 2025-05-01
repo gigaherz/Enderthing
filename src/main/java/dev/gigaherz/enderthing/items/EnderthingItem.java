@@ -11,10 +11,12 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class EnderthingItem extends Item
 {
@@ -48,10 +50,11 @@ public class EnderthingItem extends Item
         }, stack.copy());
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> consumer, TooltipFlag advanced)
     {
-        KeyUtils.addStandardInformation(stack, tooltip);
+        KeyUtils.addStandardInformation(stack, consumer);
     }
 }

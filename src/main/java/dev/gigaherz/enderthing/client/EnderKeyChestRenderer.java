@@ -15,6 +15,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.ChestType;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,9 +29,9 @@ public class EnderKeyChestRenderer extends ChestRenderer<EnderKeyChestBlockEntit
     @Override
     public void render(EnderKeyChestBlockEntity chest, float partialTicks,
                        PoseStack poseStack, MultiBufferSource buffers,
-                       int packedLight, int packedOverlay)
+                       int packedLight, int packedOverlay, Vec3 vector)
     {
-        super.render(chest, partialTicks, poseStack, buffers, packedLight, packedOverlay);
+        super.render(chest, partialTicks, poseStack, buffers, packedLight, packedOverlay, vector);
 
         int rotation = switch (chest.getBlockState().getValue(EnderKeyChestBlock.FACING))
         {

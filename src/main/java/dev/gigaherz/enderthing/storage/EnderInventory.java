@@ -1,10 +1,16 @@
 package dev.gigaherz.enderthing.storage;
 
 import com.google.common.collect.Lists;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
+import dev.gigaherz.enderthing.client.KeyColor;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
@@ -12,12 +18,22 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public class EnderInventory extends ItemStackHandler
 {
     public static final int SLOT_COUNT = 27;
 
-    private final IInventoryManager manager;
+    public static final Codec<EnderInventory> CODEC = RecordCodecBuilder.create(
+            instance -> instance.group(
+                    ItemStack.OPTIONAL_CODEC.listOf().fieldOf("Items").forGetter(i -> i.stacks),
+                    Codec.LONG.optionalFieldOf("created").forGetter(i -> Optional.of(i.created)),
+                    Codec.LONG.optionalFieldOf("lastLoaded").forGetter(i -> Optional.of(i.lastLoaded)),
+                    Codec.LONG.optionalFieldOf("layer").forGetter(i -> Optional.of(i.created))
+                ).apply(instance, EnderInventory::new));
+
+    private IInventoryManager manager;
 
     private final List<Reference<? extends EnderKeyChestBlockEntity>> listeners = Lists.newArrayList();
 
@@ -25,16 +41,40 @@ public class EnderInventory extends ItemStackHandler
     private long lastLoaded = 0;
     private long lastModified = 0;
 
+    EnderInventory()
+    {
+        this(List.of(), getTimestamp(), 0, getTimestamp());
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private EnderInventory(List<ItemStack> stacks, Optional<Long> created, Optional<Long> lastLoaded, Optional<Long> lastModified)
+    {
+        this(stacks, created.orElseGet(EnderInventory::getTimestamp), getTimestamp(), lastModified.orElseGet(EnderInventory::getTimestamp));
+    }
+
+    EnderInventory(List<ItemStack> stacks, long created, long lastLoaded, long lastModified)
+    {
+        super(SLOT_COUNT);
+        setSize(SLOT_COUNT); // FIXME: HACK -- Remove me
+        for(int i=0;i<Math.min(SLOT_COUNT, stacks.size());i++)
+        {
+            this.stacks.set(i, Objects.requireNonNullElse(stacks.get(i), ItemStack.EMPTY));
+        }
+        this.created = created;
+        this.lastLoaded = lastLoaded;
+        this.lastModified = lastModified;
+    }
+
+    private static long getTimestamp()
+    {
+        return System.currentTimeMillis() / 1000;
+    }
+
     public void addWeakListener(EnderKeyChestBlockEntity e)
     {
         listeners.add(new WeakReference<>(e));
         lastLoaded = getTimestamp();
         manager.makeDirty();
-    }
-
-    private long getTimestamp()
-    {
-        return System.currentTimeMillis() / 1000;
     }
 
     public void removeWeakListener(EnderKeyChestBlockEntity e)
@@ -77,14 +117,6 @@ public class EnderInventory extends ItemStackHandler
         manager.makeDirty();
     }
 
-    EnderInventory(IInventoryManager manager)
-    {
-        super(SLOT_COUNT);
-        setSize(SLOT_COUNT); // FIXME: HACK -- Remove me
-        this.manager = manager;
-        created = getTimestamp();
-    }
-
     @Override
     public CompoundTag serializeNBT(HolderLookup.Provider lookup)
     {
@@ -99,18 +131,9 @@ public class EnderInventory extends ItemStackHandler
     public void deserializeNBT(HolderLookup.Provider lookup, CompoundTag nbt)
     {
         super.deserializeNBT(lookup, nbt);
-        if (nbt.contains("created", Tag.TAG_ANY_NUMERIC))
-            created = nbt.getLong("created");
-        else
-            created = getTimestamp();
-        if (nbt.contains("lastLoaded", Tag.TAG_ANY_NUMERIC))
-            lastLoaded = nbt.getLong("lastLoaded");
-        else
-            lastLoaded = getTimestamp();
-        if (nbt.contains("lastModified", Tag.TAG_ANY_NUMERIC))
-            lastModified = nbt.getLong("lastModified");
-        else
-            lastModified = lastLoaded;
+        created = nbt.getLongOr("created", getTimestamp());
+        lastLoaded = nbt.getLongOr("lastLoaded", getTimestamp());
+        lastModified = nbt.getLongOr("lastModified", lastLoaded);
     }
 
     public long getCreationTimestamp()
@@ -126,5 +149,10 @@ public class EnderInventory extends ItemStackHandler
     public long getLastModifiedTimestamp()
     {
         return lastModified;
+    }
+
+    public void setManager(IInventoryManager manager)
+    {
+        this.manager = manager;
     }
 }
