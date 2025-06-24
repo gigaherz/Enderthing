@@ -17,10 +17,13 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -32,7 +35,7 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 
-@EventBusSubscriber(modid = Enderthing.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Enderthing.MODID)
 public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEntity, IContainerInteraction
 {
     @SubscribeEvent
@@ -185,25 +188,26 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider pRegistries)
+    protected void loadAdditional(ValueInput input)
     {
-        super.loadAdditional(tag, pRegistries);
-        key = tag.getLongOr("Key", -1);
-        priv = tag.getBooleanOr("IsPrivate", false);
-        if (isPrivate() && tag.contains("Bound") && tag.get("Bound").getId() == Tag.TAG_STRING)
-            boundToPlayer = tag.getString("Bound").map(UUID::fromString).orElse(null);
+        super.loadAdditional(input);
+        key = input.getLongOr("Key", -1);
+        priv = input.getBooleanOr("IsPrivate", false);
+        var bound = input.getString("Bound");
+        if (isPrivate() && bound.isPresent())
+            boundToPlayer = bound.map(UUID::fromString).orElse(null);
         releasePreviousInventory();
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider pRegistries)
+    protected void saveAdditional(ValueOutput output)
     {
-        super.saveAdditional(tag, pRegistries);
-        tag.putLong("Key", key);
-        tag.putBoolean("IsPrivate", priv);
+        super.saveAdditional(output);
+        output.putLong("Key", key);
+        output.putBoolean("IsPrivate", priv);
         if (isPrivate() && boundToPlayer != null)
         {
-            tag.putString("Bound", boundToPlayer.toString());
+            output.putString("Bound", boundToPlayer.toString());
         }
     }
 
@@ -215,9 +219,9 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
 
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider pRegistries)
+    public void handleUpdateTag(ValueInput input)
     {
-        loadAdditional(tag, pRegistries);
+        loadAdditional(input);
     }
 
     @Override
@@ -227,9 +231,9 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider pRegistries)
+    public void onDataPacket(Connection net, ValueInput input)
     {
-        handleUpdateTag(packet.getTag(), pRegistries);
+        handleUpdateTag(input);
 
         BlockState state = level.getBlockState(worldPosition);
         level.sendBlockUpdated(worldPosition, state, state, 3);

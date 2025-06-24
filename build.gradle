@@ -3,11 +3,11 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.82'
+    id 'net.neoforged.moddev' version '2.0.95'
 }
 
-neoForge.version = "21.5.63-beta"
-version = '1.7.0'
+neoForge.version = "21.6.12-beta"
+version = '1.8.0'
 group = 'dev.gigaherz.enderthing'
 base.archivesName = "Enderthing-${neoForge.minecraftVersion}"
 
@@ -28,7 +28,7 @@ repositories {
     maven {
         url "https://github.com/TehNut/temporary-maven-thing/tree/master/maven"
     }
-    maven { // TOP
+    maven { // TOP<
         name 'tterrag maven'
         url "https://maven.tterrag.com/"
     }

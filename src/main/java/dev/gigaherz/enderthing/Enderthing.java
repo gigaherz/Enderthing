@@ -37,7 +37,7 @@ import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.data.registries.VanillaRegistries;
-import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.data.tags.IntrinsicHolderTagsProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -149,7 +149,7 @@ public class Enderthing
 
     private void commonSetup(RegisterPayloadHandlersEvent event)
     {
-        final PayloadRegistrar registrar = event.registrar(MODID).versioned("1.0");
+        final PayloadRegistrar registrar = event.registrar(MODID).versioned("1.0").optional();
         registrar.playToServer(SetItemKey.TYPE, SetItemKey.STREAM_CODEC, SetItemKey::handle);
     }
 
@@ -165,8 +165,8 @@ public class Enderthing
         gen.addProvider(true, new Recipes(gen.getPackOutput(), event.getLookupProvider()));
         gen.addProvider(true, Loot.create(gen.getPackOutput(), event.getLookupProvider()));
 
-        var blockTags = gen.addProvider(true, new BlockTagGens(gen));
-        gen.addProvider(true, new ItemTagGens(gen, blockTags.contentsGetter()));
+        gen.addProvider(true, new BlockTagGens(gen));
+        gen.addProvider(true, new ItemTagGens(gen.getPackOutput()));
 
 
         gen.addProvider(true, new ModelsAndClientItems(gen.getPackOutput()));
@@ -319,12 +319,12 @@ public class Enderthing
         }
     }
 
-    private static class ItemTagGens extends ItemTagsProvider implements DataProvider
+    private static class ItemTagGens extends IntrinsicHolderTagsProvider<Item> implements DataProvider
     {
-        public ItemTagGens(DataGenerator gen, CompletableFuture<TagLookup<Block>> blockTags)
+        public ItemTagGens(PackOutput packOutput)
         {
-            super(gen.getPackOutput(), CompletableFuture.supplyAsync(VanillaRegistries::createLookup, Util.backgroundExecutor()),
-                    blockTags, MODID);
+            super(packOutput, Registries.ITEM, CompletableFuture.supplyAsync(VanillaRegistries::createLookup, Util.backgroundExecutor()),
+                    (item) -> BuiltInRegistries.ITEM.getResourceKey(item).orElseThrow(), Enderthing.MODID);
         }
 
         @Override

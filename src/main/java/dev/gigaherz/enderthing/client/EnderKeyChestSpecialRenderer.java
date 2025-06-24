@@ -15,6 +15,9 @@ import net.minecraft.client.resources.model.Material;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+
+import java.util.Set;
 
 public class EnderKeyChestSpecialRenderer implements SpecialModelRenderer<ItemStack>
 {
@@ -37,6 +40,14 @@ public class EnderKeyChestSpecialRenderer implements SpecialModelRenderer<ItemSt
         {
             EnderKeyChestRenderer.renderLockOnChest(lock, Minecraft.getInstance().level, poseStack, bufferSource, packedLight, packedOverlay, 0);
         }
+    }
+
+    @Override
+    public void getExtents(Set<Vector3f> set)
+    {
+        PoseStack posestack = new PoseStack();
+        this.model.setupAnim(0);
+        this.model.root().getExtentsForGui(posestack, set);
     }
 
     @Nullable

@@ -12,6 +12,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.lang.ref.Reference;
@@ -118,22 +120,21 @@ public class EnderInventory extends ItemStackHandler
     }
 
     @Override
-    public CompoundTag serializeNBT(HolderLookup.Provider lookup)
+    public void serialize(ValueOutput output)
     {
-        var tag = super.serializeNBT(lookup);
-        tag.putLong("created", created);
-        tag.putLong("lastLoaded", lastLoaded);
-        tag.putLong("lastModified", lastModified);
-        return tag;
+        super.serialize(output);
+        output.putLong("created", created);
+        output.putLong("lastLoaded", lastLoaded);
+        output.putLong("lastModified", lastModified);
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.Provider lookup, CompoundTag nbt)
+    public void deserialize(ValueInput input)
     {
-        super.deserializeNBT(lookup, nbt);
-        created = nbt.getLongOr("created", getTimestamp());
-        lastLoaded = nbt.getLongOr("lastLoaded", getTimestamp());
-        lastModified = nbt.getLongOr("lastModified", lastLoaded);
+        super.deserialize(input);
+        created = input.getLongOr("created", getTimestamp());
+        lastLoaded = input.getLongOr("lastLoaded", getTimestamp());
+        lastModified = input.getLongOr("lastModified", lastLoaded);
     }
 
     public long getCreationTimestamp()

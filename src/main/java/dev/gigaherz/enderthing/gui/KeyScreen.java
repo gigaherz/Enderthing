@@ -3,6 +3,7 @@ package dev.gigaherz.enderthing.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -30,9 +31,7 @@ public class KeyScreen extends AbstractContainerScreen<KeyContainer>
     @Override
     protected void renderBg(GuiGraphics graphics, float p_230450_2_, int mouseX, int mouseY)
     {
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-
-        graphics.blit(RenderType::guiTextured, CHEST_GUI_TEXTURE, leftPos, topPos, 0, 0, imageWidth, 3 * 18 + 17, 256, 256);
-        graphics.blit(RenderType::guiTextured, CHEST_GUI_TEXTURE, leftPos, topPos + 3 * 18 + 17, 0, 126, imageWidth, 96, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, CHEST_GUI_TEXTURE, leftPos, topPos, 0, 0, imageWidth, 3 * 18 + 17, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, CHEST_GUI_TEXTURE, leftPos, topPos + 3 * 18 + 17, 0, 126, imageWidth, 96, 256, 256);
     }
 }

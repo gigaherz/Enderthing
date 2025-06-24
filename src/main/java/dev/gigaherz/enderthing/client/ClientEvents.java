@@ -11,7 +11,7 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 
-@EventBusSubscriber(value = Dist.CLIENT, modid = Enderthing.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT, modid = Enderthing.MODID)
 public class ClientEvents
 {
     @SubscribeEvent
