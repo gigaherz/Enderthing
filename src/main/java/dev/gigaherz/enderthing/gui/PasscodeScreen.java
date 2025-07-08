@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
@@ -83,7 +84,7 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
     private void setButtonPressed(Button button)
     {
         if (currentCode >= 0)
-            PacketDistributor.sendToServer(new SetItemKey(currentCode));
+            ClientPacketDistributor.sendToServer(new SetItemKey(currentCode));
     }
 
     private boolean textPasscodeChanging(String text)
