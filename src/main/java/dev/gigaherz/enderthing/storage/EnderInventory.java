@@ -2,69 +2,57 @@ package dev.gigaherz.enderthing.storage;
 
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
-import dev.gigaherz.enderthing.client.KeyColor;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.world.ItemStackWithSlot;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
-public class EnderInventory extends ItemStackHandler
+public class EnderInventory extends SimpleContainer implements ValueIOSerializable
 {
     public static final int SLOT_COUNT = 27;
 
     public static final Codec<EnderInventory> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
-                    ItemStack.OPTIONAL_CODEC.listOf().fieldOf("Items").forGetter(i -> i.stacks),
-                    Codec.LONG.optionalFieldOf("created").forGetter(i -> Optional.of(i.created)),
-                    Codec.LONG.optionalFieldOf("lastLoaded").forGetter(i -> Optional.of(i.lastLoaded)),
-                    Codec.LONG.optionalFieldOf("layer").forGetter(i -> Optional.of(i.created))
+                    ItemStack.OPTIONAL_CODEC.listOf().fieldOf("Items").forGetter(SimpleContainer::getItems),
+                    Codec.LONG.optionalFieldOf("created", -1L).forGetter(EnderInventory::getCreationTimestamp),
+                    Codec.LONG.optionalFieldOf("lastLoaded", -1L).forGetter(EnderInventory::getLastLoadedTimestamp),
+                    Codec.LONG.optionalFieldOf("lastModified", -1L).forGetter(EnderInventory::getLastModifiedTimestamp)
                 ).apply(instance, EnderInventory::new));
 
     private IInventoryManager manager;
 
     private final List<Reference<? extends EnderKeyChestBlockEntity>> listeners = Lists.newArrayList();
 
-    private long created = 0;
-    private long lastLoaded = 0;
-    private long lastModified = 0;
+    private long created;
+    private long lastLoaded;
+    private long lastModified;
 
     EnderInventory()
     {
         this(List.of(), getTimestamp(), 0, getTimestamp());
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private EnderInventory(List<ItemStack> stacks, Optional<Long> created, Optional<Long> lastLoaded, Optional<Long> lastModified)
-    {
-        this(stacks, created.orElseGet(EnderInventory::getTimestamp), getTimestamp(), lastModified.orElseGet(EnderInventory::getTimestamp));
-    }
-
     EnderInventory(List<ItemStack> stacks, long created, long lastLoaded, long lastModified)
     {
         super(SLOT_COUNT);
-        setSize(SLOT_COUNT); // FIXME: HACK -- Remove me
         for(int i=0;i<Math.min(SLOT_COUNT, stacks.size());i++)
         {
-            this.stacks.set(i, Objects.requireNonNullElse(stacks.get(i), ItemStack.EMPTY));
+            this.setItem(i, Objects.requireNonNullElse(stacks.get(i), ItemStack.EMPTY));
         }
-        this.created = created;
-        this.lastLoaded = lastLoaded;
-        this.lastModified = lastModified;
+        this.created = created == -1 ? getTimestamp() : created;
+        this.lastLoaded = getTimestamp(); // ignore the provided value and set the current timestamp
+        this.lastModified = lastModified == -1  ? getTimestamp() : lastLoaded;
     }
 
     private static long getTimestamp()
@@ -92,10 +80,22 @@ public class EnderInventory extends ItemStackHandler
     }
 
     @Override
-    protected void onContentsChanged(int slot)
+    public void setChanged()
     {
-        super.onContentsChanged(slot);
+        boolean b = processWeakListeners();
 
+        if (b)
+            lastLoaded = getTimestamp();
+        lastModified = getTimestamp();
+
+        if (manager != null)
+            manager.makeDirty();
+
+        super.setChanged();
+    }
+
+    private boolean processWeakListeners()
+    {
         List<EnderKeyChestBlockEntity> dirty = Lists.newArrayList();
         for (Iterator<Reference<? extends EnderKeyChestBlockEntity>> it = listeners.iterator(); it.hasNext(); )
         {
@@ -112,26 +112,32 @@ public class EnderInventory extends ItemStackHandler
 
         dirty.forEach(BlockEntity::setChanged);
 
-        if (dirty.size() > 0)
-            lastLoaded = getTimestamp();
-        lastModified = getTimestamp();
-
-        manager.makeDirty();
+        return !dirty.isEmpty();
     }
 
     @Override
-    public void serialize(ValueOutput output)
-    {
-        super.serialize(output);
+    public void serialize(ValueOutput output) {
+        ValueOutput.TypedOutputList<ItemStackWithSlot> itemList = output.list("Items", ItemStackWithSlot.CODEC);
+        for (int i = 0; i < this.getContainerSize(); i++) {
+            var stack = getItem(i);
+            if (!stack.isEmpty()) {
+                itemList.add(new ItemStackWithSlot(i, stack));
+            }
+        }
+
         output.putLong("created", created);
         output.putLong("lastLoaded", lastLoaded);
         output.putLong("lastModified", lastModified);
     }
 
     @Override
-    public void deserialize(ValueInput input)
-    {
-        super.deserialize(input);
+    public void deserialize(ValueInput input) {
+        input.listOrEmpty("Items", ItemStackWithSlot.CODEC).forEach(slot -> {
+            if (slot.isValidInContainer(this.getContainerSize())) {
+                setItem(slot.slot(), slot.stack());
+            }
+        });
+
         created = input.getLongOr("created", getTimestamp());
         lastLoaded = input.getLongOr("lastLoaded", getTimestamp());
         lastModified = input.getLongOr("lastModified", lastLoaded);

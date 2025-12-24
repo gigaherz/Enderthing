@@ -5,7 +5,7 @@ import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -25,7 +25,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -60,7 +59,7 @@ public class EnderCardItem extends Item
     public InteractionResult use(Level level, Player player, InteractionHand hand)
     {
         ItemStack stack = player.getItemInHand(hand);
-        if (level.isClientSide)
+        if (level.isClientSide())
             return InteractionResult.SUCCESS;
 
         if (player.isShiftKeyDown())
@@ -85,7 +84,7 @@ public class EnderCardItem extends Item
 
         UUID uuid = KeyUtils.getBound(stack);
 
-        if (world.isClientSide)
+        if (world.isClientSide())
             return InteractionResult.SUCCESS;
 
         BlockState state = world.getBlockState(pos);
@@ -128,7 +127,7 @@ public class EnderCardItem extends Item
     @Override
     public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, @Nullable EquipmentSlot slot)
     {
-        if (!level.isClientSide && (stack.hashCode() % 120) == (level.getGameTime() % 120))
+        if (!level.isClientSide() && (stack.hashCode() % 120) == (level.getGameTime() % 120))
         {
             UUID uuid = KeyUtils.getBound(stack);
             if (uuid != null)
@@ -162,7 +161,8 @@ public class EnderCardItem extends Item
         String name = KeyUtils.getCachedPlayerName(stack);
         String uuidText = uuid.toString();
 
-        if (advanced == TooltipFlag.Default.NORMAL && !Screen.hasShiftDown())
+        Level level = context.level();
+        if (advanced == TooltipFlag.Default.NORMAL && (level == null || !level.isClientSide() || !Minecraft.getInstance().hasShiftDown()))
         {
             String uuidBegin = uuidText.substring(0, 4);
             String uuidEnd = uuidText.substring(uuidText.length() - 4);

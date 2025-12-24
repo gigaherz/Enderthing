@@ -12,12 +12,10 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.*;
@@ -28,10 +26,11 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -42,9 +41,9 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
     public static void registerCapabilities(RegisterCapabilitiesEvent event)
     {
         event.registerBlockEntity(
-                Capabilities.ItemHandler.BLOCK,
+                Capabilities.Item.BLOCK,
                 Enderthing.KEY_CHEST_BLOCK_ENTITY.get(),
-                (be, context) -> be.getInventory()
+                (be, context) -> be.getHandler()
         );
     }
 
@@ -78,7 +77,7 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
             level.blockEvent(pos, state.getBlock(), 1, unknown2);
         }
 
-        protected boolean isOwnContainer(Player player)
+        public boolean isOwnContainer(Player player)
         {
             return player.containerMenu instanceof KeyContainer m && m.interactionHandler == EnderKeyChestBlockEntity.this;
         }
@@ -173,10 +172,12 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
         return (key >= 0) && (!isPrivate() || isBoundToPlayer());
     }
 
-    @Nonnull
-    public IItemHandlerModifiable getInventory()
+    @Nullable
+    public EnderInventory getInventory()
     {
-        if (level != null && !level.isClientSide && inventory == null && hasInventory())
+        if (isPrivate() && !isBoundToPlayer())
+            return null;
+        if (level != null && !level.isClientSide() && inventory == null && hasInventory())
         {
             if (isBoundToPlayer())
                 inventory = InventoryManager.get(level).getPrivate(boundToPlayer).getInventory(key);
@@ -185,6 +186,13 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
             inventory.addWeakListener(this);
         }
         return inventory;
+    }
+
+    @Nullable
+    private ResourceHandler<ItemResource> getHandler()
+    {
+        var inv = getInventory();
+        return inv == null ? null : VanillaContainerWrapper.of(inv);
     }
 
     @Override
@@ -283,7 +291,7 @@ public class EnderKeyChestBlockEntity extends BlockEntity implements LidBlockEnt
     {
         if (!this.remove && !player.isSpectator())
         {
-            this.openersCounter.incrementOpeners(player, this.getLevel(), this.getBlockPos(), this.getBlockState());
+            this.openersCounter.incrementOpeners(player, this.getLevel(), this.getBlockPos(), this.getBlockState(), player.getContainerInteractionRange());
         }
     }
 

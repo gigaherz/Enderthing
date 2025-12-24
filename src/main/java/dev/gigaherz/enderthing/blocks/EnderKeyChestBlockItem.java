@@ -4,9 +4,9 @@ import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.gui.Containers;
 import dev.gigaherz.enderthing.util.ILongAccessor;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Util;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -19,7 +19,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public class EnderKeyChestBlockItem extends BlockItem
@@ -79,7 +78,7 @@ public class EnderKeyChestBlockItem extends BlockItem
 
         if (oldId < 0)
         {
-            if (!worldIn.isClientSide)
+            if (!worldIn.isClientSide())
                 openPasscodeScreen(playerIn, stack);
             return InteractionResult.SUCCESS;
         }

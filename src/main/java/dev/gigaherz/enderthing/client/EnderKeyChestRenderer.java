@@ -6,18 +6,21 @@ import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlock;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.ChestRenderer;
+import net.minecraft.client.renderer.blockentity.state.ChestRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class EnderKeyChestRenderer extends ChestRenderer<EnderKeyChestBlockEntity>
 {
@@ -26,14 +29,27 @@ public class EnderKeyChestRenderer extends ChestRenderer<EnderKeyChestBlockEntit
         super(ctx);
     }
 
-    @Override
-    public void render(EnderKeyChestBlockEntity chest, float partialTicks,
-                       PoseStack poseStack, MultiBufferSource buffers,
-                       int packedLight, int packedOverlay, Vec3 vector)
+    private static class EnderKeyChestRenderState extends ChestRenderState
     {
-        super.render(chest, partialTicks, poseStack, buffers, packedLight, packedOverlay, vector);
+        public int rotation;
+        public ItemStackRenderState lock = new ItemStackRenderState();
+    }
 
-        int rotation = switch (chest.getBlockState().getValue(EnderKeyChestBlock.FACING))
+    @Override
+    public ChestRenderState createRenderState()
+    {
+        return new EnderKeyChestRenderState();
+    }
+
+    @Override
+    public void extractRenderState(EnderKeyChestBlockEntity chest, ChestRenderState state, float p_446088_, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay overlay)
+    {
+        super.extractRenderState(chest, state, p_446088_, cameraPosition, overlay);
+
+        if (!(state instanceof EnderKeyChestRenderState keyState))
+            return;
+
+        keyState.rotation = switch (chest.getBlockState().getValue(EnderKeyChestBlock.FACING))
         {
             case NORTH -> 180;
             case WEST -> 90;
@@ -43,11 +59,28 @@ public class EnderKeyChestRenderer extends ChestRenderer<EnderKeyChestBlockEntit
 
         ItemStack lock = KeyUtils.getLock(chest.getKey(), chest.isPrivate(), chest.getPlayerBound());
 
-        renderLockOnChest(lock, chest.getLevel(), poseStack, buffers, packedLight, packedOverlay, rotation);
+        var itemModelResolver = Minecraft.getInstance().getItemModelResolver();
+
+        itemModelResolver.updateForTopItem(keyState.lock, lock, ItemDisplayContext.FIXED, chest.getLevel(), null, 0);
     }
 
-    public static void renderLockOnChest(@NotNull ItemStack lock, @Nullable Level level, PoseStack poseStack, MultiBufferSource buffers, int packedLight, int packedOverlay, int rotation)
+    @Override
+    public void submit(ChestRenderState state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState cameraRenderState)
     {
+        super.submit(state, poseStack, collector, cameraRenderState);
+
+        if (!(state instanceof EnderKeyChestRenderState keyState))
+            return;
+
+        renderLockOnChest(keyState.lock, poseStack, collector, state.lightCoords, keyState.rotation);
+    }
+
+    public static void renderLockOnChest(ItemStackRenderState renderState, PoseStack poseStack,
+                                         SubmitNodeCollector collector, int lightmapCoords, int rotation)
+    {
+        if (renderState.isEmpty())
+            return;
+
         poseStack.pushPose();
 
         poseStack.translate(0.5, 0.5, 0.5);
@@ -59,13 +92,14 @@ public class EnderKeyChestRenderer extends ChestRenderer<EnderKeyChestBlockEntit
         float scale = 6 / 8.0f;
         poseStack.scale(scale, scale, scale);
 
-        Minecraft.getInstance().getItemRenderer().renderStatic(lock, ItemDisplayContext.FIXED, packedLight, packedOverlay, poseStack, buffers, level, 0);
+        //Minecraft.getInstance().getItemRenderer().renderStatic(lock, ItemDisplayContext.FIXED, packedLight, packedOverlay, poseStack, buffers, level, 0);
+        renderState.submit(poseStack, collector, lightmapCoords, OverlayTexture.NO_OVERLAY, 0);
 
         poseStack.popPose();
     }
 
     @Override
-    protected Material getMaterial(EnderKeyChestBlockEntity tileEntity, ChestType chestType)
+    protected @Nullable Material getCustomMaterial(EnderKeyChestBlockEntity blockEntity, ChestRenderState renderState)
     {
         return Sheets.ENDER_CHEST_LOCATION;
     }

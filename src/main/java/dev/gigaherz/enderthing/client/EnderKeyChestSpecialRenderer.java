@@ -4,50 +4,69 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.MapCodec;
 import dev.gigaherz.enderthing.KeyUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.ChestModel;
-import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.model.object.chest.ChestModel;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.MaterialSet;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
+import org.joml.Vector3fc;
+import org.jspecify.annotations.Nullable;
 
-import java.util.Set;
+import java.util.function.Consumer;
 
 public class EnderKeyChestSpecialRenderer implements SpecialModelRenderer<ItemStack>
 {
     private final ChestModel model;
     private final Material material;
+    private final MaterialSet materials;
 
-    public EnderKeyChestSpecialRenderer(ChestModel model, Material material)
+    public EnderKeyChestSpecialRenderer(ChestModel model, Material material, MaterialSet materials)
     {
         this.model = model;
         this.material = material;
+        this.materials = materials;
     }
 
     @Override
-    public void render(@Nullable ItemStack lock, ItemDisplayContext displayContext, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, boolean hasFoilType)
+    public void submit(@Nullable ItemStack lock, ItemDisplayContext displayContext, PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay, boolean hasFoil, int outlineColor)
     {
-        var buffer = this.material.buffer(bufferSource, RenderType::entitySolid);
-        this.model.setupAnim(0);
-        this.model.renderToBuffer(poseStack, buffer, packedLight, packedOverlay);
+        collector.submitModel(
+                this.model,
+                0.0f,
+                poseStack,
+                this.material.renderType(RenderTypes::entitySolid),
+                packedLight,
+                packedOverlay,
+                -1,
+                this.materials.get(this.material),
+                outlineColor,
+                null
+        );
         if (lock != null)
         {
-            EnderKeyChestRenderer.renderLockOnChest(lock, Minecraft.getInstance().level, poseStack, bufferSource, packedLight, packedOverlay, 0);
+            final ItemStackRenderState lockState = new ItemStackRenderState();
+
+            var itemModelResolver = Minecraft.getInstance().getItemModelResolver();
+
+            itemModelResolver.updateForTopItem(lockState, lock, ItemDisplayContext.FIXED, null, null, 0);
+
+            EnderKeyChestRenderer.renderLockOnChest(lockState, poseStack, collector, LightTexture.FULL_BRIGHT, 0);
         }
     }
 
     @Override
-    public void getExtents(Set<Vector3f> set)
+    public void getExtents(Consumer<Vector3fc> consumer)
     {
         PoseStack posestack = new PoseStack();
-        this.model.setupAnim(0);
-        this.model.root().getExtentsForGui(posestack, set);
+        this.model.setupAnim(0.0f);
+        this.model.root().getExtentsForGui(posestack, consumer);
     }
 
     @Nullable
@@ -73,11 +92,11 @@ public class EnderKeyChestSpecialRenderer implements SpecialModelRenderer<ItemSt
         }
 
         @Override
-        public SpecialModelRenderer<?> bake(EntityModelSet modelSet)
+        public @org.jspecify.annotations.Nullable SpecialModelRenderer<?> bake(BakingContext context)
         {
-            ChestModel model = new ChestModel(modelSet.bakeLayer(ModelLayers.CHEST));
+            ChestModel model = new ChestModel(context.entityModelSet().bakeLayer(ModelLayers.CHEST));
             Material material = Sheets.ENDER_CHEST_LOCATION;
-            return new EnderKeyChestSpecialRenderer(model, material);
+            return new EnderKeyChestSpecialRenderer(model, material, context.materials());
         }
     }
 }

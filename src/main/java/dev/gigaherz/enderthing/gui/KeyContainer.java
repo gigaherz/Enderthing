@@ -2,10 +2,11 @@ package dev.gigaherz.enderthing.gui;
 
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
-import dev.gigaherz.enderthing.storage.EnderInventory;
 import dev.gigaherz.enderthing.storage.IInventoryManager;
 import dev.gigaherz.enderthing.storage.InventoryManager;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -14,9 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -32,16 +30,16 @@ public class KeyContainer extends AbstractContainerMenu
         return p.distanceToSqr(te.getBlockPos().getX() + 0.5D, te.getBlockPos().getY() + 0.5D, te.getBlockPos().getZ() + 0.5D) <= 64.0;
     }
 
-    private static IItemHandler getInventory(@Nullable Level world, Player user, boolean isPriv, long key, @Nullable UUID bound)
+    private static Container getInventory(@Nullable Level world, Player user, boolean isPriv, long key, @Nullable UUID bound)
     {
-        if (world == null || world.isClientSide)
-            return new ItemStackHandler(27);
+        if (world == null || world.isClientSide())
+            return new SimpleContainer(27);
         InventoryManager inventoryManager = InventoryManager.get(world);
         IInventoryManager mgr = isPriv ? inventoryManager.getPrivate(bound != null ? bound : user.getUUID()) : inventoryManager;
         return mgr.getInventory(key);
     }
 
-    private static IItemHandler getInventory(EnderKeyChestBlockEntity enderChest, Player user)
+    private static Container getInventory(EnderKeyChestBlockEntity enderChest, Player user)
     {
         boolean isPriv = enderChest.isPrivate();
         Level world = enderChest.getLevel();
@@ -53,7 +51,7 @@ public class KeyContainer extends AbstractContainerMenu
     // Client side shared container
     public KeyContainer(int windowId, Inventory playerInv, FriendlyByteBuf extraData)
     {
-        this(windowId, playerInv, extraData.readInt(), new ItemStackHandler(27), new IContainerInteraction()
+        this(windowId, playerInv, extraData.readInt(), new SimpleContainer(27), new IContainerInteraction()
         {
             @Override
             public boolean canBeUsed(Player player)
@@ -142,7 +140,7 @@ public class KeyContainer extends AbstractContainerMenu
                 });
     }
 
-    public KeyContainer(int windowId, Inventory playerInventory, int lockedSlot, IItemHandler inventory,
+    public KeyContainer(int windowId, Inventory playerInventory, int lockedSlot, Container inventory,
                         IContainerInteraction interactionHandler)
     {
         super(Enderthing.KEY_CONTAINER.get(), windowId);
@@ -155,7 +153,7 @@ public class KeyContainer extends AbstractContainerMenu
         {
             for (int k = 0; k < 9; ++k)
             {
-                this.addSlot(new SlotItemHandler(inventory, k + j * 9, 8 + k * 18, 18 + j * 18));
+                this.addSlot(new Slot(inventory, k + j * 9, 8 + k * 18, 18 + j * 18));
             }
         }
 

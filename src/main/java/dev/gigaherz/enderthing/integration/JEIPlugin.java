@@ -10,7 +10,7 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import net.minecraft.Util;
 import net.minecraft.core.NonNullList;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -22,10 +22,10 @@ import java.util.Optional;
 @JeiPlugin
 public class JEIPlugin implements IModPlugin
 {
-    private static final ResourceLocation ID = Enderthing.location("jei_plugin");
+    private static final Identifier ID = Enderthing.location("jei_plugin");
 
     @Override
-    public ResourceLocation getPluginUid()
+    public Identifier getPluginUid()
     {
         return ID;
     }
@@ -56,7 +56,7 @@ public class JEIPlugin implements IModPlugin
         ));
     }
 
-    private <T extends Item> RecipeHolder<CraftingRecipe> dummyRemoveLockRecipe(ResourceLocation id)
+    private <T extends Item> RecipeHolder<CraftingRecipe> dummyRemoveLockRecipe(Identifier id)
     {
         NonNullList<Ingredient> inputs = NonNullList.of(Ingredient.EMPTY, Ingredient.of(
                 KeyUtils.setPrivate(new ItemStack(Enderthing.KEY_CHEST_ITEM.get()), false),
@@ -68,12 +68,12 @@ public class JEIPlugin implements IModPlugin
         return new RecipeHolder<>(id, new ShapelessRecipe(id.getNamespace() + "." + id.getPath().replace("/", "."), CraftingBookCategory.MISC, result, inputs));
     }
 
-    private <T extends Item> RecipeHolder<CraftingRecipe> dummyAddLockRecipe(boolean isPrivate, ResourceLocation id)
+    private <T extends Item> RecipeHolder<CraftingRecipe> dummyAddLockRecipe(boolean isPrivate, Identifier id)
     {
         return dummySwapLockRecipe(Ingredient.of(Items.ENDER_CHEST), isPrivate, id);
     }
 
-    private <T extends Item> RecipeHolder<CraftingRecipe> dummySwapLockRecipe(Ingredient inputIngredient, boolean isPrivate, ResourceLocation id)
+    private <T extends Item> RecipeHolder<CraftingRecipe> dummySwapLockRecipe(Ingredient inputIngredient, boolean isPrivate, Identifier id)
     {
         Ingredient lock = Ingredient.of(KeyUtils.setPrivate(new ItemStack(Enderthing.LOCK.get()), isPrivate));
 
@@ -84,7 +84,7 @@ public class JEIPlugin implements IModPlugin
         return new RecipeHolder<>(id, new ShapelessRecipe(id.getNamespace() + "." + id.getPath().replace("/", "."), CraftingBookCategory.MISC, result, inputs));
     }
 
-    private <T extends Item> RecipeHolder<CraftingRecipe> dummyBoundRecipe(T item, ResourceLocation id)
+    private <T extends Item> RecipeHolder<CraftingRecipe> dummyBoundRecipe(T item, Identifier id)
     {
         Ingredient card = Ingredient.of(KeyUtils.setBound(new ItemStack(Enderthing.CARD.get()), Util.NIL_UUID));
 
@@ -99,7 +99,7 @@ public class JEIPlugin implements IModPlugin
         return new RecipeHolder<>(id, new ShapelessRecipe(id.getNamespace() + "." + id.getPath().replace("/", "."), CraftingBookCategory.MISC, result, inputs));
     }
 
-    private <T extends Item> RecipeHolder<CraftingRecipe> dummyPrivateRecipe(T item, ResourceLocation id)
+    private <T extends Item> RecipeHolder<CraftingRecipe> dummyPrivateRecipe(T item, Identifier id)
     {
         Ingredient goldNugget = Ingredient.of(Items.GOLD_NUGGET);
         Ingredient inputIngredient = Ingredient.of(item);

@@ -3,6 +3,7 @@ package dev.gigaherz.enderthing;
 import com.google.common.primitives.Longs;
 import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import joptsimple.internal.Strings;
 import net.minecraft.ChatFormatting;
@@ -17,6 +18,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -44,7 +46,7 @@ public class KeyUtils
     );
 
     public static final Supplier<DataComponentType<Unit>> IS_PRIVATE = DATA_COMPONENT_TYPES.register("is_private", () ->
-            DataComponentType.<Unit>builder().persistent(Codec.unit(Unit.INSTANCE)).networkSynchronized(StreamCodec.unit(Unit.INSTANCE)).build()
+            DataComponentType.<Unit>builder().persistent(MapCodec.unit(Unit.INSTANCE).codec()).networkSynchronized(StreamCodec.unit(Unit.INSTANCE)).build()
     );
 
     public static final Supplier<DataComponentType<Long>> KEY = DATA_COMPONENT_TYPES.register("key", () ->

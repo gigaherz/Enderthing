@@ -15,15 +15,14 @@ import dev.gigaherz.enderthing.network.SetItemKey;
 import dev.gigaherz.enderthing.recipes.AddLockRecipe;
 import dev.gigaherz.enderthing.recipes.MakeBoundRecipe;
 import dev.gigaherz.enderthing.recipes.MakePrivateRecipe;
-import net.minecraft.Util;
 import net.minecraft.client.color.item.Constant;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.client.data.models.model.*;
 import net.minecraft.client.renderer.item.ItemModel;
-import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
@@ -39,8 +38,9 @@ import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.data.tags.IntrinsicHolderTagsProvider;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Util;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.CustomRecipe;
@@ -54,9 +54,9 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
-import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
@@ -92,7 +92,7 @@ public class Enderthing
     private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
     public static final DeferredBlock<EnderKeyChestBlock>
-            KEY_CHEST = BLOCKS.registerBlock("key_chest", EnderKeyChestBlock::new, Block.Properties.ofFullCopy(Blocks.ENDER_CHEST));
+            KEY_CHEST = BLOCKS.registerBlock("key_chest", EnderKeyChestBlock::new, () -> Block.Properties.ofFullCopy(Blocks.ENDER_CHEST));
 
     public static final DeferredItem<EnderKeyChestBlockItem>
             KEY_CHEST_ITEM = ITEMS.registerItem("key_chest", props -> new EnderKeyChestBlockItem(KEY_CHEST.get(), props.useBlockDescriptionPrefix()));
@@ -153,9 +153,9 @@ public class Enderthing
         registrar.playToServer(SetItemKey.TYPE, SetItemKey.STREAM_CODEC, SetItemKey::handle);
     }
 
-    public static ResourceLocation location(String path)
+    public static Identifier location(String path)
     {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
+        return Identifier.fromNamespaceAndPath(MODID, path);
     }
 
     public void gatherData(GatherDataEvent.Client event)
@@ -198,7 +198,7 @@ public class Enderthing
         {
             blockModels.createParticleOnlyBlock(chestBlock, Blocks.OBSIDIAN);
             Item item = chestBlock.asItem();
-            ResourceLocation modelName = ModelTemplates.CHEST_INVENTORY.extend()
+            Identifier modelName = ModelTemplates.CHEST_INVENTORY.extend()
                     .transform(ItemDisplayContext.GUI, b -> b
                             .rotation(30, 45, 0)
                             .translation(0, 0, 0)
@@ -225,8 +225,8 @@ public class Enderthing
                             .scale(0.375f, 0.375f, 0.375f)
                     )
                     .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, b -> b
-                            .rotation(0, 315, 0)
-                            .translation(0, 0, 0)
+                            .rotation(-50, -40, -30)
+                            .translation(0, 2, 0)
                             .scale(0.4f, 0.4f, 0.4f)
                     )
                     .build()
@@ -237,13 +237,13 @@ public class Enderthing
 
         private static void tintedKeyModel(ItemModelGenerators itemModels, Item item, boolean hasBoundState)
         {
-            ResourceLocation baseTexture = TextureMapping.getItemTexture(item, "_base");
-            ResourceLocation layerTexture1 = TextureMapping.getItemTexture(item, "_layer1");
-            ResourceLocation layerTexture2 = TextureMapping.getItemTexture(item, "_layer2");
-            ResourceLocation layerTexture3 = TextureMapping.getItemTexture(item, "_layer3");
-            ResourceLocation privateTexture = TextureMapping.getItemTexture(item, "_private");
-            ResourceLocation publicModelName = ModelLocationUtils.getModelLocation(item);
-            ResourceLocation privateModelName = ModelLocationUtils.getModelLocation(item, "_private");
+            Identifier baseTexture = TextureMapping.getItemTexture(item, "_base");
+            Identifier layerTexture1 = TextureMapping.getItemTexture(item, "_layer1");
+            Identifier layerTexture2 = TextureMapping.getItemTexture(item, "_layer2");
+            Identifier layerTexture3 = TextureMapping.getItemTexture(item, "_layer3");
+            Identifier privateTexture = TextureMapping.getItemTexture(item, "_private");
+            Identifier publicModelName = ModelLocationUtils.getModelLocation(item);
+            Identifier privateModelName = ModelLocationUtils.getModelLocation(item, "_private");
             ModelTemplates.createItem("generated", TextureSlot.LAYER0, TextureSlot.LAYER1, TextureSlot.LAYER2, LAYER3).extend()
                     .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, b -> b
                             .rotation(90, 90, 0)
@@ -283,8 +283,8 @@ public class Enderthing
 
             if (hasBoundState)
             {
-                ResourceLocation boundTexture = TextureMapping.getItemTexture(item, "_bound");
-                ResourceLocation boundModelName = ModelLocationUtils.getModelLocation(item, "_bound");
+                Identifier boundTexture = TextureMapping.getItemTexture(item, "_bound");
+                Identifier boundModelName = ModelLocationUtils.getModelLocation(item, "_bound");
 
                 ModelTemplates.createItem("generated", TextureSlot.LAYER0, TextureSlot.LAYER1, TextureSlot.LAYER2, LAYER3, LAYER4).extend()
                         .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, b -> b
@@ -401,14 +401,14 @@ public class Enderthing
                                                 .setRolls(ConstantValue.exactly(1))
                                                 .add(LootItem.lootTableItem(block)
                                                         .when(hasSilkTouch())
-                                                        .apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY))
-                                                        .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                                                        .apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
+                                                                .include(DataComponents.CUSTOM_NAME)
                                                                 .include(KeyUtils.KEY.get())
                                                                 .include(KeyUtils.IS_PRIVATE.get())
                                                                 .include(KeyUtils.BINDING.get())
                                                         )
                                                         .otherwise(LootItem.lootTableItem(LOCK.get())
-                                                                .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                                                                .apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
                                                                         .include(KeyUtils.KEY.get())
                                                                         .include(KeyUtils.IS_PRIVATE.get())
                                                                         .include(KeyUtils.BINDING.get())
@@ -431,7 +431,7 @@ public class Enderthing
             protected Iterable<Block> getKnownBlocks()
             {
                 return BuiltInRegistries.BLOCK.entrySet().stream()
-                        .filter(e -> e.getKey().location().getNamespace().equals(MODID))
+                        .filter(e -> e.getKey().identifier().getNamespace().equals(MODID))
                         .map(Map.Entry::getValue)
                         .collect(Collectors.toList());
             }

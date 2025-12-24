@@ -1,33 +1,31 @@
 package dev.gigaherz.enderthing.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.network.SetItemKey;
 import joptsimple.internal.Strings;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import net.neoforged.neoforge.network.PacketDistributor;
-import org.lwjgl.glfw.GLFW;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
 {
-    private static final ResourceLocation CHEST_GUI_TEXTURE = Enderthing.location("textures/container/passcode.png");
+    private static final Identifier CHEST_GUI_TEXTURE = Enderthing.location("textures/container/passcode.png");
 
     private final NonNullList<ItemStack> itemPasscode = NonNullList.create();
     private Button setButton;
@@ -54,19 +52,19 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
         textPasscode = addRenderableWidget(new EditBox(font, leftPos + 12, topPos + 78, imageWidth - 24, 12, Component.literal(startKey))
         {
             @Override
-            public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
+            public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick)
             {
-                if (mouseX >= (double) this.getX() && mouseX < (double) (this.getX() + this.width)
-                        && mouseY >= (double) this.getY() && mouseY < (double) (this.getY() + this.height))
+                if (event.x() >= (double) this.getX() && event.x() < (double) (this.getX() + this.width)
+                        && event.y() >= (double) this.getY() && event.y() < (double) (this.getY() + this.height))
                 {
-                    if (mouseButton == 1 && !Strings.isNullOrEmpty(getValue()) && getValue().length() > 0)
+                    if (event.button() == InputConstants.MOUSE_BUTTON_RIGHT && !Strings.isNullOrEmpty(getValue()) && !getValue().isEmpty())
                     {
                         setValue("");
                         return true;
                     }
                 }
 
-                return super.mouseClicked(mouseX, mouseY, mouseButton);
+                return super.mouseClicked(event, isDoubleClick);
             }
         });
         textPasscode.setVisible(true);
@@ -98,35 +96,36 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
     }
 
     @Override
-    public boolean charTyped(char p_charTyped_1_, int p_charTyped_2_)
+    public boolean charTyped(CharacterEvent event)
     {
-        if (textPasscode.isFocused() && textPasscode.charTyped(p_charTyped_1_, p_charTyped_2_))
+        if (textPasscode.isFocused() && textPasscode.charTyped(event))
             return true;
 
-        return this.getFocused() != null && this.getFocused().charTyped(p_charTyped_1_, p_charTyped_2_);
+        return this.getFocused() != null && this.getFocused().charTyped(event);
     }
 
     @Override
-    public boolean keyPressed(int key, int scanCode, int modifiers)
+    public boolean keyPressed(KeyEvent event)
     {
         if (textPasscode.isFocused())
         {
-            if (textPasscode.keyPressed(key, scanCode, modifiers))
+            if (textPasscode.keyPressed(event))
                 return true;
-            if (key != GLFW.GLFW_KEY_ESCAPE && key != GLFW.GLFW_KEY_TAB && key != GLFW.GLFW_KEY_ENTER)
+            var key = event.key();
+            if (key != InputConstants.KEY_ESCAPE && key != InputConstants.KEY_TAB && key != InputConstants.KEY_RETURN)
                 return false;
         }
 
-        return super.keyPressed(key, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     @Override
-    public boolean mouseClicked(double x, double y, int btn)
+    public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick)
     {
-        if (btn == 0)
+        if (event.button() == InputConstants.MOUSE_BUTTON_LEFT)
         {
-            double xx = x - leftPos;
-            double yy = y - topPos;
+            double xx = event.x() - leftPos;
+            double yy = event.y() - topPos;
             for (Slot s : menu.slots)
             {
                 if (s.getItem().getCount() > 0 && xx >= s.x && xx < (s.x + 16) && yy >= s.y && yy < (s.y + 16))
@@ -140,10 +139,10 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
                 }
             }
         }
-        else if (btn == 1)
+        else if (event.button() == InputConstants.MOUSE_BUTTON_RIGHT)
         {
-            double xx = x - leftPos;
-            double yy = y - topPos;
+            double xx = event.x() - leftPos;
+            double yy = event.y() - topPos;
             if (xx >= 12 && xx < (imageWidth - 24) && yy >= 46 && yy < (46 + 16))
             {
                 itemPasscode.clear();
@@ -152,7 +151,7 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
             }
         }
 
-        return super.mouseClicked(x, y, btn);
+        return super.mouseClicked(event, isDoubleClick);
     }
 
     private void updateCodeText(String text)
@@ -181,10 +180,10 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
     }
 
     @Override
-    public void resize(@Nonnull Minecraft minecraft, int scaledWidth, int scaledHeight)
+    public void resize(int scaledWidth, int scaledHeight)
     {
         String s = textPasscode.getValue();
-        super.resize(minecraft, scaledWidth, scaledHeight);
+        super.resize(scaledWidth, scaledHeight);
         textPasscode.setValue(s);
     }
 

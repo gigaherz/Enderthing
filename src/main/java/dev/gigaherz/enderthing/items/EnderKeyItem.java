@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public class EnderKeyItem extends EnderthingItem
@@ -51,7 +50,7 @@ public class EnderKeyItem extends EnderthingItem
 
         if (id < 0)
         {
-            if (!worldIn.isClientSide)
+            if (!worldIn.isClientSide())
                 openPasscodeScreen(playerIn, stack);
             return InteractionResult.SUCCESS;
         }
@@ -67,7 +66,7 @@ public class EnderKeyItem extends EnderthingItem
         Player player = context.getPlayer();
         ItemStack stack = context.getItemInHand();
 
-        if (world.isClientSide)
+        if (world.isClientSide())
             return InteractionResult.SUCCESS;
 
         long id = KeyUtils.getKey(stack);

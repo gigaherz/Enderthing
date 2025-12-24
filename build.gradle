@@ -3,11 +3,11 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.95'
+    id 'net.neoforged.moddev' version '2.0.124'
 }
 
-neoForge.version = "21.7.11-beta"
-version = '1.8.1'
+neoForge.version = "21.11.12-beta"
+version = '1.9.0'
 group = 'dev.gigaherz.enderthing'
 base.archivesName = "Enderthing-${neoForge.minecraftVersion}"
 
@@ -75,7 +75,7 @@ neoForge {
     }
 
     parchment {
-        minecraftVersion="1.21.6"
+        minecraftVersion="1.21.11"
         mappingsVersion="BLEEDING-SNAPSHOT"
     }
 }

@@ -1,4 +1,4 @@
-// 1.21.6	2025-06-24T01:57:45.9751212	Model Definitions - enderthing
+// 1.21.11	2025-12-24T18:31:36.5130202	Model Definitions - enderthing
 871a549fa9f0eb5a62606385e5798851325c007b assets/enderthing/blockstates/key_chest.json
 07ed1a585cab06290fef1dc0e3d5f3d0a61a15f8 assets/enderthing/items/card.json
 1bccd6a2775ef70df62907b0ab5380594c80c3f5 assets/enderthing/items/key.json
@@ -8,7 +8,7 @@
 25214ab70520dd96ab8ba81322f3017330bf6837 assets/enderthing/models/block/key_chest.json
 b0a10af7cc44a1a2bed3cde060ea3a3870e53c09 assets/enderthing/models/item/card.json
 91ee5698ba177bee6f8f77f104b32aaa2818badf assets/enderthing/models/item/key.json
-d1d414b46f2c7fe7f4509a76a5a6f87db54bbec3 assets/enderthing/models/item/key_chest.json
+7385627688f1094ce89e7b83b36e23d617e9ca3d assets/enderthing/models/item/key_chest.json
 b120e4430ebaa219252252df21fded312a60d09a assets/enderthing/models/item/key_private.json
 4dc9726a22b507a74ba0ddd2e4930887834dc2df assets/enderthing/models/item/lock.json
 9b9c7598593ac7df9f7c30fcc5a37d06cebc3a30 assets/enderthing/models/item/lock_bound.json

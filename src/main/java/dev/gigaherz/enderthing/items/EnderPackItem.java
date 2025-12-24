@@ -14,7 +14,6 @@ import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public class EnderPackItem extends EnderthingItem
@@ -44,7 +43,7 @@ public class EnderPackItem extends EnderthingItem
         Player player = context.getPlayer();
         ItemStack stack = context.getItemInHand();
 
-        if (world.isClientSide)
+        if (world.isClientSide())
             return InteractionResult.SUCCESS;
 
         long id = KeyUtils.getKey(stack);
@@ -68,7 +67,7 @@ public class EnderPackItem extends EnderthingItem
         if (hand != InteractionHand.MAIN_HAND)
             return InteractionResult.PASS;
 
-        if (worldIn.isClientSide)
+        if (worldIn.isClientSide())
             return InteractionResult.SUCCESS;
 
         long id = KeyUtils.getKey(stack);

@@ -27,16 +27,21 @@ public record KeyColor(int layer) implements ItemTintSource
         if (id < 0)
             return 0xFF000000;
 
-        int r = ((int) (id >>> ((layer - 1) * 21)) & 0x7f) * 255 / 127;
-        int g = ((int) (id >>> ((layer - 1) * 21 + 7)) & 0x7f) * 255 / 127;
-        int b = ((int) (id >>> ((layer - 1) * 21 + 14)) & 0x7f) * 255 / 127;
-
-        return ARGB.color(255, r, g, b);
+        return getLayerColor(id, layer);
     }
 
     @Override
     public MapCodec<? extends ItemTintSource> type()
     {
         return CODEC;
+    }
+
+    public static int getLayerColor(long id, int layer)
+    {
+        int r = ((int) (id >>> ((layer - 1) * 21)) & 0x7f) * 255 / 127;
+        int g = ((int) (id >>> ((layer - 1) * 21 + 7)) & 0x7f) * 255 / 127;
+        int b = ((int) (id >>> ((layer - 1) * 21 + 14)) & 0x7f) * 255 / 127;
+
+        return ARGB.color(255, r, g, b);
     }
 }

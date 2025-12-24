@@ -20,12 +20,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EnderChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -58,7 +54,7 @@ public class EnderLockItem extends EnderthingItem
 
         if (id < 0 || playerIn.isShiftKeyDown())
         {
-            if (!worldIn.isClientSide)
+            if (!worldIn.isClientSide())
                 openPasscodeScreen(playerIn, stack);
             return InteractionResult.SUCCESS;
         }
@@ -74,7 +70,7 @@ public class EnderLockItem extends EnderthingItem
         Player player = context.getPlayer();
         ItemStack stack = context.getItemInHand();
 
-        if (worldIn.isClientSide)
+        if (worldIn.isClientSide())
             return InteractionResult.SUCCESS;
 
         BlockState state = worldIn.getBlockState(pos);
@@ -96,7 +92,7 @@ public class EnderLockItem extends EnderthingItem
                 ItemStack oldStack = KeyUtils.getLock(oldId, oldPrivate, bound);
 
                 if (player != null)
-                    ItemHandlerHelper.giveItemToPlayer(player, oldStack);
+                    player.getInventory().placeItemBackInInventory(oldStack);
                 else
                     Containers.dropItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
             }

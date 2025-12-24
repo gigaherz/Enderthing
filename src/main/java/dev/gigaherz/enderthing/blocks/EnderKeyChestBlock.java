@@ -5,17 +5,17 @@ import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.gui.Containers;
 import dev.gigaherz.enderthing.util.ILongAccessor;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -38,10 +38,6 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -70,7 +66,6 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
     public DoubleBlockCombiner.NeighborCombineResult<? extends ChestBlockEntity> combine(BlockState p_225536_1_, Level p_225536_2_, BlockPos p_225536_3_, boolean p_225536_4_)
     {
         return DoubleBlockCombiner.Combiner::acceptNone;
@@ -92,7 +87,7 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType)
     {
-        return level.isClientSide ? createTickerHelper(blockEntityType, this.blockEntityType(), EnderKeyChestBlockEntity::lidAnimationTick) : null;
+        return level.isClientSide() ? createTickerHelper(blockEntityType, this.blockEntityType(), EnderKeyChestBlockEntity::lidAnimationTick) : null;
     }
 
     public BlockEntityType<? extends EnderKeyChestBlockEntity> blockEntityType()
@@ -117,7 +112,7 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
     @Override
     public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player)
     {
-        return getItem(level, pos, Screen.hasShiftDown() || (player.getAbilities().instabuild && Screen.hasControlDown()));
+        return getItem(level, pos, includeData);
     }
 
     @Override
@@ -135,13 +130,13 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
         if (pLevel.getBlockState(pos.above()).isRedstoneConductor(pLevel, pos))
             return InteractionResult.FAIL;
 
-        if (pLevel.isClientSide)
+        if (pLevel.isClientSide())
             return InteractionResult.SUCCESS;
 
         if (player.isShiftKeyDown())
         {
             ItemStack stack = getItem(pLevel, pos, false);
-            ItemHandlerHelper.giveItemToPlayer(player, stack);
+            player.getInventory().placeItemBackInInventory(stack);
             pLevel.setBlockAndUpdate(pos, Blocks.ENDER_CHEST.defaultBlockState()
                     .setValue(EnderKeyChestBlock.WATERLOGGED, state.getValue(EnderChestBlock.WATERLOGGED))
                     .setValue(EnderKeyChestBlock.FACING, state.getValue(EnderChestBlock.FACING)));
@@ -197,7 +192,6 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
     public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, RandomSource rand)
     {
         for (int i = 0; i < 3; ++i)
@@ -243,44 +237,18 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
         }
     }
 
-    @Deprecated
     @Override
     public boolean hasAnalogOutputSignal(BlockState state)
     {
         return true;
     }
 
-    @Deprecated
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos)
+    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction)
     {
         if (level.getBlockEntity(pos) instanceof EnderKeyChestBlockEntity be && be.hasInventory())
-            return getRedstoneSignalFromContainer(be.getInventory());
+            return AbstractContainerMenu.getRedstoneSignalFromContainer(be.getInventory());
         return 0;
-    }
-
-    public static int getRedstoneSignalFromContainer(@Nullable IItemHandler handler)
-    {
-        if (handler == null)
-        {
-            return 0;
-        }
-
-        int nonEmptyStacks = 0;
-        float fullness = 0.0F;
-
-        for (int j = 0; j < handler.getSlots(); ++j)
-        {
-            ItemStack itemstack = handler.getStackInSlot(j);
-            if (!itemstack.isEmpty())
-            {
-                fullness += (float) itemstack.getCount() / (float) Math.min(handler.getSlotLimit(j), itemstack.getMaxStackSize());
-                ++nonEmptyStacks;
-            }
-        }
-
-        fullness /= (float) handler.getSlots();
-        return Mth.floor(fullness * 14.0F) + (nonEmptyStacks > 0 ? 1 : 0);
     }
 
     @Deprecated
