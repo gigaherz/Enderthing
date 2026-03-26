@@ -3,15 +3,15 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.124'
+    id 'net.neoforged.moddev' version '2.0.141'
 }
 
-neoForge.version = "21.11.12-beta"
-version = '1.9.0'
+neoForge.version = "26.1.0.4-beta"
+version = '1.10.0'
 group = 'dev.gigaherz.enderthing'
 base.archivesName = "Enderthing-${neoForge.minecraftVersion}"
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 sourceSets {
     main.resources.srcDirs += 'src/main/generated_resources'

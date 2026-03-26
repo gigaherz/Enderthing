@@ -1,12 +1,13 @@
 package dev.gigaherz.enderthing.recipes;
 
+import com.mojang.serialization.MapCodec;
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -14,10 +15,8 @@ import net.minecraft.world.level.Level;
 
 public class AddLockRecipe extends CustomRecipe
 {
-    public AddLockRecipe(CraftingBookCategory cat)
-    {
-        super(cat);
-    }
+    public static final MapCodec<AddLockRecipe> CODEC = MapCodec.unit(AddLockRecipe::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, AddLockRecipe> STREAM_CODEC = StreamCodec.of((_, _) -> {}, (_) -> new AddLockRecipe());
 
     @Override
     public boolean matches(CraftingInput inv, Level worldIn)
@@ -55,7 +54,7 @@ public class AddLockRecipe extends CustomRecipe
     }
 
     @Override
-    public ItemStack assemble(CraftingInput inv, HolderLookup.Provider lookup)
+    public ItemStack assemble(CraftingInput inv)
     {
         ItemStack chest = ItemStack.EMPTY;
         ItemStack lock = ItemStack.EMPTY;

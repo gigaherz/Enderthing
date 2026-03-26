@@ -37,7 +37,7 @@ public record SetItemKey(long key) implements CustomPacketPayload
                 {
                     ((PasscodeContainer) sender.containerMenu).keyHolder.set(key);
                     sender.closeContainer();
-                    sender.displayClientMessage(Component.translatable("text.enderthing.key_change", key), true);
+                    sender.sendOverlayMessage(Component.translatable("text.enderthing.key_change", key));
                 }
             });
         }

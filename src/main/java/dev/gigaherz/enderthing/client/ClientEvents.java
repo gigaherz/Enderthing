@@ -5,17 +5,12 @@ import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.gui.KeyScreen;
 import dev.gigaherz.enderthing.gui.PasscodeScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.Material;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.IItemDecorator;
 import net.neoforged.neoforge.client.event.*;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = Enderthing.MODID)
@@ -46,12 +41,12 @@ public class ClientEvents
         event.register(Enderthing.location("key_chest"), EnderKeyChestSpecialRenderer.Unbaked.CODEC);
     }
 
-    private static final Material BASE_PUBLIC = new Material(TextureAtlas.LOCATION_ITEMS, Enderthing.location("item/lock_public"));
-    private static final Material BASE_PRIVATE = new Material(TextureAtlas.LOCATION_ITEMS, Enderthing.location("item/lock_private"));
-    private static final Material BASE_BOUND = new Material(TextureAtlas.LOCATION_ITEMS, Enderthing.location("item/lock_bound"));
-    private static final Material LAYER1 = new Material(TextureAtlas.LOCATION_ITEMS, Enderthing.location("item/lock_layer1"));
-    private static final Material LAYER2 = new Material(TextureAtlas.LOCATION_ITEMS, Enderthing.location("item/lock_layer2"));
-    private static final Material LAYER3 = new Material(TextureAtlas.LOCATION_ITEMS, Enderthing.location("item/lock_layer3"));
+    private static final SpriteId BASE_PUBLIC = new SpriteId(TextureAtlas.LOCATION_ITEMS, Enderthing.location("item/lock_public"));
+    private static final SpriteId BASE_PRIVATE = new SpriteId(TextureAtlas.LOCATION_ITEMS, Enderthing.location("item/lock_private"));
+    private static final SpriteId BASE_BOUND = new SpriteId(TextureAtlas.LOCATION_ITEMS, Enderthing.location("item/lock_bound"));
+    private static final SpriteId LAYER1 = new SpriteId(TextureAtlas.LOCATION_ITEMS, Enderthing.location("item/lock_layer1"));
+    private static final SpriteId LAYER2 = new SpriteId(TextureAtlas.LOCATION_ITEMS, Enderthing.location("item/lock_layer2"));
+    private static final SpriteId LAYER3 = new SpriteId(TextureAtlas.LOCATION_ITEMS, Enderthing.location("item/lock_layer3"));
 
     @SubscribeEvent
     public static void specialModels(RegisterItemDecorationsEvent event)

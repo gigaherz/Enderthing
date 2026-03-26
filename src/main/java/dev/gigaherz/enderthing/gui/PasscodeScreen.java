@@ -5,7 +5,7 @@ import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
 import dev.gigaherz.enderthing.network.SetItemKey;
 import joptsimple.internal.Strings;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -36,9 +36,7 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
 
     public PasscodeScreen(PasscodeContainer screenContainer, Inventory inv, Component titleIn)
     {
-        super(screenContainer, inv, titleIn);
-        imageWidth = 212;
-        imageHeight = 218;
+        super(screenContainer, inv, titleIn, 212, 218);
         this.inventoryLabelY = this.imageHeight - 94;
     }
 
@@ -188,45 +186,39 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
     }
 
     @Override // render
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks)
     {
-        this.renderBackground(graphics, mouseX, mouseY, partialTicks);
-        super.render(graphics, mouseX, mouseY, partialTicks);
+        this.extractBackground(graphics, mouseX, mouseY, partialTicks);
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 
         //Lighting.turnBackOn();
         for (int i = 0; i < itemPasscode.size(); i++)
         {
             ItemStack st = itemPasscode.get(i);
-            graphics.renderItem(st, leftPos + 12 + i * 16, topPos + 46);
+            graphics.item(st, leftPos + 12 + i * 16, topPos + 46);
         }
         if (preview != null)
-            graphics.renderItem(preview, leftPos + imageWidth - 58, topPos + 97);
+            graphics.item(preview, leftPos + imageWidth - 58, topPos + 97);
         //Lighting.turnOff();
 
-        this.renderTooltip(graphics, mouseX, mouseY); // draw tooltips
+        this.extractTooltip(graphics, mouseX, mouseY); // draw tooltips
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float p_230450_2_, int mouseX, int mouseY)
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a)
     {
         graphics.blit(RenderPipelines.GUI_TEXTURED, CHEST_GUI_TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight, 256, 256);
     }
 
-    @Override // background
-    protected void renderTooltip(GuiGraphics graphics, int p_230459_2_, int p_230459_3_)
-    {
-        super.renderTooltip(graphics, p_230459_2_, p_230459_3_);
-    }
-
     @Override // foreground
-    protected void renderLabels(GuiGraphics graphics, int p_230451_2_, int p_230451_3_)
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym)
     {
-        super.renderLabels(graphics, p_230451_2_, p_230451_3_);
+        super.extractLabels(graphics, xm, ym);
 
-        graphics.drawString(font, getKeyFormatted("Current key", menu.keyHolder.get(), "<not set>"), 10, 22, 0xd8d8d8, true);
-        graphics.drawString(font, Component.literal("Click on some items to set a key... "), 10, 35, 0xd8d8d8, true);
-        graphics.drawString(font, Component.literal("...or enter a key manually"), 10, 66, 0xd8d8d8, true);
-        graphics.drawString(font, getKeyFormatted("Key", currentCode, "<invalid>"), 10, 100, 0xd8d8d8, true);
+        graphics.text(font, getKeyFormatted("Current key", menu.keyHolder.get(), "<not set>"), 10, 22, 0xd8d8d8, true);
+        graphics.text(font, Component.literal("Click on some items to set a key... "), 10, 35, 0xd8d8d8, true);
+        graphics.text(font, Component.literal("...or enter a key manually"), 10, 66, 0xd8d8d8, true);
+        graphics.text(font, getKeyFormatted("Key", currentCode, "<invalid>"), 10, 100, 0xd8d8d8, true);
     }
 
     private Component getKeyFormatted(String s1, long currentCode, String s2)

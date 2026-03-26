@@ -7,6 +7,7 @@ import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -14,9 +15,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -50,9 +49,15 @@ public class EnderCardItem extends Item
     }
 
     @Override
-    public ItemStack getCraftingRemainder(ItemStack itemStack)
+    public @org.jspecify.annotations.Nullable ItemStackTemplate getCraftingRemainder(ItemInstance instance)
     {
-        return itemStack.copy();
+        return switch (instance)
+        {
+            case ItemStack stack ->
+                    new ItemStackTemplate(stack.getItem(), stack.getCount(), stack.getComponentsPatch());
+            case ItemStackTemplate template -> template;
+            default -> null;
+        };
     }
 
     @Override
@@ -66,7 +71,7 @@ public class EnderCardItem extends Item
         {
             bindToPlayer(stack, player);
 
-            player.displayClientMessage(Component.translatable("text.enderthing.ender_card.bound"), true);
+            player.sendOverlayMessage(Component.translatable("text.enderthing.ender_card.bound"));
 
             return InteractionResult.SUCCESS;
         }
@@ -109,13 +114,13 @@ public class EnderCardItem extends Item
 
             if (player != null && uuid != null)
             {
-                if (name == null || name.length() == 0)
-                    player.displayClientMessage(Component.translatable("text.enderthing.ender_chest.bound1",
-                            Component.literal(uuid.toString())), true);
+                if (name == null || name.isEmpty())
+                    player.sendOverlayMessage(Component.translatable("text.enderthing.ender_chest.bound1",
+                            Component.literal(uuid.toString())));
                 else
-                    player.displayClientMessage(Component.translatable("text.enderthing.ender_chest.bound2",
+                    player.sendOverlayMessage(Component.translatable("text.enderthing.ender_chest.bound2",
                             Component.literal(uuid.toString()),
-                            Component.literal(name)), true);
+                            Component.literal(name)));
             }
 
             return InteractionResult.SUCCESS;

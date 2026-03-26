@@ -6,14 +6,14 @@ import dev.gigaherz.enderthing.KeyUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.object.chest.ChestModel;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
-import net.minecraft.client.resources.model.Material;
-import net.minecraft.client.resources.model.MaterialSet;
+import net.minecraft.client.resources.model.sprite.SpriteGetter;
+import net.minecraft.client.resources.model.sprite.SpriteId;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Vector3fc;
@@ -24,10 +24,10 @@ import java.util.function.Consumer;
 public class EnderKeyChestSpecialRenderer implements SpecialModelRenderer<ItemStack>
 {
     private final ChestModel model;
-    private final Material material;
-    private final MaterialSet materials;
+    private final SpriteId material;
+    private final SpriteGetter materials;
 
-    public EnderKeyChestSpecialRenderer(ChestModel model, Material material, MaterialSet materials)
+    public EnderKeyChestSpecialRenderer(ChestModel model, SpriteId material, SpriteGetter materials)
     {
         this.model = model;
         this.material = material;
@@ -35,7 +35,7 @@ public class EnderKeyChestSpecialRenderer implements SpecialModelRenderer<ItemSt
     }
 
     @Override
-    public void submit(@Nullable ItemStack lock, ItemDisplayContext displayContext, PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay, boolean hasFoil, int outlineColor)
+    public void submit(@Nullable ItemStack lock,PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay, boolean hasFoil, int outlineColor)
     {
         collector.submitModel(
                 this.model,
@@ -57,7 +57,7 @@ public class EnderKeyChestSpecialRenderer implements SpecialModelRenderer<ItemSt
 
             itemModelResolver.updateForTopItem(lockState, lock, ItemDisplayContext.FIXED, null, null, 0);
 
-            EnderKeyChestRenderer.renderLockOnChest(lockState, poseStack, collector, LightTexture.FULL_BRIGHT, 0);
+            EnderKeyChestRenderer.renderLockOnChest(lockState, poseStack, collector, LightCoordsUtil.FULL_BRIGHT, 0);
         }
     }
 
@@ -76,7 +76,7 @@ public class EnderKeyChestSpecialRenderer implements SpecialModelRenderer<ItemSt
         return KeyUtils.getLock(KeyUtils.getKey(stack), KeyUtils.isPrivate(stack), KeyUtils.getBound(stack));
     }
 
-    public static class Unbaked implements SpecialModelRenderer.Unbaked
+    public static class Unbaked implements SpecialModelRenderer.Unbaked<ItemStack>
     {
         public static final Unbaked INSTANCE = new Unbaked();
         public static final MapCodec<Unbaked> CODEC = MapCodec.unit(INSTANCE);
@@ -92,11 +92,11 @@ public class EnderKeyChestSpecialRenderer implements SpecialModelRenderer<ItemSt
         }
 
         @Override
-        public @org.jspecify.annotations.Nullable SpecialModelRenderer<?> bake(BakingContext context)
+        public @org.jspecify.annotations.Nullable EnderKeyChestSpecialRenderer bake(BakingContext context)
         {
             ChestModel model = new ChestModel(context.entityModelSet().bakeLayer(ModelLayers.CHEST));
-            Material material = Sheets.ENDER_CHEST_LOCATION;
-            return new EnderKeyChestSpecialRenderer(model, material, context.materials());
+            SpriteId material = Sheets.ENDER_CHEST_LOCATION;
+            return new EnderKeyChestSpecialRenderer(model, material, context.sprites());
         }
     }
 }

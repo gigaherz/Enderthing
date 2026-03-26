@@ -21,6 +21,7 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.client.data.models.model.*;
 import net.minecraft.client.renderer.item.ItemModel;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -113,12 +114,12 @@ public class Enderthing
     public static final DeferredHolder<MenuType<?>, MenuType<PasscodeContainer>>
             PASSCODE_CONTAINER = MENU_TYPES.register("passcode", () -> IMenuTypeExtension.create(PasscodeContainer::new));
 
-    public static final DeferredHolder<RecipeSerializer<?>, CustomRecipe.Serializer<MakePrivateRecipe>>
-            MAKE_PRIVATE = RECIPE_SERIALIZERS.register("make_private", () -> new CustomRecipe.Serializer<>(MakePrivateRecipe::new));
-    public static final DeferredHolder<RecipeSerializer<?>, CustomRecipe.Serializer<AddLockRecipe>>
-            ADD_LOCK = RECIPE_SERIALIZERS.register("add_lock", () -> new CustomRecipe.Serializer<>(AddLockRecipe::new));
-    public static final DeferredHolder<RecipeSerializer<?>, CustomRecipe.Serializer<MakeBoundRecipe>>
-            MAKE_BOUND = RECIPE_SERIALIZERS.register("make_bound", () -> new CustomRecipe.Serializer<>(MakeBoundRecipe::new));
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MakePrivateRecipe>>
+            MAKE_PRIVATE = RECIPE_SERIALIZERS.register("make_private", () -> new RecipeSerializer<>(MakePrivateRecipe.CODEC, MakePrivateRecipe.STREAM_CODEC));
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<AddLockRecipe>>
+            ADD_LOCK = RECIPE_SERIALIZERS.register("add_lock", () -> new RecipeSerializer<>(AddLockRecipe.CODEC, AddLockRecipe.STREAM_CODEC));
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MakeBoundRecipe>>
+            MAKE_BOUND = RECIPE_SERIALIZERS.register("make_bound", () -> new RecipeSerializer<>(MakeBoundRecipe.CODEC, MakeBoundRecipe.STREAM_CODEC));
 
     public static DeferredHolder<CreativeModeTab, CreativeModeTab> ENDERTHING_GROUP =
             CREATIVE_TABS.register("enderthing_things", () -> new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 0)
@@ -237,11 +238,11 @@ public class Enderthing
 
         private static void tintedKeyModel(ItemModelGenerators itemModels, Item item, boolean hasBoundState)
         {
-            Identifier baseTexture = TextureMapping.getItemTexture(item, "_base");
-            Identifier layerTexture1 = TextureMapping.getItemTexture(item, "_layer1");
-            Identifier layerTexture2 = TextureMapping.getItemTexture(item, "_layer2");
-            Identifier layerTexture3 = TextureMapping.getItemTexture(item, "_layer3");
-            Identifier privateTexture = TextureMapping.getItemTexture(item, "_private");
+            Material baseTexture = TextureMapping.getItemTexture(item, "_base");
+            Material layerTexture1 = TextureMapping.getItemTexture(item, "_layer1");
+            Material layerTexture2 = TextureMapping.getItemTexture(item, "_layer2");
+            Material layerTexture3 = TextureMapping.getItemTexture(item, "_layer3");
+            Material privateTexture = TextureMapping.getItemTexture(item, "_private");
             Identifier publicModelName = ModelLocationUtils.getModelLocation(item);
             Identifier privateModelName = ModelLocationUtils.getModelLocation(item, "_private");
             ModelTemplates.createItem("generated", TextureSlot.LAYER0, TextureSlot.LAYER1, TextureSlot.LAYER2, LAYER3).extend()
@@ -283,7 +284,7 @@ public class Enderthing
 
             if (hasBoundState)
             {
-                Identifier boundTexture = TextureMapping.getItemTexture(item, "_bound");
+                Material boundTexture = TextureMapping.getItemTexture(item, "_bound");
                 Identifier boundModelName = ModelLocationUtils.getModelLocation(item, "_bound");
 
                 ModelTemplates.createItem("generated", TextureSlot.LAYER0, TextureSlot.LAYER1, TextureSlot.LAYER2, LAYER3, LAYER4).extend()

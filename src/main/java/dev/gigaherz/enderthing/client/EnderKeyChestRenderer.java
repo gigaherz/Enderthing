@@ -13,12 +13,12 @@ import net.minecraft.client.renderer.blockentity.ChestRenderer;
 import net.minecraft.client.renderer.blockentity.state.ChestRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
@@ -99,7 +99,7 @@ public class EnderKeyChestRenderer extends ChestRenderer<EnderKeyChestBlockEntit
     }
 
     @Override
-    protected @Nullable Material getCustomMaterial(EnderKeyChestBlockEntity blockEntity, ChestRenderState renderState)
+    protected @Nullable SpriteId getCustomSprite(EnderKeyChestBlockEntity blockEntity, ChestRenderState renderState)
     {
         return Sheets.ENDER_CHEST_LOCATION;
     }

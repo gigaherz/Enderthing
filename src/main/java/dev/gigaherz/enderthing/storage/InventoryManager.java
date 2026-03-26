@@ -5,11 +5,12 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.*;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.gigaherz.enderthing.Enderthing;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
-import net.minecraft.world.level.storage.DimensionDataStorage;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.stream.Stream;
 public class InventoryManager extends SavedData implements IInventoryManager
 {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final String DATA_NAME = "enderthing_InventoryStorageManager";
+    private static final Identifier DATA_NAME = Enderthing.location("inventory_storage_manager");
 
     public static MapCodec<UUID> uuidPairOfLongs(String baseName)
     {
@@ -81,7 +82,7 @@ public class InventoryManager extends SavedData implements IInventoryManager
         }
         ServerLevel overworld = world.getServer().overworld();
 
-        DimensionDataStorage storage = overworld.getDataStorage();
+        var storage = overworld.getDataStorage();
         return storage.computeIfAbsent(TYPE);
     }
 

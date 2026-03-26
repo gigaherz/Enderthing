@@ -1,10 +1,11 @@
 package dev.gigaherz.enderthing.recipes;
 
+import com.mojang.serialization.MapCodec;
 import dev.gigaherz.enderthing.Enderthing;
 import dev.gigaherz.enderthing.KeyUtils;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -12,10 +13,8 @@ import net.minecraft.world.level.Level;
 
 public class MakeBoundRecipe extends CustomRecipe
 {
-    public MakeBoundRecipe(CraftingBookCategory cat)
-    {
-        super(cat);
-    }
+    public static final MapCodec<MakeBoundRecipe> CODEC = MapCodec.unit(MakeBoundRecipe::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, MakeBoundRecipe> STREAM_CODEC = StreamCodec.of((_, _) -> {}, (_) -> new MakeBoundRecipe());
 
     @Override
     public boolean matches(CraftingInput inv, Level worldIn)
@@ -45,7 +44,7 @@ public class MakeBoundRecipe extends CustomRecipe
     }
 
     @Override
-    public ItemStack assemble(CraftingInput inv, HolderLookup.Provider lookup)
+    public ItemStack assemble(CraftingInput inv)
     {
         ItemStack holder = ItemStack.EMPTY;
         ItemStack card = ItemStack.EMPTY;
