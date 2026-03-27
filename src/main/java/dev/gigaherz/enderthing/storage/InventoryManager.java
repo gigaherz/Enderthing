@@ -102,6 +102,7 @@ public class InventoryManager extends SavedData implements IInventoryManager
         if (container == null)
         {
             container = new Container();
+            container.setManager(this);
             perPlayer.put(new UUID(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits()), container);
             makeDirty();
         }
