@@ -7,7 +7,7 @@ plugins {
 }
 
 neoForge.version = "21.11.12-beta"
-version = '1.9.0'
+version = '1.9.1'
 group = 'dev.gigaherz.enderthing'
 base.archivesName = "Enderthing-${neoForge.minecraftVersion}"
 
