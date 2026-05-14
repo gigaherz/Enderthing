@@ -18,76 +18,48 @@ public class AddLockRecipe extends CustomRecipe
     public static final MapCodec<AddLockRecipe> CODEC = MapCodec.unit(AddLockRecipe::new);
     public static final StreamCodec<RegistryFriendlyByteBuf, AddLockRecipe> STREAM_CODEC = StreamCodec.of((_, _) -> {}, (_) -> new AddLockRecipe());
 
-    @Override
-    public boolean matches(CraftingInput inv, Level worldIn)
+    private static int getLockIndex(CraftingInput inv)
     {
-        boolean chestHasLock = false;
         int chest = -1;
         int lock = -1;
         for (int i = 0; i < inv.size(); i++)
         {
             ItemStack st = inv.getItem(i);
-            if (st.getItem() == Items.ENDER_CHEST)
+            if (st.is(Items.ENDER_CHEST) || st.is(Enderthing.KEY_CHEST_ITEM))
             {
                 if (chest >= 0)
-                    return false;
+                    return -1;
                 chest = i;
             }
-            else if (st.getItem() == Enderthing.KEY_CHEST_ITEM.get())
-            {
-                if (chest >= 0)
-                    return false;
-                chest = i;
-                chestHasLock = true;
-            }
-            else if (st.getItem() == Enderthing.LOCK.get())
+            else if (st.is(Enderthing.LOCK))
             {
                 if (lock >= 0)
-                    return false;
+                    return -1;
                 lock = i;
             }
-            else if (st.getCount() > 0)
-                return false;
+            else if (!st.isEmpty())
+                return -1;
         }
-        // Make sure we found either both, or a chest with lock.
-        return chest >= 0 && (chestHasLock || lock >= 0);
+        // Make sure we found both.
+        return chest >= 0 && lock >= 0 ? lock : -1;
+    }
+
+    @Override
+    public boolean matches(CraftingInput inv, Level worldIn)
+    {
+        return getLockIndex(inv) >= 0;
     }
 
     @Override
     public ItemStack assemble(CraftingInput inv)
     {
-        ItemStack chest = ItemStack.EMPTY;
-        ItemStack lock = ItemStack.EMPTY;
+        int lock = getLockIndex(inv);
 
-        for (int i = 0; i < inv.size(); i++)
-        {
-            ItemStack st = inv.getItem(i);
-            if (st.getItem() == Items.ENDER_CHEST || st.getItem() == Enderthing.KEY_CHEST_ITEM.get())
-            {
-                if (chest.getCount() > 0)
-                    return ItemStack.EMPTY;
-                chest = st;
-            }
-            else if (st.getItem() == Enderthing.LOCK.get())
-            {
-                if (lock.getCount() > 0)
-                    return ItemStack.EMPTY;
-                lock = st;
-            }
-            else if (st.getCount() > 0)
-                return ItemStack.EMPTY;
-        }
+        if (lock < 0)
+            return ItemStack.EMPTY;
 
-        // Make sure we found both.
-        if (chest.getCount() > 0)
-        {
-            if (lock.getCount() > 0)
-                return KeyUtils.getKeyChest(KeyUtils.getKey(lock), KeyUtils.isPrivate(lock), KeyUtils.getBound(lock));
-            else
-                return new ItemStack(Items.ENDER_CHEST);
-        }
-
-        return ItemStack.EMPTY;
+        var lockStack = inv.getItem(lock);
+        return KeyUtils.getKeyChest(KeyUtils.getKey(lockStack), KeyUtils.isPrivate(lockStack), KeyUtils.getBound(lockStack));
     }
 
     @Override

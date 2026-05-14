@@ -6,8 +6,8 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.141'
 }
 
-neoForge.version = "26.1.0.4-beta"
-version = '1.10.0'
+neoForge.version = "26.1.2.50-beta"
+version = '1.10.1'
 group = 'dev.gigaherz.enderthing'
 base.archivesName = "Enderthing-${neoForge.minecraftVersion}"
 
@@ -15,33 +15,6 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 sourceSets {
     main.resources.srcDirs += 'src/main/generated_resources'
-}
-
-repositories {
-    mavenLocal()
-    maven {
-        url 'https://dogforce-games.com/maven'
-    }
-    maven {
-        url "https://dvs1.progwml6.com/files/maven"
-    }
-    maven {
-        url "https://github.com/TehNut/temporary-maven-thing/tree/master/maven"
-    }
-    maven { // TOP<
-        name 'tterrag maven'
-        url "https://maven.tterrag.com/"
-    }
-    maven {
-        // location of the maven that hosts JEI files since January 2023
-        name = "Jared's maven"
-        url = "https://maven.blamejared.com/"
-    }
-    maven {
-        // location of a maven mirror for JEI files, as a fallback
-        name = "ModMaven"
-        url = "https://modmaven.dev"
-    }
 }
 
 neoForge {
@@ -73,18 +46,33 @@ neoForge {
             sourceSet(sourceSets.main)
         }
     }
+}
 
-    parchment {
-        minecraftVersion="1.21.11"
-        mappingsVersion="BLEEDING-SNAPSHOT"
+repositories {
+    mavenLocal()
+    maven {
+        // location of the maven that hosts JEI files since January 2023
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+    }
+    maven {
+        // location of a maven mirror for JEI files, as a fallback
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+    }
+    maven {
+        // RS
+        name = "CreeperHost Maven"
+        url = "https://maven.creeperhost.net/"
     }
 }
 
 dependencies {
-    //compileOnly "mezz.jei:jei-1.21-common-api:19.3.1.25"
-    //runtimeOnly "mezz.jei:jei-1.21-common:19.3.1.25"
-    //compileOnly "mezz.jei:jei-1.21-neoforge-api:19.3.1.25"
-    //runtimeOnly "mezz.jei:jei-1.21-neoforge:19.3.1.25"
+    compileOnly "mezz.jei:jei-26.1.2-common-api:29.5.0.28"
+    runtimeOnly "mezz.jei:jei-26.1.2-common:29.5.0.28"
+    compileOnly "mezz.jei:jei-26.1.2-neoforge-api:29.5.0.28"
+    runtimeOnly "mezz.jei:jei-26.1.2-neoforge:29.5.0.28"
+    runtimeOnly("com.refinedmods.refinedstorage:refinedstorage-neoforge:3.0.0-beta.6")
 }
 
 jar {

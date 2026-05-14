@@ -15,6 +15,7 @@ import dev.gigaherz.enderthing.network.SetItemKey;
 import dev.gigaherz.enderthing.recipes.AddLockRecipe;
 import dev.gigaherz.enderthing.recipes.MakeBoundRecipe;
 import dev.gigaherz.enderthing.recipes.MakePrivateRecipe;
+import dev.gigaherz.enderthing.recipes.RemoveLockRecipe;
 import net.minecraft.client.color.item.Constant;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -50,6 +51,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -93,7 +95,7 @@ public class Enderthing
     private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
     public static final DeferredBlock<EnderKeyChestBlock>
-            KEY_CHEST = BLOCKS.registerBlock("key_chest", EnderKeyChestBlock::new, () -> Block.Properties.ofFullCopy(Blocks.ENDER_CHEST));
+            KEY_CHEST = BLOCKS.registerBlock("key_chest", EnderKeyChestBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.ENDER_CHEST));
 
     public static final DeferredItem<EnderKeyChestBlockItem>
             KEY_CHEST_ITEM = ITEMS.registerItem("key_chest", props -> new EnderKeyChestBlockItem(KEY_CHEST.get(), props.useBlockDescriptionPrefix()));
@@ -118,6 +120,8 @@ public class Enderthing
             MAKE_PRIVATE = RECIPE_SERIALIZERS.register("make_private", () -> new RecipeSerializer<>(MakePrivateRecipe.CODEC, MakePrivateRecipe.STREAM_CODEC));
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<AddLockRecipe>>
             ADD_LOCK = RECIPE_SERIALIZERS.register("add_lock", () -> new RecipeSerializer<>(AddLockRecipe.CODEC, AddLockRecipe.STREAM_CODEC));
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<RemoveLockRecipe>>
+            REMOVE_LOCK = RECIPE_SERIALIZERS.register("remove_lock", () -> new RecipeSerializer<>(RemoveLockRecipe.CODEC, RemoveLockRecipe.STREAM_CODEC));
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MakeBoundRecipe>>
             MAKE_BOUND = RECIPE_SERIALIZERS.register("make_bound", () -> new RecipeSerializer<>(MakeBoundRecipe.CODEC, MakeBoundRecipe.STREAM_CODEC));
 
@@ -497,6 +501,7 @@ public class Enderthing
 
                     SpecialRecipeBuilder.special(MakePrivateRecipe::new).save(output, "enderthing:make_private");
                     SpecialRecipeBuilder.special(AddLockRecipe::new).save(output, "enderthing:add_lock");
+                    SpecialRecipeBuilder.special(RemoveLockRecipe::new).save(output, "enderthing:remove_lock");
                     SpecialRecipeBuilder.special(MakeBoundRecipe::new).save(output, "enderthing:make_bound");
                 }
             };

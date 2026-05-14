@@ -127,7 +127,7 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
         if (!(pLevel.getBlockEntity(pos) instanceof EnderKeyChestBlockEntity chest))
             return InteractionResult.PASS;
 
-        if (pLevel.getBlockState(pos.above()).isRedstoneConductor(pLevel, pos))
+        if (pLevel.getBlockState(pos.above()).isRedstoneConductor(pLevel, pos.above()))
             return InteractionResult.FAIL;
 
         if (pLevel.isClientSide())

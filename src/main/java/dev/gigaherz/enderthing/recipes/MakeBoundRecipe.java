@@ -30,7 +30,7 @@ public class MakeBoundRecipe extends CustomRecipe
                     holder = i;
                 else return false;
             }
-            else if (st.getItem() == Enderthing.CARD.get())
+            else if (st.is(Enderthing.CARD))
             {
                 if (card < 0)
                     card = i;

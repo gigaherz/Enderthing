@@ -1,4 +1,4 @@
-// 26.1	2026-03-26T23:46:33.9343427	Recipes
+// 26.1.2	2026-05-14T21:26:22.5014624	Recipes
 5cc19856af8f1358866bdd1d72ed6b2432747d82 data/enderthing/advancement/recipes/misc/card.json
 90bf2aaee575e86069783ef0db43253c879056fc data/enderthing/advancement/recipes/misc/key.json
 43d009bf6ef83b5b3fac4299c58d12946e568d20 data/enderthing/advancement/recipes/misc/lock.json
@@ -10,3 +10,4 @@ a6d6db7446e70471e8fb00557a0e0704967920a5 data/enderthing/recipe/lock.json
 fcf505d8733cc04bf2ef0c3c1b52c1a0bea3e1a7 data/enderthing/recipe/make_bound.json
 3d0340c83c387a4259ce9459eed4e479e96ddd05 data/enderthing/recipe/make_private.json
 4c39dbc344933433642bd14728db9172c283bdd4 data/enderthing/recipe/pack.json
+e275f11537da286ee5850849bde088f5c2120a18 data/enderthing/recipe/remove_lock.json
