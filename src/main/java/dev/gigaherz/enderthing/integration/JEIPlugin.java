@@ -44,32 +44,6 @@ public class JEIPlugin implements IModPlugin
     }
 
     @Override
-    public void registerRecipes(IRecipeRegistration registration)
-    {
-        /*registration.addRecipes(RecipeTypes.CRAFTING, List.of(
-                dummyPrivateRecipe(Enderthing.KEY.get(), Enderthing.location("dummy_makeprivate_key")),
-                dummyPrivateRecipe(Enderthing.KEY_CHEST_ITEM.get(), Enderthing.location("dummy_makeprivate_key_chest")),
-                dummyPrivateRecipe(Enderthing.LOCK.get(), Enderthing.location("dummy_makeprivate_lock")),
-                dummyPrivateRecipe(Enderthing.PACK.get(), Enderthing.location("dummy_makeprivate_pack")),
-
-                dummyBoundRecipe(Enderthing.KEY_CHEST_ITEM.get(), Enderthing.location("dummy_makebound_key_chest")),
-                dummyBoundRecipe(Enderthing.LOCK.get(), Enderthing.location("dummy_makebound_lock")),
-
-                dummyAddLockRecipe(false, Enderthing.location("dummy_addlock")),
-                dummyAddLockRecipe(true, Enderthing.location("dummy_addlock_private")),
-                dummySwapLockRecipe(slotDisplay(
-                        KeyUtils.setPrivate(new ItemStack(Enderthing.KEY_CHEST_ITEM.get()), false),
-                        KeyUtils.setPrivate(new ItemStack(Enderthing.KEY_CHEST_ITEM.get()), true)
-                ), false, Enderthing.location("dummy_swaplock")),
-                dummySwapLockRecipe(slotDisplay(
-                        KeyUtils.setPrivate(new ItemStack(Enderthing.KEY_CHEST_ITEM.get()), false),
-                        KeyUtils.setPrivate(new ItemStack(Enderthing.KEY_CHEST_ITEM.get()), true)
-                ), true, Enderthing.location("dummy_swaplock_private")),
-                dummyRemoveLockRecipe(Enderthing.location("dummy_removelock"))
-        ));*/
-    }
-
-    @Override
     public void registerVanillaCategoryExtensions(IVanillaCategoryExtensionRegistration registration)
     {
         registration.getCraftingCategory().addExtension(

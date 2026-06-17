@@ -37,15 +37,12 @@ import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
-import net.minecraft.data.registries.VanillaRegistries;
-import net.minecraft.data.tags.IntrinsicHolderTagsProvider;
+import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.Util;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
@@ -66,7 +63,6 @@ import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -170,8 +166,8 @@ public class Enderthing
         gen.addProvider(true, new Recipes(gen.getPackOutput(), event.getLookupProvider()));
         gen.addProvider(true, Loot.create(gen.getPackOutput(), event.getLookupProvider()));
 
-        gen.addProvider(true, new BlockTagGens(gen));
-        gen.addProvider(true, new ItemTagGens(gen.getPackOutput()));
+        gen.addProvider(true, new BlockTagGens(gen.getPackOutput(), event.getLookupProvider()));
+        gen.addProvider(true, new ItemTagGens(gen.getPackOutput(), event.getLookupProvider()));
 
 
         gen.addProvider(true, new ModelsAndClientItems(gen.getPackOutput()));
@@ -324,45 +320,43 @@ public class Enderthing
         }
     }
 
-    private static class ItemTagGens extends IntrinsicHolderTagsProvider<Item> implements DataProvider
+    private static class ItemTagGens extends TagsProvider<Item> implements DataProvider
     {
-        public ItemTagGens(PackOutput packOutput)
+        public ItemTagGens(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookup)
         {
-            super(packOutput, Registries.ITEM, CompletableFuture.supplyAsync(VanillaRegistries::createLookup, Util.backgroundExecutor()),
-                    (item) -> BuiltInRegistries.ITEM.getResourceKey(item).orElseThrow(), Enderthing.MODID);
+            super(packOutput, Registries.ITEM, lookup, Enderthing.MODID);
         }
 
         @Override
-        protected void addTags(HolderLookup.Provider p_256380_)
+        protected void addTags(HolderLookup.Provider lookup)
         {
             tag(Tags.Items.CHESTS_ENDER)
-                    .add(Enderthing.KEY_CHEST_ITEM.get());
+                    .add(Enderthing.KEY_CHEST_ITEM.getKey());
             tag(KeyUtils.CAN_MAKE_BOUND)
-                    .add(Enderthing.KEY_CHEST_ITEM.get())
-                    .add(Enderthing.LOCK.get());
+                    .add(Enderthing.KEY_CHEST_ITEM.getKey())
+                    .add(Enderthing.LOCK.getKey());
             tag(KeyUtils.CAN_MAKE_PRIVATE)
-                    .add(Enderthing.KEY_CHEST_ITEM.get())
-                    .add(Enderthing.LOCK.get())
-                    .add(Enderthing.PACK.get())
-                    .add(Enderthing.KEY.get());
+                    .add(Enderthing.KEY_CHEST_ITEM.getKey())
+                    .add(Enderthing.LOCK.getKey())
+                    .add(Enderthing.PACK.getKey())
+                    .add(Enderthing.KEY.getKey());
         }
     }
 
-    private static class BlockTagGens extends BlockTagsProvider implements DataProvider
+    private static class BlockTagGens extends TagsProvider<Block> implements DataProvider
     {
-        public BlockTagGens(DataGenerator gen)
+        public BlockTagGens(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookup)
         {
-            super(gen.getPackOutput(), CompletableFuture.supplyAsync(VanillaRegistries::createLookup, Util.backgroundExecutor()),
-                    MODID);
+            super(packOutput, Registries.BLOCK, lookup, MODID);
         }
 
         @Override
         protected void addTags(HolderLookup.Provider p_256380_)
         {
             tag(Tags.Blocks.CHESTS_ENDER)
-                    .add(Enderthing.KEY_CHEST.get());
+                    .add(Enderthing.KEY_CHEST.getKey());
             tag(BlockTags.MINEABLE_WITH_PICKAXE)
-                    .add(Enderthing.KEY_CHEST.get());
+                    .add(Enderthing.KEY_CHEST.getKey());
         }
     }
 

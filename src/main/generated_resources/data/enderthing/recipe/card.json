@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "n": "#c:nuggets/gold",
     "p": "minecraft:paper"

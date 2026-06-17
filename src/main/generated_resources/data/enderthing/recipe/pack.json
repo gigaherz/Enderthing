@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "c": "minecraft:ender_chest",
     "e": "minecraft:ender_eye",
