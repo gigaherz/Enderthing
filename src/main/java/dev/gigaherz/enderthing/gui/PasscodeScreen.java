@@ -69,7 +69,7 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
         textPasscode.setEditable(true);
         textPasscode.setBordered(true);
         textPasscode.setMaxLength(32767);
-        textPasscode.setFilter(this::textPasscodeChanging);
+        textPasscode.setResponder(this::textPasscodeChanged);
         if (cc >= 0) updateCodeText(startKey);
         setButton.active = currentCode >= 0;
 
@@ -83,14 +83,13 @@ public class PasscodeScreen extends AbstractContainerScreen<PasscodeContainer>
             ClientPacketDistributor.sendToServer(new SetItemKey(currentCode));
     }
 
-    private boolean textPasscodeChanging(String text)
+    private void textPasscodeChanged(String text)
     {
-        if (Strings.isNullOrEmpty(textPasscode.getValue()) && !Strings.isNullOrEmpty(text))
+        if (!Strings.isNullOrEmpty(text))
         {
             itemPasscode.clear();
         }
         updateCodeText(text);
-        return true;
     }
 
     @Override
