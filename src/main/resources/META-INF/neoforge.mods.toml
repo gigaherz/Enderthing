@@ -11,8 +11,9 @@ description='''
 Shared inventories with chests and keys
 '''
 displayURL="https://github.com/gigaherz/Enderthing"
-logoFile="logo.png"
+bannerFile="banner.png"
 authors="gigaherz"
+iconFile="icon.png"
 
 [[mixins]]
 config="enderthing.mixins.json"
