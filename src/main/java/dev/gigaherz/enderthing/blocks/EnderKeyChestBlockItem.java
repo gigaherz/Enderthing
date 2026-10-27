@@ -6,6 +6,7 @@ import dev.gigaherz.enderthing.util.ILongAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Prediction;
 import net.minecraft.util.Util;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -89,7 +90,7 @@ public class EnderKeyChestBlockItem extends BlockItem
 
             if (!playerIn.getInventory().add(oldStack))
             {
-                playerIn.drop(oldStack, false);
+                playerIn.drop(oldStack, false, Prediction.SERVER_ONLY);
             }
 
             if (stack.getCount() > 1)
@@ -97,7 +98,7 @@ public class EnderKeyChestBlockItem extends BlockItem
                 ItemStack newStack = new ItemStack(Blocks.ENDER_CHEST);
                 if (!playerIn.getInventory().add(newStack))
                 {
-                    playerIn.drop(newStack, false);
+                    playerIn.drop(newStack, false, Prediction.SERVER_ONLY);
                 }
 
                 stack.grow(-1);

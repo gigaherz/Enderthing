@@ -20,6 +20,9 @@ import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.accesstransformer.parser.Transformation;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.jspecify.annotations.Nullable;
 
 public class EnderKeyChestRenderer extends ChestRenderer<EnderKeyChestBlockEntity>
@@ -84,7 +87,7 @@ public class EnderKeyChestRenderer extends ChestRenderer<EnderKeyChestBlockEntit
         poseStack.pushPose();
 
         poseStack.translate(0.5, 0.5, 0.5);
-        poseStack.mulPose(Axis.YP.rotationDegrees(180 - rotation));
+        poseStack.mulPose(new Matrix4f().rotateY(180 - rotation));
         poseStack.translate(-0.5, -0.5, -0.5);
 
         poseStack.translate(0.5, 0.35, 0.6 / 16.0);

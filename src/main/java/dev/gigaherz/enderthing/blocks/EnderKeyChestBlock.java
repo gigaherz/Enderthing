@@ -11,6 +11,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Prediction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -44,8 +45,6 @@ import javax.annotation.Nullable;
 
 public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEntity> implements SimpleWaterloggedBlock
 {
-    public static final MapCodec<EnderKeyChestBlock> CODEC = simpleCodec(EnderKeyChestBlock::new);
-
     public static final EnumProperty<Direction> FACING = EnderChestBlock.FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
@@ -57,12 +56,6 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
         registerDefaultState(this.getStateDefinition().any()
                 .setValue(WATERLOGGED, false)
                 .setValue(FACING, Direction.NORTH));
-    }
-
-    @Override
-    protected MapCodec<? extends AbstractChestBlock<EnderKeyChestBlockEntity>> codec()
-    {
-        return CODEC;
     }
 
     @Override
@@ -136,7 +129,7 @@ public class EnderKeyChestBlock extends AbstractChestBlock<EnderKeyChestBlockEnt
         if (player.isShiftKeyDown())
         {
             ItemStack stack = getItem(pLevel, pos, false);
-            player.getInventory().placeItemBackInInventory(stack);
+            player.getInventory().placeItemBackInInventory(stack, Prediction.SERVER_ONLY);
             pLevel.setBlockAndUpdate(pos, Blocks.ENDER_CHEST.defaultBlockState()
                     .setValue(EnderKeyChestBlock.WATERLOGGED, state.getValue(EnderChestBlock.WATERLOGGED))
                     .setValue(EnderKeyChestBlock.FACING, state.getValue(EnderChestBlock.FACING)));

@@ -7,6 +7,7 @@ import dev.gigaherz.enderthing.blocks.EnderKeyChestBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -92,7 +93,7 @@ public class EnderLockItem extends EnderthingItem
                 ItemStack oldStack = KeyUtils.getLock(oldId, oldPrivate, bound);
 
                 if (player != null)
-                    player.getInventory().placeItemBackInInventory(oldStack);
+                    player.getInventory().placeItemBackInInventory(oldStack, Prediction.SERVER_ONLY);
                 else
                     Containers.dropItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), oldStack);
             }

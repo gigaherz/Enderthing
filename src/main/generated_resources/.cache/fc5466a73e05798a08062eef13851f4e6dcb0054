@@ -1,8 +1,9 @@
-// 26.2	2026-06-17T22:14:23.6519597	Recipes
-5cc19856af8f1358866bdd1d72ed6b2432747d82 data/enderthing/advancement/recipes/misc/card.json
-90bf2aaee575e86069783ef0db43253c879056fc data/enderthing/advancement/recipes/misc/key.json
-43d009bf6ef83b5b3fac4299c58d12946e568d20 data/enderthing/advancement/recipes/misc/lock.json
-5843aa54168a2ed08f6a7c7c9a406f565daea46f data/enderthing/advancement/recipes/misc/pack.json
+// 26.3	2026-10-27T19:48:57.7933425	Registries for Reloadable (enderthing[1]): [enderthing]
+3009678ebab897e6d5f78b93a77c54d1445902d7 data/enderthing/advancement/recipes/misc/card.json
+e2572968170c1affb5d77d94bb34191ce3c8a1e9 data/enderthing/advancement/recipes/misc/key.json
+a3eeb185aebb75729e8451019d035f7f57d62ea8 data/enderthing/advancement/recipes/misc/lock.json
+a865c882d2decc8adaf0c9f553836569796bd5aa data/enderthing/advancement/recipes/misc/pack.json
+83728272b0d4f0925df30a8d4cc35067b24e5321 data/enderthing/loot_table/blocks/key_chest.json
 c0de300cdb133cca419daffa54ed0bfc63630cd8 data/enderthing/recipe/add_lock.json
 1ec797c7f2395d293d429e347d34c17a9db1cce6 data/enderthing/recipe/card.json
 c208318a35d1f6e13481deb90d1fb1767b587e62 data/enderthing/recipe/key.json

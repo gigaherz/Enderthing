@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "enderthing:pack"
+        "recipes": "enderthing:pack"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

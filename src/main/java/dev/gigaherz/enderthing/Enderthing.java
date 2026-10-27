@@ -16,6 +16,7 @@ import dev.gigaherz.enderthing.recipes.AddLockRecipe;
 import dev.gigaherz.enderthing.recipes.MakeBoundRecipe;
 import dev.gigaherz.enderthing.recipes.MakePrivateRecipe;
 import dev.gigaherz.enderthing.recipes.RemoveLockRecipe;
+import net.minecraft.advancements.Advancement;
 import net.minecraft.client.color.item.Constant;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -23,7 +24,9 @@ import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.client.data.models.model.*;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -33,16 +36,16 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.data.loot.packs.VanillaBlockLoot;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
-import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
@@ -58,13 +61,17 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProvider;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.data.internal.NeoForgeAdvancementProvider;
+import net.neoforged.neoforge.common.data.internal.NeoForgeLootDataProvider;
+import net.neoforged.neoforge.common.data.internal.NeoForgeRecipeProvider;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.data.event.GatherDataRegistryEntriesEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -145,6 +152,7 @@ public class Enderthing
         KeyUtils.init(modEventBus);
 
         modEventBus.addListener(this::commonSetup);
+        modEventBus.addListener(this::gatherRegistryData);
         modEventBus.addListener(this::gatherData);
     }
 
@@ -163,14 +171,18 @@ public class Enderthing
     {
         DataGenerator gen = event.getGenerator();
 
-        gen.addProvider(true, new Recipes(gen.getPackOutput(), event.getLookupProvider()));
-        gen.addProvider(true, Loot.create(gen.getPackOutput(), event.getLookupProvider()));
-
-        gen.addProvider(true, new BlockTagGens(gen.getPackOutput(), event.getLookupProvider()));
-        gen.addProvider(true, new ItemTagGens(gen.getPackOutput(), event.getLookupProvider()));
+        gen.addProvider(true, new BlockTagGens(gen.getPackOutput(), event.getReloadableLookupProvider()));
+        gen.addProvider(true, new ItemTagGens(gen.getPackOutput(), event.getReloadableLookupProvider()));
 
 
         gen.addProvider(true, new ModelsAndClientItems(gen.getPackOutput()));
+    }
+
+    public void gatherRegistryData(GatherDataRegistryEntriesEvent event)
+    {
+        event.gatherFor(MODID)
+                .add(Registries.LOOT_TABLE, Loot.create())
+                .recipe(Recipes::new);
     }
 
     private static class ModelsAndClientItems extends ModelProvider
@@ -330,16 +342,16 @@ public class Enderthing
         @Override
         protected void addTags(HolderLookup.Provider lookup)
         {
-            tag(Tags.Items.CHESTS_ENDER)
-                    .add(Enderthing.KEY_CHEST_ITEM.getKey());
+            tag(Tags.BlockItems.CHESTS_ENDER.item())
+                    .add(Enderthing.KEY_CHEST_ITEM.key());
             tag(KeyUtils.CAN_MAKE_BOUND)
-                    .add(Enderthing.KEY_CHEST_ITEM.getKey())
-                    .add(Enderthing.LOCK.getKey());
+                    .add(Enderthing.KEY_CHEST_ITEM.key())
+                    .add(Enderthing.LOCK.key());
             tag(KeyUtils.CAN_MAKE_PRIVATE)
-                    .add(Enderthing.KEY_CHEST_ITEM.getKey())
-                    .add(Enderthing.LOCK.getKey())
-                    .add(Enderthing.PACK.getKey())
-                    .add(Enderthing.KEY.getKey());
+                    .add(Enderthing.KEY_CHEST_ITEM.key())
+                    .add(Enderthing.LOCK.key())
+                    .add(Enderthing.PACK.key())
+                    .add(Enderthing.KEY.key());
         }
     }
 
@@ -353,27 +365,27 @@ public class Enderthing
         @Override
         protected void addTags(HolderLookup.Provider p_256380_)
         {
-            tag(Tags.Blocks.CHESTS_ENDER)
-                    .add(Enderthing.KEY_CHEST.getKey());
+            tag(Tags.BlockItems.CHESTS_ENDER.block())
+                    .add(Enderthing.KEY_CHEST.key());
             tag(BlockTags.MINEABLE_WITH_PICKAXE)
-                    .add(Enderthing.KEY_CHEST.getKey());
+                    .add(Enderthing.KEY_CHEST.key());
         }
     }
 
     private static class Loot
     {
-        public static LootTableProvider create(PackOutput gen, CompletableFuture<HolderLookup.Provider> lookup)
+        public static LootTableProvider create()
         {
-            return new LootTableProvider(gen, Set.of(), List.of(
-                    new LootTableProvider.SubProviderEntry(Loot.BlockTables::new, LootContextParamSets.BLOCK)
-            ), lookup);
+            return new LootTableProvider(Set.of(), List.of(
+                    new LootTableProvider.SubProviderEntry(BlockTables::new, LootContextParamSets.BLOCK)
+            ));
         }
 
         public static class BlockTables extends VanillaBlockLoot
         {
-            public BlockTables(HolderLookup.Provider provider)
+            public BlockTables(Context context)
             {
-                super(provider);
+                super(context);
             }
 
             @Override
@@ -386,7 +398,7 @@ public class Enderthing
             {
                 return LootTable.lootTable()
                         .withPool(LootPool.lootPool()
-                                .setRolls(ConstantValue.exactly(1))
+                                .setRolls(ContextIntProviders.exactly(1))
                                 .add(LootItem
                                         .lootTableItem(block).when(condition)
                                         .otherwise(alternativeEntry)));
@@ -397,7 +409,7 @@ public class Enderthing
                 return LootTable.lootTable()
                         .withPool(applyExplosionCondition(block,
                                         LootPool.lootPool()
-                                                .setRolls(ConstantValue.exactly(1))
+                                                .setRolls(ContextIntProviders.exactly(1))
                                                 .add(LootItem.lootTableItem(block)
                                                         .when(hasSilkTouch())
                                                         .apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
@@ -415,19 +427,19 @@ public class Enderthing
                                                         )
                                                 )
                                 )
-                        ).withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1))
-                                .add(withNoSilkTouchRandomly(block, Items.OBSIDIAN, ConstantValue.exactly(8)))
+                        ).withPool(LootPool.lootPool().setRolls(ContextIntProviders.exactly(1))
+                                .add(withNoSilkTouchRandomly(block, Items.OBSIDIAN, ContextIntProviders.exactly(8)))
                         );
             }
 
-            protected LootPoolEntryContainer.Builder<?> withNoSilkTouchRandomly(Block block, ItemLike item, NumberProvider range)
+            protected LootPoolEntryContainer.Builder<?> withNoSilkTouchRandomly(Block block, ItemLike item, Holder<ContextIntProvider> range)
             {
-                return applyExplosionDecay(block, LootItem.lootTableItem(item).apply(SetItemCountFunction.setCount(range))).when(hasSilkTouch().invert());
+                return applyExplosionDecay(block, LootItem.lootTableItem(item).apply(SetItemCountFunction.setCount(range))).when(doesNotHaveSilkTouch());
             }
 
 
             @Override
-            protected Iterable<Block> getKnownBlocks()
+            public Iterable<Block> getKnownBlocks()
             {
                 return BuiltInRegistries.BLOCK.entrySet().stream()
                         .filter(e -> e.getKey().identifier().getNamespace().equals(MODID))
@@ -437,74 +449,61 @@ public class Enderthing
         }
     }
 
-    private static class Recipes extends RecipeProvider.Runner
+    private static class Recipes extends RecipeProvider
     {
-        public Recipes(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider)
+        public Recipes(BootstrapContext<Recipe<?>> output, BootstrapContext<Advancement> advancementOutput)
         {
-            super(output, lookupProvider);
+            super(output, advancementOutput);
         }
 
         @Override
-        protected RecipeProvider createRecipeProvider(HolderLookup.Provider lookup, RecipeOutput output)
+        protected void buildRecipes()
         {
-            return new VanillaRecipeProvider(lookup, output)
-            {
-                @Override
-                protected void buildRecipes()
-                {
-                    shaped(RecipeCategory.MISC, Enderthing.KEY.get())
-                            .pattern("o  ")
-                            .pattern("eog")
-                            .pattern("nnn")
-                            .define('o', Tags.Items.OBSIDIANS_NORMAL)
-                            .define('g', Tags.Items.INGOTS_GOLD)
-                            .define('e', Items.ENDER_EYE)
-                            .define('n', Tags.Items.NUGGETS_IRON)
-                            .unlockedBy("has_gold", has(Items.ENDER_EYE))
-                            .save(output);
+            shaped(RecipeCategory.MISC, Enderthing.KEY.get())
+                    .pattern("o  ")
+                    .pattern("eog")
+                    .pattern("nnn")
+                    .define('o', Tags.BlockItems.OBSIDIANS_NORMAL.item())
+                    .define('g', Tags.Items.INGOTS_GOLD)
+                    .define('e', Items.ENDER_EYE)
+                    .define('n', Tags.Items.NUGGETS_IRON)
+                    .unlockedBy("has_gold", has(Items.ENDER_EYE))
+                    .save(output);
 
-                    shaped(RecipeCategory.MISC, Enderthing.LOCK.get())
-                            .pattern(" g ")
-                            .pattern("geg")
-                            .pattern("nnn")
-                            .define('g', Tags.Items.INGOTS_GOLD)
-                            .define('e', Items.ENDER_EYE)
-                            .define('n', Tags.Items.NUGGETS_IRON)
-                            .unlockedBy("has_gold", has(Items.ENDER_EYE))
-                            .save(output);
+            shaped(RecipeCategory.MISC, Enderthing.LOCK.get())
+                    .pattern(" g ")
+                    .pattern("geg")
+                    .pattern("nnn")
+                    .define('g', Tags.Items.INGOTS_GOLD)
+                    .define('e', Items.ENDER_EYE)
+                    .define('n', Tags.Items.NUGGETS_IRON)
+                    .unlockedBy("has_gold", has(Items.ENDER_EYE))
+                    .save(output);
 
-                    shaped(RecipeCategory.MISC, Enderthing.PACK.get())
-                            .pattern("lel")
-                            .pattern("nnn")
-                            .pattern("lcl")
-                            .define('l', Tags.Items.LEATHERS)
-                            .define('c', Blocks.ENDER_CHEST)
-                            .define('e', Items.ENDER_EYE)
-                            .define('n', Tags.Items.NUGGETS_IRON)
-                            .unlockedBy("has_gold", has(Items.ENDER_EYE))
-                            .save(output);
+            shaped(RecipeCategory.MISC, Enderthing.PACK.get())
+                    .pattern("lel")
+                    .pattern("nnn")
+                    .pattern("lcl")
+                    .define('l', Tags.Items.LEATHERS)
+                    .define('c', Blocks.ENDER_CHEST)
+                    .define('e', Items.ENDER_EYE)
+                    .define('n', Tags.Items.NUGGETS_IRON)
+                    .unlockedBy("has_gold", has(Items.ENDER_EYE))
+                    .save(output);
 
-                    shaped(RecipeCategory.MISC, Enderthing.CARD.get())
-                            .pattern("nnn")
-                            .pattern("ppp")
-                            .pattern("nnn")
-                            .define('n', Tags.Items.NUGGETS_GOLD)
-                            .define('p', Items.PAPER)
-                            .unlockedBy("has_gold", has(Items.ENDER_EYE))
-                            .save(output);
+            shaped(RecipeCategory.MISC, Enderthing.CARD.get())
+                    .pattern("nnn")
+                    .pattern("ppp")
+                    .pattern("nnn")
+                    .define('n', Tags.Items.NUGGETS_GOLD)
+                    .define('p', Items.PAPER)
+                    .unlockedBy("has_gold", has(Items.ENDER_EYE))
+                    .save(output);
 
-                    SpecialRecipeBuilder.special(MakePrivateRecipe::new).save(output, "enderthing:make_private");
-                    SpecialRecipeBuilder.special(AddLockRecipe::new).save(output, "enderthing:add_lock");
-                    SpecialRecipeBuilder.special(RemoveLockRecipe::new).save(output, "enderthing:remove_lock");
-                    SpecialRecipeBuilder.special(MakeBoundRecipe::new).save(output, "enderthing:make_bound");
-                }
-            };
-        }
-
-        @Override
-        public String getName()
-        {
-            return "Recipes";
+            SpecialRecipeBuilder.special(MakePrivateRecipe::new).save(output, "enderthing:make_private");
+            SpecialRecipeBuilder.special(AddLockRecipe::new).save(output, "enderthing:add_lock");
+            SpecialRecipeBuilder.special(RemoveLockRecipe::new).save(output, "enderthing:remove_lock");
+            SpecialRecipeBuilder.special(MakeBoundRecipe::new).save(output, "enderthing:make_bound");
         }
     }
 }

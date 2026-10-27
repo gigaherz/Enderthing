@@ -3,11 +3,11 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.141'
+    id 'net.neoforged.moddev' version '2.0.148'
 }
 
-neoForge.version = "26.2.0.23-beta"
-version = '1.11.1'
+neoForge.version = "26.3.0.99"
+version = '1.12.0'
 group = 'dev.gigaherz.enderthing'
 base.archivesName = "Enderthing-${neoForge.minecraftVersion}"
 
@@ -68,10 +68,10 @@ repositories {
 }
 
 dependencies {
-    compileOnly "mezz.jei:jei-26.2-common-api:30.0.0.1"
-    runtimeOnly "mezz.jei:jei-26.2-common:30.0.0.1"
-    compileOnly "mezz.jei:jei-26.2-neoforge-api:30.0.0.1"
-    runtimeOnly "mezz.jei:jei-26.2-neoforge:30.0.0.1"
+    compileOnly "mezz.jei:jei-26.3-common-api:31.17.0.95"
+    runtimeOnly "mezz.jei:jei-26.3-common:31.17.0.95"
+    compileOnly "mezz.jei:jei-26.3-neoforge-api:31.17.0.95"
+    runtimeOnly "mezz.jei:jei-26.3-neoforge:31.17.0.95"
     //runtimeOnly("com.refinedmods.refinedstorage:refinedstorage-neoforge:3.0.0-beta.6")
 }
 

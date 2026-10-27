@@ -46,8 +46,7 @@ public class EnderKeyChestSpecialRenderer implements SpecialModelRenderer<ItemSt
                 packedOverlay,
                 -1,
                 this.materials.get(this.material),
-                outlineColor,
-                null
+                outlineColor
         );
         if (lock != null)
         {
