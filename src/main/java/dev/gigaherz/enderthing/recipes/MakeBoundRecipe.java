@@ -71,7 +71,7 @@ public class MakeBoundRecipe extends CustomRecipe
         // Make sure we found both.
         if (holder.getCount() > 0 && card.getCount() > 0)
         {
-            return KeyUtils.setBound(holder.copy(), KeyUtils.getBound(card));
+            return KeyUtils.setBound(holder.copyWithCount(1), KeyUtils.getBound(card));
         }
 
         return ItemStack.EMPTY;
